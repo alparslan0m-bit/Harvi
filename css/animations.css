@@ -1,0 +1,374 @@
+/* ===== CLEAN ANIMATIONS CSS - PERFECT UI ===== */
+
+/* ===== KEYFRAME ANIMATIONS ===== */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Slide In Left Animation */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Slide In Right Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Shake Animation */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-6px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(6px);
+    }
+}
+
+/* Correct Pulse Animation */
+@keyframes correctPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* Incorrect Pulse Animation */
+@keyframes incorrectPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+/* Card Entrance Animation */
+@keyframes cardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Progress Fill Animation */
+@keyframes progressFill {
+    from {
+        width: 0%;
+    }
+    to {
+        width: var(--progress-width);
+    }
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+/* Float Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Scale In Animation */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Rotate In Animation */
+@keyframes rotateIn {
+    from {
+        transform: rotate(-180deg) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Rotate Animation */
+@keyframes rotate {
+    from { 
+        transform: rotate(0deg); 
+    }
+    to { 
+        transform: rotate(360deg); 
+    }
+}
+
+/* Spin Animation */
+@keyframes spin {
+    0% { 
+        transform: rotate(0deg); 
+    }
+    100% { 
+        transform: rotate(360deg); 
+    }
+}
+
+/* ===== ELEMENT ANIMATIONS ===== */
+
+/* Card Entrance Animations with Staggered Delays */
+.card {
+    animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+.card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Option Entrance Animations */
+.option {
+    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+}
+
+.option:nth-child(1) { animation-delay: 0.1s; }
+.option:nth-child(2) { animation-delay: 0.2s; }
+.option:nth-child(3) { animation-delay: 0.3s; }
+.option:nth-child(4) { animation-delay: 0.4s; }
+
+/* Progress Bar Animation */
+.progress-bar {
+    animation: progressFill 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ===== UTILITY ANIMATION CLASSES ===== */
+
+/* Shimmer Effect for Loading States */
+.shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Floating Animation for Decorative Elements */
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse Animation for Attention */
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Scale In Animation for Modals and Overlays */
+.scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Rotate In Animation for Icons */
+.rotate-in {
+    animation: rotateIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== INTERACTIVE ANIMATIONS ===== */
+
+/* Smooth Transitions for All Interactive Elements */
+.card,
+.option,
+.btn-primary,
+.btn-secondary,
+.back-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover Effects with Subtle Scaling */
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+}
+
+.option:hover:not(.disabled) {
+    transform: translateX(6px) scale(1.01);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-secondary:hover {
+    transform: translateY(-3px) scale(1.02);
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Active State Animations */
+.card:active {
+    transform: translateY(-4px) scale(1.01);
+}
+
+.option:active:not(.disabled) {
+    transform: translateX(3px) scale(0.99);
+}
+
+.btn-primary:active:not(:disabled),
+.btn-secondary:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+/* Focus Animations for Accessibility */
+.card:focus-visible,
+.option:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.back-btn:focus-visible {
+    animation: pulse 0.3s ease;
+}
+
+/* ===== STATE ANIMATIONS ===== */
+
+/* Loading State Animations */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+/* Success State Animations */
+.success-animation {
+    animation: correctPulse 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Error State Animations */
+.error-animation {
+    animation: incorrectPulse 0.6s cubic-bezier(0.36, 0, 0.66, 1);
+}
+
+/* ===== RESULTS SCREEN ANIMATIONS ===== */
+
+/* Staggered Entrance for Results */
+.results-card {
+    animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.results-icon {
+    animation: rotateIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+.results-title {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+.score-display {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+}
+
+.results-message {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+
+.results-actions {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+}

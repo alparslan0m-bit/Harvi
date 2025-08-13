@@ -1,0 +1,36 @@
+{
+    "id": "y3m1s1l1",
+    "name": "Advanced Biochemistry",
+    "questions": [
+        {
+            "id": "q1",
+            "text": "Which enzyme catalyzes the conversion of glucose to glucose-6-phosphate in glycolysis?",
+            "options": ["Hexokinase", "Glucokinase", "Phosphofructokinase", "Pyruvate kinase"],
+            "correctAnswer": 0
+        },
+        {
+            "id": "q2",
+            "text": "Which vitamin is required for the synthesis of coenzyme A?",
+            "options": ["Vitamin B1 (Thiamine)", "Vitamin B2 (Riboflavin)", "Vitamin B5 (Pantothenic acid)", "Vitamin B7 (Biotin)"],
+            "correctAnswer": 2
+        },
+        {
+            "id": "q3",
+            "text": "Which of the following is the main storage form of carbohydrate in animals?",
+            "options": ["Starch", "Cellulose", "Glycogen", "Glucose"],
+            "correctAnswer": 2
+        },
+        {
+            "id": "q4",
+            "text": "Which of these is an essential amino acid?",
+            "options": ["Alanine", "Lysine", "Glutamate", "Aspartate"],
+            "correctAnswer": 1
+        },
+        {
+            "id": "q5",
+            "text": "The urea cycle primarily occurs in which organ?",
+            "options": ["Kidney", "Liver", "Small intestine", "Pancreas"],
+            "correctAnswer": 1
+        }
+    ]
+}

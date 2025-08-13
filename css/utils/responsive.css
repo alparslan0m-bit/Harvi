@@ -1,0 +1,78 @@
+/* Responsive Typography */
+.text-responsive {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+.title-responsive {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+/* Responsive Spacing */
+.p-responsive {
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.m-responsive {
+    margin: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.gap-responsive {
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+/* Touch Optimizations */
+@media (hover: none) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .touch-scroll {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        scroll-padding: 16px;
+    }
+}
+
+/* Safe Area Insets */
+@supports(padding: env(safe-area-inset-bottom)) {
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Responsive Container */
+.container-fluid {
+    width: 100%;
+    padding-right: clamp(1rem, 3vw, 2rem);
+    padding-left: clamp(1rem, 3vw, 2rem);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Responsive Grid */
+.grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+}
+
+/* Responsive Flex */
+.flex-responsive {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+/* Viewport Height Considerations */
+@media (max-height: 600px) {
+    .vh-responsive {
+        min-height: auto;
+        height: auto;
+        max-height: none;
+    }
+}

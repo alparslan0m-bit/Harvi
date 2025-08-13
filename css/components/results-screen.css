@@ -1,0 +1,292 @@
+/* Results Screen Styles */
+.results-screen {
+    min-height: 100vh;
+    display: none;  /* Hide by default */
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.results-screen::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 70%),
+                radial-gradient(circle at bottom left, rgba(147, 51, 234, 0.05), transparent 70%);
+    pointer-events: none;
+}
+
+.results-screen.active {
+    display: flex;  /* Show when active class is added */
+}
+
+.results-container {
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 
+                0 8px 16px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.results-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    animation: bounce 2s ease infinite;
+}
+
+.results-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.results-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.score-display {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.05));
+    border-radius: 24px;
+    border: 2px solid rgba(var(--primary-rgb), 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.score-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(var(--primary-rgb), 0.2), 
+        transparent
+    );
+}
+
+.score-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.score-number {
+    font-family: 'Poppins', sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4F46E5, #6366F1, #818CF8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+}
+
+.score-text {
+    text-align: left;
+    font-size: 1.35rem;
+    color: var(--text-secondary);
+    max-width: 260px;
+}
+
+.score-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.score-percentage {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+}
+
+.results-message {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+    padding: 0 1rem;
+}
+
+.results-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding: 0 1rem;
+}
+
+.retake-quiz-btn {
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    color: white;
+    padding: 1.25rem 2.5rem;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25),
+                0 0 0 2px rgba(99, 102, 241, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.retake-quiz-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.retake-quiz-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.35),
+                0 0 0 3px rgba(var(--primary-rgb), 0.2);
+}
+
+.retake-quiz-btn:hover::before {
+    opacity: 1;
+}
+
+.back-home-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--text-primary);
+    padding: 1.25rem 2.5rem;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(8px);
+}
+
+.back-home-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1),
+                0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* Low Score Styling */
+.low-score .score-number,
+.low-score .score-percentage {
+    color: var(--error-color);
+}
+
+.low-score .score-display {
+    background: var(--error-light);
+    border-color: var(--error-color);
+}
+
+/* High Score Styling */
+.high-score .score-number,
+.high-score .score-percentage {
+    color: var(--success-color);
+}
+
+.high-score .score-display {
+    background: var(--success-light);
+    border-color: var(--success-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .results-container {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .results-icon {
+        width: 100px;
+        height: 100px;
+    }
+
+    .results-title {
+        font-size: 2rem;
+    }
+
+    .score-number {
+        font-size: 3rem;
+    }
+
+    .score-text {
+        font-size: 1.1rem;
+    }
+
+    .score-percentage {
+        font-size: 1.75rem;
+    }
+
+    .results-message {
+        font-size: 1.1rem;
+        padding: 0;
+    }
+
+    .results-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .results-container {
+        padding: 1.5rem;
+    }
+
+    .results-title {
+        font-size: 1.75rem;
+    }
+
+    .score-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .score-text {
+        text-align: center;
+    }
+}

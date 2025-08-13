@@ -1,0 +1,26 @@
+/* Base */
+@import url('base/variables.css');
+@import url('base/reset.css');
+
+/* Layout */
+@import url('layout/grid.css');
+
+/* Utils */
+@import url('utils/responsive.css');
+
+/* Components */
+@import url('components/buttons.css');
+@import url('components/breadcrumb.css');
+@import url('components/micro-interactions.css');
+@import url('components/cards.css');
+@import url('components/header.css');
+@import url('components/quiz-container.css');
+@import url('components/quiz-options.css');
+@import url('components/results-screen.css');
+
+/* Themes */
+@import url('themes/dark-mode.css');
+
+/* Utils */
+@import url('utils/animations.css');
+@import url('utils/utilities.css');
