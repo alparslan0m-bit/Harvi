@@ -138,9 +138,18 @@ class Quiz {
         }
     }
 
+    // Fisher-Yates shuffle algorithm
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     start(questions, metadata) { // Add metadata parameter
         // Reset quiz state for a new test
-        this.questions = questions;
+        this.questions = this.shuffleArray([...questions]); // Create a copy and shuffle
         this.metadata = metadata;
         this.currentIndex = 0;
         this.score = 0;
@@ -206,6 +215,24 @@ class Quiz {
             // Use the correct property name from your JSON
             this.questionTextElement.textContent = question.text || 'Question not found';
             console.log('Question text set to:', question.text);
+        }
+
+        // Prepare options for randomization
+        if (question && question.options) {
+            // Create array of option objects with their original indices
+            const optionsWithIndices = question.options.map((text, index) => ({
+                text,
+                originalIndex: index
+            }));
+            
+            // Shuffle the options array
+            const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
+            
+            // Update the question with shuffled options while tracking the correct answer
+            question.options = shuffledOptions.map(opt => opt.text);
+            // Update correct answer index to match the new position
+            const correctOptionObject = shuffledOptions.find(opt => opt.originalIndex === question.correctAnswer);
+            question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
         }
         
         if (this.optionsContainer && question && question.options) {

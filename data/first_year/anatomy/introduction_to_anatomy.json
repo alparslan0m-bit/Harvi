@@ -4,7 +4,7 @@
     "questions": [
         {
             "id": "q1",
-            "text": "What is the largest organ in the human bodyWhat is the largest organ in the human bodyWhat is the largest organ in the human body?",
+            "text": "What is the largest organ in the human body?",
             "options": ["Heart", "Liver", "Skin", "Brain"],
             "correctAnswer": 2
         },
@@ -13,6 +13,36 @@
             "text": "How many bones are in the adult human body?",
             "options": ["206", "210", "195", "220"],
             "correctAnswer": 0
+        },
+        {
+            "id": "q3",
+            "text": "Which plane divides the body into right and left portions?",
+            "options": ["Sagittal plane", "Frontal plane", "Transverse plane", "Oblique plane"],
+            "correctAnswer": 0
+        },
+        {
+            "id": "q4",
+            "text": "What is the study of body structures visible to the naked eye called?",
+            "options": ["Microscopic anatomy", "Gross anatomy", "Developmental anatomy", "Systemic anatomy"],
+            "correctAnswer": 1
+        },
+        {
+            "id": "q5",
+            "text": "Which term describes the front of the body?",
+            "options": ["Posterior", "Lateral", "Anterior", "Medial"],
+            "correctAnswer": 2
+        },
+        {
+            "id": "q6",
+            "text": "What is the basic structural and functional unit of the human body?",
+            "options": ["Tissue", "Organ", "Cell", "System"],
+            "correctAnswer": 2
+        },
+        {
+            "id": "q7",
+            "text": "Which body cavity contains the heart and lungs?",
+            "options": ["Abdominal cavity", "Thoracic cavity", "Pelvic cavity", "Cranial cavity"],
+            "correctAnswer": 1
         }
     ]
 }
