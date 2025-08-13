@@ -6,10 +6,9 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: #5B4FB7;  /* Solid color matching the quiz screen */
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(10px);
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
@@ -31,15 +30,11 @@
     max-width: 600px;
     width: 90%;
     text-align: center;
-    background: rgba(255, 255, 255, 1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px); /* iOS support */
-    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
     padding: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 
-                0 8px 16px rgba(0, 0, 0, 0.05),
-                0 0 0 1px rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     -webkit-transform: translateZ(0); /* iOS performance */
     transform: translateZ(0);
@@ -72,10 +67,10 @@
 
 .score-display {
     margin: 1.5rem 0;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.05));
-    border-radius: 24px;
-    border: 2px solid rgba(var(--primary-rgb), 0.2);
+    padding: 2rem;
+    background: rgba(91, 79, 183, 0.1);
+    border-radius: 20px;
+    border: 2px solid rgba(91, 79, 183, 0.2);
     position: relative;
     overflow: hidden;
 }
@@ -158,14 +153,15 @@
 }
 
 .retake-quiz-btn {
-    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    background: #7B6EF6;
     color: white;
-    padding: 1.25rem 2.5rem;
-    border-radius: 16px;
+    padding: 1rem 2rem;
+    border-radius: 12px;
     font-weight: 600;
     font-size: 1.15rem;
     border: none;
     cursor: pointer;
+    -webkit-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25),
                 0 0 0 2px rgba(99, 102, 241, 0.1);
@@ -196,13 +192,13 @@
 }
 
 .back-home-btn {
-    background: rgba(255, 255, 255, 0.8);
-    color: var(--text-primary);
-    padding: 1.25rem 2.5rem;
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #5B4FB7;
+    padding: 1rem 2rem;
+    border-radius: 12px;
     font-weight: 600;
     font-size: 1.15rem;
-    border: 2px solid var(--border-light);
+    border: 2px solid #5B4FB7;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     backdrop-filter: blur(8px);

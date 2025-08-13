@@ -30,14 +30,16 @@
     color: var(--text-primary);
     margin: 0;
     text-align: left;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%, #6366f1 200%);
+    background-size: 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 1px;
     position: relative;
     z-index: 1;
-    transition: all 0.2s ease;
+    animation: titleFloat 4s ease-in-out infinite, titleShimmer 8s ease-in-out infinite;
+    transform-origin: center;
 }
 
 .app-title:hover {
@@ -144,5 +146,35 @@ body.dark-mode .brand-description::before {
 .header-container:hover {
     border-color: rgba(99, 102, 241, 0.2);
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1);
-    background: #ffffff;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95));
+}
+
+@keyframes titleFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(-2deg);
+        text-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+    }
+    25%, 75% {
+        transform: translateY(-8px) rotate(0deg);
+        text-shadow: 0 15px 25px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        transform: translateY(0) rotate(2deg);
+        text-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+    }
+}
+
+@keyframes titleShimmer {
+    0% {
+        background-position: 200% 50%;
+        letter-spacing: 1px;
+    }
+    50% {
+        background-position: 0% 50%;
+        letter-spacing: 2px;
+    }
+    100% {
+        background-position: 200% 50%;
+        letter-spacing: 1px;
+    }
 }
