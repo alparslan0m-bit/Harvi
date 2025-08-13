@@ -2,6 +2,7 @@
     background: #FFFFFF;
     border: 2px solid #E5E7EB;
     border-radius: clamp(12px, 2vw, 16px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: clamp(1rem, 2vw, 1.25rem);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

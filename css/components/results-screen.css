@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.95);
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(10px);
@@ -31,7 +31,7 @@
     max-width: 600px;
     width: 90%;
     text-align: center;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 1);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px); /* iOS support */
     border-radius: 32px;
