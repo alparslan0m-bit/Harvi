@@ -9,7 +9,8 @@
     position: relative;
     overflow: hidden;
     font-size: clamp(1rem, 2vw, 1.1rem);
-    font-weight: 500;
+    font-weight: 600;
+    color: #1F2937;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -35,16 +36,18 @@
 }
 
 .option:hover:not(.disabled):not(.correct):not(.incorrect) {
-    background: #E0E7FF !important;
+    background: #EEF2FF !important;
     border-color: #6366F1 !important;
     transform: translateX(6px) scale(1.03);
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18) !important;
+    color: #3730A3 !important;
 }
 
 .option.selected {
     animation: selectGlow 1s cubic-bezier(0.4, 0, 0.2, 1);
     border-color: #6366F1;
-    background: #E0E7FF;
+    background: #EEF2FF;
+    color: #3730A3;
 }
 
 .option:active {

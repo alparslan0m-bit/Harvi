@@ -1,6 +1,5 @@
 .card {
     background: #FFFFFF;
-    background-color: rgba(255, 255, 255, 0.98);
     border-radius: 16px;
     padding: 1.5rem;
     cursor: pointer;
@@ -8,11 +7,9 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(229, 231, 235, 1);
+    border: 1px solid #E5E7EB;
     will-change: transform;
     animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
 }
 
 @media screen and (max-width: 768px) {
@@ -46,19 +43,15 @@
     font-family: 'Poppins', sans-serif;
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #1F2937;
     margin-bottom: 0.5rem;
     line-height: 1.4;
-    opacity: 1 !important;
-    text-rendering: optimizeLegibility;
 }
 
 .card-description {
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: #4B5563;
     line-height: 1.5;
-    opacity: 0.95 !important;
-    text-rendering: optimizeLegibility;
 }
 
 @media screen and (max-width: 768px) {
