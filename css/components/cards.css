@@ -1,7 +1,6 @@
 .card {
     background: #FFFFFF;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.98);
     border-radius: 16px;
     padding: 1.5rem;
     cursor: pointer;
@@ -50,12 +49,16 @@
     color: var(--text-primary);
     margin-bottom: 0.5rem;
     line-height: 1.4;
+    opacity: 1 !important;
+    text-rendering: optimizeLegibility;
 }
 
 .card-description {
     font-size: 0.9rem;
     color: var(--text-secondary);
     line-height: 1.5;
+    opacity: 0.95 !important;
+    text-rendering: optimizeLegibility;
 }
 
 @media screen and (max-width: 768px) {
