@@ -10,11 +10,10 @@
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(229, 231, 235, 1);
-    will-change: transform, box-shadow;
-    animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    opacity: 0;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    will-change: transform;
+    animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 @media screen and (max-width: 768px) {
