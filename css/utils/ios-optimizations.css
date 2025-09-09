@@ -1,0 +1,28 @@
+/* iOS Animation Optimizations */
+.hardware-accelerated {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+
+/* Smooth animations for iOS */
+.smooth-animation {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent iOS text rendering issues during animations */
+.prevent-text-flicker {
+    -webkit-font-smoothing: antialiased;
+    -webkit-transform-style: preserve-3d;
+}
+
+/* Force GPU acceleration for animations */
+.force-gpu {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+}

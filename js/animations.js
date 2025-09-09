@@ -1,41 +1,63 @@
-// Function to trigger confetti
+// Function to trigger confetti with iOS optimizations
 function triggerConfetti() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: isIOS ? 50 : 100, // Reduce particles on iOS
+        spread: isIOS ? 55 : 70,
         origin: { y: 0.6 },
         colors: ['#6366F1', '#8B5CF6', '#4ADE80', '#34D399'],
-        ticks: 200,
-        scalar: 1.2,
-        shapes: ['circle', 'square'],
-        gravity: 1.2,
-        decay: 0.94,
+        ticks: isIOS ? 150 : 200,
+        scalar: isIOS ? 1.0 : 1.2, // Reduce scale on iOS
+        shapes: ['circle'], // Only circles on iOS for better performance
+        gravity: isIOS ? 1.0 : 1.2,
+        decay: isIOS ? 0.91 : 0.94,
         drift: 0,
-        startVelocity: 30,
+        startVelocity: isIOS ? 25 : 30,
+        disableForReducedMotion: false // Ensure it works on iOS
     });
 }
 
-// Function to trigger success micro animation
+// Function to trigger success micro animation with iOS improvements
 function triggerSuccessMicroAnimation(element) {
+    // Force GPU acceleration for smoother animations on iOS
+    element.style.transform = 'translateZ(0)';
+    element.style.webkitTransform = 'translateZ(0)';
+    
     element.classList.add('success-pop');
-    setTimeout(() => {
-        element.classList.remove('success-pop');
-    }, 500);
+    
+    // Use requestAnimationFrame for smoother animation removal
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            element.classList.remove('success-pop');
+        }, 500);
+    });
 }
 
-// Function to celebrate correct answer
+// Function to celebrate correct answer with iOS optimizations
 function celebrateCorrectAnswer(element) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    // Add hardware acceleration classes for iOS
+    element.classList.add('hardware-accelerated', 'smooth-animation');
+    
     // Add success visual feedback
     triggerSuccessMicroAnimation(element);
     
-    // Small confetti burst for individual correct answers
+    // Small confetti burst optimized for iOS
     confetti({
-        particleCount: 30,
-        spread: 50,
+        particleCount: isIOS ? 20 : 30,
+        spread: isIOS ? 40 : 50,
         origin: { y: 0.8 },
         colors: ['#4ADE80', '#34D399'],
-        ticks: 100
+        ticks: isIOS ? 80 : 100,
+        disableForReducedMotion: false,
+        scalar: isIOS ? 0.8 : 1
     });
+    
+    // Clean up classes after animation
+    setTimeout(() => {
+        element.classList.remove('hardware-accelerated', 'smooth-animation');
+    }, 1000);
 }
 
 // Function for quiz completion celebration
