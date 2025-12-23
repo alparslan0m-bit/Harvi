@@ -273,6 +273,12 @@ class Quiz {
             touchStartTime = Date.now();
             touchMoved = false;
             option.classList.add('touch-active');
+            
+            // Add haptic feedback on touch (selection tick)
+            if (navigator.vibrate) {
+                navigator.vibrate(5); // Light feedback - 5ms tick
+            }
+            
             e.preventDefault();
         }, { passive: false });
         
@@ -311,6 +317,11 @@ class Quiz {
             if (!this.hasAnswered) {
                 this.selectedOptionIndex = index;
                 option.classList.add('keyboard-selected');
+                
+                // Add haptic feedback on focus (hover/keyboard navigation)
+                if (navigator.vibrate) {
+                    navigator.vibrate(3); // Subtle feedback - 3ms tick
+                }
             }
         });
 

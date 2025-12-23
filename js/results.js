@@ -47,23 +47,47 @@ class Results {
         const messageElement = document.getElementById('results-message');
         let message = '';
         let color = '';
+        let notificationIcon = '';
+        let notificationType = '';
         
         if (percentage >= 90) {
             message = 'Outstanding! You have excellent knowledge!';
             color = '#10B981';
+            notificationIcon = '🏆';
+            notificationType = 'success';
         } else if (percentage >= 70) {
             message = 'Great job! Keep up the good work!';
             color = '#3B82F6';
+            notificationIcon = '⭐';
+            notificationType = 'success';
         } else if (percentage >= 50) {
             message = 'Good effort! A bit more practice will help!';
             color = '#F59E0B';
+            notificationIcon = '📚';
+            notificationType = 'info';
         } else {
             message = 'Keep studying! You can do better next time!';
             color = '#EF4444';
+            notificationIcon = '💪';
+            notificationType = 'info';
         }
         
         messageElement.textContent = message;
         document.getElementById('score-percentage').style.color = color;
+        
+        // Show Dynamic Island notification for quiz completion
+        if (window.dynamicIsland) {
+            window.dynamicIsland.show({
+                title: `${notificationIcon} Quiz Complete!`,
+                subtitle: `${score}/${total} correct (${percentage}%)`,
+                type: notificationType,
+                duration: 4000, // Auto-dismiss after 4 seconds
+                onTap: () => {
+                    // User can tap to close or dismiss
+                    window.dynamicIsland.hide();
+                }
+            });
+        }
         
         // Show share button if Web Share API is available
         if (navigator.share) {

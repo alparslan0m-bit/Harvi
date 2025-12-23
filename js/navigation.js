@@ -11,6 +11,31 @@ class Navigation {
         this.cacheTimestamp = null;
         this.cacheTimeout = 5 * 60 * 1000; // 5 minutes cache validity
         this.abortController = null; // For request cancellation
+        this.scrollListener = null; // Track scroll listener for cleanup
+        this.currentHeaderTitle = ''; // Track current header title
+    }
+
+    /**
+     * Update header with large title and inline title for morphing effect
+     * Activates the scroll-to-inline transition CSS
+     */
+    updateHeader(titleText) {
+        this.currentHeaderTitle = titleText;
+        const headerContainer = document.querySelector('.header-container');
+        if (!headerContainer) return;
+
+        headerContainer.innerHTML = `
+            <div class="scrollable-header">
+                <h1 class="large-title">${titleText}</h1>
+                <div class="inline-title">${titleText}</div>
+            </div>
+        `;
+
+        // Reset scroll state when header is updated
+        const scrollableHeader = headerContainer.querySelector('.scrollable-header');
+        if (scrollableHeader) {
+            scrollableHeader.classList.remove('scrolled');
+        }
     }
 
     /**
@@ -25,6 +50,7 @@ class Navigation {
         this.app.showScreen('navigation-screen');
         this.currentPath = [];
         this.updateBreadcrumb();
+        this.updateHeader('Years');
         
         const container = document.getElementById('cards-container');
         const isCacheValid = this.isCacheValid();
@@ -90,23 +116,23 @@ class Navigation {
         
         container.innerHTML = '';
         const fragment = document.createDocumentFragment();
+
+        // Create inset grouped list wrapper
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'grouped-list';
         
         years.forEach((year, index) => {
-            const card = this.createCard(
+            const item = this.createListItem(
                 year.icon || '📘', 
                 year.name, 
                 `${year.modules?.length || 0} Modules`
             );
             
-            // Mark first card as featured for Bento layout
-            if (index === 0) {
-                card.classList.add('featured');
-            }
-            
-            card.addEventListener('click', () => this.showModules(year));
-            fragment.appendChild(card);
+            item.addEventListener('click', () => this.showModules(year));
+            groupWrapper.appendChild(item);
         });
         
+        fragment.appendChild(groupWrapper);
         container.appendChild(fragment);
         
         if (animate) {
@@ -221,25 +247,32 @@ class Navigation {
     showModules(year) {
         this.currentPath = [year];
         this.updateBreadcrumb();
+        this.updateHeader(year.name);
         
         const container = document.getElementById('cards-container');
         container.innerHTML = '';
         
         if (!year.modules || year.modules.length === 0) {
-            container.innerHTML = '<p style="color: white; text-align: center; width: 100%;">No modules available yet.</p>';
+            container.innerHTML = '<p style="color: var(--label-secondary); text-align: center; width: 100%; padding: 2rem;">No modules available yet.</p>';
             return;
         }
         
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'grouped-list';
+        
         year.modules.forEach(module => {
-            const card = this.createCard('📚', module.name, `${module.subjects?.length || 0} Subjects`);
-            card.addEventListener('click', () => this.showSubjects(year, module));
-            container.appendChild(card);
+            const item = this.createListItem('📚', module.name, `${module.subjects?.length || 0} Subjects`);
+            item.addEventListener('click', () => this.showSubjects(year, module));
+            groupWrapper.appendChild(item);
         });
+        
+        container.appendChild(groupWrapper);
     }
 
     showSubjects(year, module) {
         this.currentPath = [year, module];
         this.updateBreadcrumb();
+        this.updateHeader(module.name);
         
         const container = document.getElementById('cards-container');
         this.renderWithTransition(container, () => {
@@ -248,11 +281,16 @@ class Navigation {
             }
             
             const fragment = document.createDocumentFragment();
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'grouped-list';
+            
             module.subjects.forEach(subject => {
-                const card = this.createCard('📖', subject.name, `${subject.lectures?.length || 0} Lectures`);
-                card.addEventListener('click', () => this.showLectures(year, module, subject));
-                fragment.appendChild(card);
+                const item = this.createListItem('📖', subject.name, `${subject.lectures?.length || 0} Lectures`);
+                item.addEventListener('click', () => this.showLectures(year, module, subject));
+                groupWrapper.appendChild(item);
             });
+            
+            fragment.appendChild(groupWrapper);
             return fragment;
         });
     }
@@ -264,6 +302,7 @@ class Navigation {
     showLectures(year, module, subject) {
         this.currentPath = [year, module, subject];
         this.updateBreadcrumb();
+        this.updateHeader(subject.name);
         
         const container = document.getElementById('cards-container');
         
@@ -301,23 +340,28 @@ class Navigation {
             if (hasCached) {
                 this.renderWithTransition(container, () => {
                     const fragment = document.createDocumentFragment();
+                    const groupWrapper = document.createElement('div');
+                    groupWrapper.className = 'grouped-list';
+                    
                     cachedResults.forEach(result => {
                         const data = result.data || result.lecture;
-                        const card = this.createCard(
+                        const item = this.createListItem(
                             '📝',
                             result.lecture.name,
                             `${data.questions?.length || 0} Questions`
                         );
                         if (result.success) {
-                            card.addEventListener('click', () => 
+                            item.addEventListener('click', () => 
                                 this.app.startQuiz(result.data.questions, {
                                     lectureId: result.lecture.id,
                                     name: result.lecture.name
                                 })
                             );
                         }
-                        fragment.appendChild(card);
+                        groupWrapper.appendChild(item);
                     });
+                    
+                    fragment.appendChild(groupWrapper);
                     return fragment;
                 });
             }
@@ -356,16 +400,21 @@ class Navigation {
         const loadingCards = new Map();
         this.renderWithTransition(container, () => {
             const fragment = document.createDocumentFragment();
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'grouped-list';
+            
             subject.lectures.forEach(lecture => {
-                const card = this.createCard('📝', lecture.name, 'Loading...');
-                card.style.pointerEvents = 'none';
-                card.style.opacity = '0.7';
-                card.classList.add('loading');
-                card.classList.add('skeleton-loader');
-                card.dataset.lectureId = lecture.id;
-                loadingCards.set(lecture.id, card);
-                fragment.appendChild(card);
+                const item = this.createListItem('📝', lecture.name, 'Loading...');
+                item.style.pointerEvents = 'none';
+                item.style.opacity = '0.7';
+                item.classList.add('loading');
+                item.classList.add('skeleton-loader');
+                item.dataset.lectureId = lecture.id;
+                loadingCards.set(lecture.id, item);
+                groupWrapper.appendChild(item);
             });
+            
+            fragment.appendChild(groupWrapper);
             return fragment;
         });
 
@@ -509,6 +558,26 @@ class Navigation {
             <p class="card-description">${description}</p>
         `;
         return card;
+    }
+
+    /**
+     * Create native iOS list item for inset grouped lists
+     * Matches iOS Settings/Notes aesthetic
+     */
+    createListItem(icon, title, secondary) {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                <span style="font-size: 20px; min-width: 28px;">${icon}</span>
+                <div style="flex: 1;">
+                    <div class="body-text" style="font-weight: 500; color: var(--label-primary);">${title}</div>
+                    ${secondary ? `<div class="caption-text" style="color: var(--label-secondary); margin-top: 2px;">${secondary}</div>` : ''}
+                </div>
+            </div>
+            <div style="color: var(--label-tertiary); font-size: 18px;">›</div>
+        `;
+        return item;
     }
 
     updateBreadcrumb() {

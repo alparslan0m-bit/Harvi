@@ -178,6 +178,14 @@ body {
     margin: 0.5rem 1rem;
 }
 
+/* Alias for grouped list wrapper */
+.grouped-list {
+    background: var(--system-group-background);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0.5rem 1rem;
+}
+
 .list-item {
     padding: 1rem;
     border-bottom: 1px solid var(--separator);
@@ -185,9 +193,14 @@ body {
     align-items: center;
     justify-content: space-between;
     transition: background-color 0.2s ease;
+    cursor: pointer;
     /* Vibrancy effect for separator */
     background: linear-gradient(180deg, transparent 0%, transparent calc(100% - 1px), var(--separator) calc(100% - 1px), var(--separator) 100%);
     background-attachment: fixed;
+}
+
+.list-item:active {
+    background-color: var(--system-fill, rgba(0, 0, 0, 0.05));
 }
 
 .list-item:last-child {
