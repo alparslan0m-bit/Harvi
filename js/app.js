@@ -1,22 +1,106 @@
 /**
  * Main Application Controller
- * Coordinates screen transitions and global application state
+ * Coordinates screen transitions, persistent state, and global application state
  */
 class MCQApp {
     constructor() {
         this.currentPath = [];
         this.currentQuiz = null;
         this.isDarkMode = false;
+        this.lastLectureId = null;
+        this.resumableQuiz = null;
         this.init();
     }
 
-    init() {
+    async init() {
+        // Initialize IndexedDB
+        try {
+            await harviDB.init();
+            console.log('✓ Database initialized');
+        } catch (error) {
+            console.warn('Database initialization warning:', error);
+        }
+
         this.navigation = new Navigation(this);
         this.quiz = new Quiz(this);
         this.results = new Results(this);
         
         this.initDarkMode();
+        await this.checkResumableQuiz();
+        this.setupOnlineStatusHandling();
         this.navigation.showYears();
+    }
+
+    /**
+     * Check if there's a quiz that can be resumed
+     */
+    async checkResumableQuiz() {
+        try {
+            const lastLectureId = await harviDB.getSetting('lastActiveLectureId');
+            if (lastLectureId) {
+                const progress = await harviDB.getQuizProgress(lastLectureId);
+                if (progress && progress.currentIndex < progress.questions.length) {
+                    this.resumableQuiz = progress;
+                    this.lastLectureId = lastLectureId;
+                    console.log('✓ Resumable quiz found:', lastLectureId);
+                }
+            }
+        } catch (error) {
+            console.warn('Could not check resumable quiz:', error);
+        }
+    }
+
+    /**
+     * Handle online/offline status changes
+     */
+    setupOnlineStatusHandling() {
+        window.addEventListener('online', () => {
+            console.log('✓ Connection restored');
+            document.body.classList.remove('offline-mode');
+            this.syncPendingData();
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('⚠ Connection lost');
+            document.body.classList.add('offline-mode');
+        });
+
+        // Set initial offline state
+        if (!navigator.onLine) {
+            document.body.classList.add('offline-mode');
+        }
+    }
+
+    /**
+     * Sync any pending data when connection is restored
+     */
+    async syncPendingData() {
+        try {
+            const queue = await harviDB.getSyncQueue();
+            if (queue.length === 0) return;
+
+            console.log(`Syncing ${queue.length} pending items...`);
+
+            for (const item of queue) {
+                try {
+                    // Example: Sync quiz results to server
+                    if (item.action === 'saveQuizResult') {
+                        await fetch('/api/quiz-results', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(item.data)
+                        });
+                        await harviDB.markSynced(item.id);
+                    }
+                } catch (error) {
+                    console.warn(`Failed to sync item ${item.id}:`, error);
+                }
+            }
+
+            console.log('✓ Sync completed');
+        } catch (error) {
+            console.warn('Sync error:', error);
+        }
     }
 
     initDarkMode() {
@@ -79,28 +163,58 @@ class MCQApp {
         document.getElementById(screenId).classList.add('active');
     }
 
-    startQuiz(questions, pathInfo) {
+    async startQuiz(questions, pathInfo) {
         this.currentQuiz = {
             questions: questions,
             pathInfo: pathInfo,
             currentIndex: 0,
             answers: [],
-            score: 0
+            score: 0,
+            startTime: Date.now()
         };
+        
+        // Save lecture ID for resumable quiz
+        if (pathInfo && pathInfo.lectureId) {
+            this.lastLectureId = pathInfo.lectureId;
+            await harviDB.setSetting('lastActiveLectureId', pathInfo.lectureId);
+        }
+
         this.quiz.start(questions, pathInfo);
     }
 
-    showResults(score, total, metadata) {
+    async showResults(score, total, metadata) {
         this.results.show(score, total, metadata);
+        
+        // Save quiz result and clear resumable state
+        if (this.currentQuiz && this.lastLectureId) {
+            try {
+                const timeSpent = Date.now() - (this.currentQuiz.startTime || Date.now());
+                const result = { score, total, timeSpent };
+                
+                await harviDB.saveQuizResult(this.lastLectureId, result);
+                await harviDB.setSetting('lastActiveLectureId', null);
+                
+                // Queue for sync if offline
+                if (!navigator.onLine) {
+                    await harviDB.queueSync('saveQuizResult', {
+                        lectureId: this.lastLectureId,
+                        ...result
+                    });
+                }
+            } catch (error) {
+                console.warn('Failed to save quiz result:', error);
+            }
+        }
     }
 
-    resetApp() {
+    async resetApp() {
         // Cleanup quiz resources before resetting
         if (this.quiz && typeof this.quiz.cleanup === 'function') {
             this.quiz.cleanup();
         }
         this.currentPath = [];
         this.currentQuiz = null;
+        this.resumableQuiz = null;
         this.navigation.showYears();
     }
 

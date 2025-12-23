@@ -8,14 +8,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Harvi">
     <meta name="theme-color" content="#6366F1">
-    <meta name="msapplication-navbutton-color" content="#6366F1">
+    <meta name="msapplication-navbutton-color" content="#0EA5E9">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>MCQ App - Medical Students</title>
+    <meta name="description" content="Harvi - Comprehensive medical multiple-choice questions for exam preparation">
+    <meta name="apple-mobile-web-app-title" content="Harvi">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230EA5E9' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>H</text></svg>">
+    <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png">
+    <title>Harvi - Medical MCQ Learning Platform</title>
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/utils/mobile.css">
+    <link rel="stylesheet" href="./css/components/glassmorphism.css">
+    <link rel="stylesheet" href="./css/components/view-transitions.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="./js/animations.js"></script>
+    <script src="./js/db.js"></script>
 </head>
 <body class="mobile-touch-fix">
     <div id="app" class="ios-touch-optimized">
@@ -120,5 +131,37 @@
     <script src="js/quiz.js"></script>
     <script src="js/results.js"></script>
     <script src="js/app.js"></script>
+    
+    <!-- PWA: Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js', { scope: '/' })
+                    .then(registration => {
+                        console.log('✓ Service Worker registered:', registration);
+                        
+                        // Check for updates periodically (every 6 hours)
+                        setInterval(() => {
+                            registration.update();
+                        }, 6 * 60 * 60 * 1000);
+                        
+                        // Handle service worker updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker available - notify user
+                                    console.log('New app version available');
+                                    document.dispatchEvent(new CustomEvent('sw-update-available'));
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('✗ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

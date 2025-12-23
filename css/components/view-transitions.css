@@ -1,0 +1,286 @@
+/**
+ * View Transitions API Styles
+ * Smooth directional transitions between screens and navigation
+ */
+
+/* Enable View Transitions for supported browsers */
+@supports (view-transition-name: root) {
+    ::view-transition {
+        animation-duration: 0.6s;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    ::view-transition-old(root) {
+        animation: slideOut 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    ::view-transition-new(root) {
+        animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Screen Transitions */
+.screen {
+    view-transition-name: screen-transition;
+}
+
+/* Directional slide animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+}
+
+@keyframes slideInBack {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutBack {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+}
+
+@keyframes expandUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes collapseDown {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+}
+
+/* Card click expansion effect */
+.card-transition {
+    view-transition-name: card-expand;
+}
+
+@supports (view-transition-name: root) {
+    .card-transition {
+        animation: expandUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+
+/* Quiz screen transitions */
+.quiz-transition-enter {
+    view-transition-name: quiz-screen;
+    animation: expandUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quiz-transition-exit {
+    animation: collapseDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Results screen transition */
+.results-transition-enter {
+    view-transition-name: results-screen;
+    animation: expandUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Navigation transitions */
+.nav-forward {
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-backward {
+    animation: slideInBack 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Breadcrumb active state transition */
+.breadcrumb-item.active {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Option selection animation */
+.option-selected {
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* Micro-animation for micro-interactions */
+@keyframes microPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.micro-pulse {
+    animation: microPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth fade transitions */
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.fade-out {
+    animation: fadeOut 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton-loader {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+    0% {
+        stroke-dashoffset: 100;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.success-checkmark {
+    animation: checkmark 0.8s ease-out forwards;
+}
+
+/* Prevent motion for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .screen {
+        view-transition-name: none;
+    }
+}
+
+/* Hardware acceleration for smooth animations */
+.card,
+.screen,
+.option,
+.quiz-container {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* Stagger animation for lists */
+.stagger-item {
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.stagger-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(n+5) {
+    animation-delay: calc(0.05s * var(--index, 5));
+}

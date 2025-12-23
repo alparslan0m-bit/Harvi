@@ -337,12 +337,16 @@ class Quiz {
             this.score++;
             selectedOption.classList.add('correct');
             celebrateCorrectAnswer(selectedOption);
+            // Haptic feedback for correct answer - double tap pattern
+            this.triggerHapticFeedback('success');
         } else {
             selectedOption.classList.add('incorrect');
             const correctOption = this.optionsContainer.children[correctAnswerIndex];
             if (correctOption) {
                 correctOption.classList.add('correct');
             }
+            // Haptic feedback for incorrect answer - warning pattern
+            this.triggerHapticFeedback('error');
         }
         
         if (this.continueBtn) {
@@ -350,6 +354,38 @@ class Quiz {
             this.continueBtn.focus();
         }
     }
+
+    /**
+     * Haptic Feedback Utility
+     * Provides tactile feedback for answer selection using navigator.vibrate API
+     */
+    triggerHapticFeedback(type = 'success') {
+        if (!navigator.vibrate) {
+            return; // Device doesn't support vibration API
+        }
+
+        switch (type) {
+            case 'success':
+                // Double tap pattern for correct answer
+                navigator.vibrate([50, 30, 50]);
+                break;
+            case 'error':
+                // Longer pulse for incorrect answer
+                navigator.vibrate([100, 50, 100]);
+                break;
+            case 'warning':
+                // Single short pulse
+                navigator.vibrate(30);
+                break;
+            case 'light':
+                // Very subtle tap
+                navigator.vibrate(10);
+                break;
+            default:
+                navigator.vibrate(50);
+        }
+    }
+    
     
     nextQuestion() {
         this.currentIndex++;

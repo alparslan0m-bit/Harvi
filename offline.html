@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Harvi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body.girl-mode {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+        }
+
+        .offline-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            color: #1F2937;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .feature-item::before {
+            content: '✓';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #10B981;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .retry-button {
+            background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        body.girl-mode .retry-button {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .retry-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .retry-button:active {
+            transform: translateY(0);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #EF4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>No Connection</h1>
+        <p>You're currently offline, but don't worry!</p>
+        
+        <div class="feature-list">
+            <div class="feature-item">Previously loaded quizzes</div>
+            <div class="feature-item">Your progress history</div>
+            <div class="feature-item">Offline mode enabled</div>
+        </div>
+
+        <p style="font-size: 14px; margin-bottom: 20px;">
+            <span class="status-indicator"></span>
+            Waiting for connection...
+        </p>
+
+        <button class="retry-button" onclick="location.reload()">
+            Try Again
+        </button>
+    </div>
+
+    <script>
+        // Apply saved theme on load
+        if (localStorage.getItem('girlMode') === 'true') {
+            document.body.classList.add('girl-mode');
+        }
+
+        // Listen for connectivity changes
+        window.addEventListener('online', () => {
+            console.log('Connection restored');
+            // Optional: Auto-reload when connection restored
+            // location.reload();
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('Connection lost');
+        });
+    </script>
+</body>
+</html>

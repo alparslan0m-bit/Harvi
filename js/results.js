@@ -1,6 +1,6 @@
 /**
  * Results Screen Manager
- * Handles quiz results display and retake functionality
+ * Handles quiz results display, sharing, and retake functionality
  */
 class Results {
     constructor(app) {
@@ -8,6 +8,8 @@ class Results {
         this.bindEvents();
         this.lastQuizQuestions = null;
         this.lastQuizMetadata = null;
+        this.lastScore = 0;
+        this.lastTotal = 0;
     }
 
     bindEvents() {
@@ -20,6 +22,12 @@ class Results {
         document.getElementById('back-to-home').addEventListener('click', () => {
             this.app.resetApp();
         });
+
+        // Share button event listener (if exists)
+        const shareBtn = document.getElementById('share-results');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => this.shareResults());
+        }
     }
 
     show(score, total, metadata = {}) {
@@ -27,6 +35,8 @@ class Results {
         
         this.lastQuizMetadata = metadata && typeof metadata === 'object' ? metadata : {};
         this.lastQuizQuestions = this.app.currentQuiz.questions;
+        this.lastScore = score;
+        this.lastTotal = total;
 
         const percentage = Math.round((score / total) * 100);
         
@@ -55,6 +65,14 @@ class Results {
         messageElement.textContent = message;
         document.getElementById('score-percentage').style.color = color;
         
+        // Show share button if Web Share API is available
+        if (navigator.share) {
+            const shareBtn = document.getElementById('share-results');
+            if (shareBtn) {
+                shareBtn.style.display = 'inline-block';
+            }
+        }
+        
         this.animateScore(score);
         celebrateQuizCompletion(score, total);
     }
@@ -71,5 +89,166 @@ class Results {
             }
             scoreElement.textContent = Math.floor(currentScore);
         }, 30);
+    }
+
+    /**
+     * Share Quiz Results using Web Share API
+     * Generates a summary card and shares it via native share sheet
+     */
+    async shareResults() {
+        const percentage = Math.round((this.lastScore / this.lastTotal) * 100);
+        const shareTitle = 'My Quiz Results - Harvi';
+        const shareText = `I scored ${this.lastScore}/${this.lastTotal} (${percentage}%) on the Harvi medical quiz! Can you beat my score?`;
+        
+        // Haptic feedback for share action
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+
+        try {
+            // Generate and share result card image
+            const canvas = await this.generateResultCard();
+            
+            if (canvas && navigator.share) {
+                // Convert canvas to blob and share
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'quiz-results.png', { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                title: shareTitle,
+                                text: shareText,
+                                files: [file],
+                                url: window.location.href
+                            });
+                        } catch (err) {
+                            // Fallback if file sharing fails
+                            this.fallbackShare(shareTitle, shareText);
+                        }
+                    } else {
+                        // Fallback if file sharing not supported
+                        this.fallbackShare(shareTitle, shareText);
+                    }
+                });
+            } else if (navigator.share) {
+                // Share text only if canvas generation failed
+                this.fallbackShare(shareTitle, shareText);
+            }
+        } catch (error) {
+            console.warn('Share error:', error);
+            this.fallbackShare('My Quiz Results', shareText);
+        }
+    }
+
+    /**
+     * Fallback share method for text-only sharing
+     */
+    fallbackShare(title, text) {
+        navigator.share({
+            title: title,
+            text: text,
+            url: window.location.href
+        }).catch((error) => {
+            if (error.name !== 'AbortError') {
+                console.error('Share failed:', error);
+                // Show fallback copy-to-clipboard option
+                this.copyToClipboard(text);
+            }
+        });
+    }
+
+    /**
+     * Generate a visual result card as canvas image
+     */
+    async generateResultCard() {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const percentage = Math.round((this.lastScore / this.lastTotal) * 100);
+
+            // Canvas dimensions
+            canvas.width = 800;
+            canvas.height = 600;
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0EA5E9');
+            gradient.addColorStop(1, '#14B8A6');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // White card with shadow
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
+            ctx.fillRect(50, 100, 700, 400);
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+
+            // Title
+            ctx.font = 'bold 48px "Inter", sans-serif';
+            ctx.fillStyle = '#1F2937';
+            ctx.textAlign = 'center';
+            ctx.fillText('Quiz Completed!', 400, 180);
+
+            // Score circle
+            const circleX = 400;
+            const circleY = 300;
+            const radius = 80;
+            
+            // Circle background
+            ctx.fillStyle = '#F0F9FF';
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Circle border (gradient)
+            const circleGradient = ctx.createLinearGradient(circleX - radius, circleY - radius, circleX + radius, circleY + radius);
+            circleGradient.addColorStop(0, '#0EA5E9');
+            circleGradient.addColorStop(1, '#14B8A6');
+            ctx.strokeStyle = circleGradient;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Score text
+            ctx.font = 'bold 64px "Inter", sans-serif';
+            ctx.fillStyle = '#0EA5E9';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${percentage}%`, circleX, circleY);
+
+            // Score label
+            ctx.font = '24px "Inter", sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText(`${this.lastScore}/${this.lastTotal} correct`, 400, 450);
+
+            // Harvi branding
+            ctx.font = 'bold 32px "Inter", sans-serif';
+            ctx.fillStyle = '#6B7280';
+            ctx.textAlign = 'center';
+            ctx.fillText('Harvi', 400, 530);
+
+            return canvas;
+        } catch (error) {
+            console.warn('Canvas generation failed:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Fallback: Copy result text to clipboard
+     */
+    copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log('Result copied to clipboard');
+                // Optional: Show toast notification
+            }).catch(() => {
+                console.warn('Clipboard copy failed');
+            });
+        }
     }
 }

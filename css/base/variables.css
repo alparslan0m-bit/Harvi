@@ -24,15 +24,53 @@
     --border-color: #E2E8F0;        /* Slate 200 */
     --border-light: #F1F5F9;        /* Slate 100 */
 
+    /* Glassmorphism Design System */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg-dark: rgba(30, 30, 30, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --glass-blur: 10px;
+    --glass-blur-lg: 20px;
+
+    /* Z-Index Scale (for layering depth) */
+    --z-1: 100;
+    --z-2: 200;
+    --z-3: 300;
+    --z-4: 400;
+    --z-5: 500;
+    --z-modal: 1000;
+    --z-dropdown: 999;
+    --z-sticky: 100;
+    --z-fixed: 101;
+
+    /* Enhanced Shadows with depth */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
+    /* Premium depth shadows for glassmorphism */
+    --shadow-glass-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-glass-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-glass-lg: 0 20px 48px rgba(0, 0, 0, 0.16);
+
+    /* Focus & Interaction */
     --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);  /* sky -> teal */
     --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
     --gradient-error: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
     --gradient-bg: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);       /* sky -> cyan */
+    --gradient-overlay: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(20, 184, 166, 0.9) 100%);
+
+    /* Backdrop filters for premium feel */
+    --backdrop-blur-sm: blur(4px);
+    --backdrop-blur-md: blur(10px);
+    --backdrop-blur-lg: blur(20px);
+    --backdrop-brightness: brightness(1.1);
 }
