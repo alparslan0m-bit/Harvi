@@ -1,0 +1,582 @@
+/**
+ * Gamification & Progress Visualization
+ * Heatmap, streak tracker, and interactive progress indicators
+ */
+
+/* ============================================
+   GITHUB-STYLE HEATMAP
+   ============================================ */
+
+.heatmap-container {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+body.girl-mode .heatmap-container {
+    background: rgba(30, 30, 30, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.heatmap-title {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+body.girl-mode .heatmap-title {
+    color: #E0E0E0;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+body.girl-mode .heatmap-cell {
+    background: rgba(100, 100, 100, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.heatmap-cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+.heatmap-cell:hover::before {
+    opacity: 1;
+}
+
+/* Heatmap intensity colors */
+.heatmap-cell.intensity-1 {
+    background: #DCFCE7;
+    border-color: #BBFB91;
+}
+
+.heatmap-cell.intensity-2 {
+    background: #BBFB91;
+    border-color: #84E1BC;
+}
+
+.heatmap-cell.intensity-3 {
+    background: #84E1BC;
+    border-color: #4ADE80;
+}
+
+.heatmap-cell.intensity-4 {
+    background: #4ADE80;
+    border-color: #22C55E;
+}
+
+.heatmap-cell.intensity-5 {
+    background: #16A34A;
+    border-color: #15803D;
+}
+
+body.girl-mode .heatmap-cell.intensity-1 {
+    background: #F8D7DA;
+    border-color: #F5C6CB;
+}
+
+body.girl-mode .heatmap-cell.intensity-2 {
+    background: #F5C6CB;
+    border-color: #F1B0B7;
+}
+
+body.girl-mode .heatmap-cell.intensity-3 {
+    background: #F1B0B7;
+    border-color: #EC9DA3;
+}
+
+body.girl-mode .heatmap-cell.intensity-4 {
+    background: #EC9DA3;
+    border-color: #E3858F;
+}
+
+body.girl-mode .heatmap-cell.intensity-5 {
+    background: #DA4860;
+    border-color: #C0375E;
+}
+
+.heatmap-cell-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    z-index: 10;
+}
+
+.heatmap-cell:hover .heatmap-cell-tooltip {
+    opacity: 1;
+}
+
+/* ============================================
+   INTERACTIVE PROGRESS CIRCLE
+   ============================================ */
+
+.progress-circle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 30px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+body.girl-mode .progress-circle-container {
+    background: rgba(30, 30, 30, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.progress-circle {
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.progress-circle svg {
+    width: 100%;
+    height: 100%;
+}
+
+.progress-circle-background {
+    fill: none;
+    stroke: var(--bg-tertiary);
+    stroke-width: 8;
+}
+
+body.girl-mode .progress-circle-background {
+    stroke: rgba(100, 100, 100, 0.2);
+}
+
+.progress-circle-fill {
+    fill: none;
+    stroke: url(#progress-gradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+    animation: fill-progress 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes fill-progress {
+    from {
+        stroke-dasharray: 0 565.48;
+    }
+}
+
+.progress-circle-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.progress-circle-percentage {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.progress-circle-label {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+body.girl-mode .progress-circle-percentage {
+    color: #EC4899;
+}
+
+body.girl-mode .progress-circle-label {
+    color: #999;
+}
+
+.progress-info {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+}
+
+.progress-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.progress-stat-value {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: block;
+}
+
+.progress-stat-label {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.girl-mode .progress-stat-value {
+    color: #EC4899;
+}
+
+body.girl-mode .progress-stat-label {
+    color: #999;
+}
+
+/* ============================================
+   STREAK TRACKER
+   ============================================ */
+
+.streak-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.streak-icon {
+    font-size: 32px;
+    animation: flame-flicker 2s ease-in-out infinite;
+}
+
+@keyframes flame-flicker {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(-2px);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    75% {
+        transform: translateY(-1px);
+    }
+}
+
+.streak-info h3 {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFA500;
+    margin: 0;
+}
+
+.streak-info p {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+}
+
+/* ============================================
+   SHAREABLE RESULT CARD
+   ============================================ */
+
+.result-card-container {
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 9 / 16;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 20px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.result-card-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 30% 50%,
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 50%
+    );
+    pointer-events: none;
+}
+
+.result-card-header {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.result-card-logo {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.result-card-title {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.result-card-body {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.result-card-score {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0 0 8px 0;
+}
+
+.result-card-score-label {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.result-card-breakdown {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+.result-card-stat {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+}
+
+.result-card-stat-value {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    display: block;
+}
+
+.result-card-stat-label {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 10px;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.result-card-footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.result-card-date {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 12px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.result-card-cta {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.9;
+    margin-top: 8px;
+}
+
+/* Variant for girl mode */
+body.girl-mode .result-card-container {
+    background: linear-gradient(135deg, #EC4899, #F472B6);
+}
+
+/* ============================================
+   ANIMATION: LIQUID FILL EFFECT
+   ============================================ */
+
+.liquid-fill {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.liquid-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 30% 50%,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: liquid-wave 3s ease-in-out infinite;
+}
+
+@keyframes liquid-wave {
+    0%, 100% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 100px 0;
+    }
+}
+
+/* ============================================
+   ACHIEVEMENT BADGES
+   ============================================ */
+
+.badge-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+body.girl-mode .badge {
+    background: rgba(30, 30, 30, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.badge.locked {
+    opacity: 0.5;
+}
+
+.badge.unlocked {
+    animation: badge-unlock 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-unlock {
+    0% {
+        transform: scale(0) rotateZ(-180deg);
+    }
+    100% {
+        transform: scale(1) rotateZ(0deg);
+    }
+}
+
+.badge:hover:not(.locked) {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+}
+
+.badge-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.badge-name {
+    font-family: 'Outfit', 'Cabinet Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+body.girl-mode .badge-name {
+    color: #E0E0E0;
+}
+
+.badge-desc {
+    font-family: 'Inter', 'Geist', sans-serif;
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+body.girl-mode .badge-desc {
+    color: #999;
+}
+
+.badge-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    z-index: 10;
+}
+
+.badge:hover .badge-tooltip:not(.locked) {
+    opacity: 1;
+}

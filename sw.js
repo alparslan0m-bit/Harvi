@@ -3,9 +3,10 @@
  * Implements App Shell caching strategy, offline support, and background sync
  */
 
-const CACHE_NAME = 'harvi-v1';
-const RUNTIME_CACHE = 'harvi-runtime-v1';
-const API_CACHE = 'harvi-api-v1';
+const CACHE_NAME = 'harvi-v2';
+const RUNTIME_CACHE = 'harvi-runtime-v2';
+const API_CACHE = 'harvi-api-v2';
+const IMAGE_CACHE = 'harvi-images-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -20,6 +21,11 @@ const ASSETS_TO_CACHE = [
   '/css/components/results-screen.css',
   '/css/components/breadcrumb.css',
   '/css/components/micro-interactions.css',
+  '/css/components/glassmorphism.css',
+  '/css/components/view-transitions.css',
+  '/css/components/showcase-glass-2.0.css',
+  '/css/components/bottom-nav.css',
+  '/css/components/gamification.css',
   '/css/layout/grid.css',
   '/css/themes/dark-mode.css',
   '/css/themes/girl-mode.css',
@@ -33,6 +39,9 @@ const ASSETS_TO_CACHE = [
   '/js/results.js',
   '/js/navigation.js',
   '/js/animations.js',
+  '/js/showcase-features.js',
+  '/js/gamification.js',
+  '/js/db.js',
   '/offline.html'
 ];
 
@@ -62,7 +71,8 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME && 
               cacheName !== RUNTIME_CACHE && 
-              cacheName !== API_CACHE) {
+              cacheName !== API_CACHE &&
+              cacheName !== IMAGE_CACHE) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -71,6 +81,38 @@ self.addEventListener('activate', (event) => {
     }).then(() => self.clients.claim())
   );
 });
+
+/**
+ * Smart Prefetch - Proactively cache content likely to be accessed next
+ */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'PREFETCH_QUIZZES') {
+    const lectureIds = event.data.lectureIds || [];
+    prefetchQuizzes(lectureIds);
+  }
+});
+
+async function prefetchQuizzes(lectureIds) {
+  try {
+    const cache = await caches.open(API_CACHE);
+    for (const lectureId of lectureIds) {
+      const url = `/api/quiz/${lectureId}`;
+      if (!await cache.match(url)) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            await cache.put(url, response);
+            console.log('[SW] Prefetched quiz:', lectureId);
+          }
+        } catch (e) {
+          console.warn('[SW] Failed to prefetch quiz:', lectureId);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[SW] Prefetch failed:', e);
+  }
+}
 
 /**
  * Fetch event - implement caching strategies
@@ -161,9 +203,12 @@ self.addEventListener('fetch', (event) => {
               return response;
             }
 
+            // Determine which cache to use
+            const cacheToUse = request.destination === 'image' ? IMAGE_CACHE : RUNTIME_CACHE;
+
             // Clone and cache successful responses
             const clone = response.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => {
+            caches.open(cacheToUse).then((cache) => {
               cache.put(request, clone);
             });
 
@@ -171,6 +216,10 @@ self.addEventListener('fetch', (event) => {
           })
           .catch(() => {
             // Graceful degradation for missing static assets
+            if (request.destination === 'image') {
+              // Return a placeholder image or cached fallback
+              return caches.match('/icons/icon-192x192.png');
+            }
             return new Response('Asset not found', { status: 404 });
           });
       })

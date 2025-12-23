@@ -1,0 +1,192 @@
+/**
+ * Bottom Navigation Bar
+ * Native-style persistent navigation for mobile
+ */
+
+.bottom-nav-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    padding-bottom: var(--safe-area-bottom, 0);
+    z-index: 200;
+    display: none;
+}
+
+.bottom-nav-container.active {
+    display: flex;
+}
+
+.bottom-nav {
+    width: 100%;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
+}
+
+body.girl-mode .bottom-nav {
+    background: rgba(30, 30, 30, 0.85);
+    border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+.bottom-nav-item {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-secondary);
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.bottom-nav-item:active {
+    transform: scale(0.95);
+}
+
+.bottom-nav-item.active {
+    color: var(--primary-color);
+}
+
+.bottom-nav-item svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+.bottom-nav-item-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* Active indicator dot */
+.bottom-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    width: 6px;
+    height: 6px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    animation: pulse-dot 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+/* Badge counter on nav item */
+.nav-badge {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    animation: badge-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-pop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: max(0px)) {
+    .bottom-nav-container {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+
+    .bottom-nav {
+        margin: 0 8px 8px 8px;
+    }
+}
+
+/* Responsive - hide on desktop */
+@media (min-width: 768px) {
+    .bottom-nav-container {
+        display: none !important;
+    }
+}
+
+/* Pull-to-Refresh Indicator */
+#pull-refresh-indicator {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    z-index: 150;
+}
+
+#pull-refresh-indicator svg {
+    width: 100%;
+    height: 100%;
+    stroke: var(--primary-color);
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Quiz content padding for bottom nav */
+.quiz-content {
+    padding-bottom: 100px;
+}
+
+@media (max-height: 600px) {
+    .bottom-nav-container {
+        height: 60px;
+    }
+
+    .bottom-nav {
+        height: 60px;
+    }
+
+    .bottom-nav-item-label {
+        display: none;
+    }
+
+    .quiz-content {
+        padding-bottom: 80px;
+    }
+}

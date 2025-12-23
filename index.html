@@ -23,12 +23,24 @@
     <link rel="stylesheet" href="./css/utils/mobile.css">
     <link rel="stylesheet" href="./css/components/glassmorphism.css">
     <link rel="stylesheet" href="./css/components/view-transitions.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/components/showcase-glass-2.0.css">
+    <link rel="stylesheet" href="./css/components/bottom-nav.css">
+    <link rel="stylesheet" href="./css/components/gamification.css">
+    <link rel="stylesheet" href="./css/components/pwa-features.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="./js/animations.js"></script>
+    <script src="./js/showcase-features.js"></script>
+    <script src="./js/gamification.js"></script>
+    <script src="./js/pwa-features.js"></script>
     <script src="./js/db.js"></script>
 </head>
 <body class="mobile-touch-fix">
+    <!-- Animated Mesh Background -->
+    <div class="mesh-background">
+        <div class="mesh-gradient"></div>
+    </div>
+
     <div id="app" class="ios-touch-optimized">
         <div id="navigation-screen" class="screen active">
             <div class="container">
@@ -164,5 +176,38 @@
             });
         }
     </script>
+
+    <!-- Pull-to-Refresh Indicator -->
+    <div id="pull-refresh-indicator">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav-container" id="bottom-nav-container">
+        <nav class="bottom-nav">
+            <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10"/>
+                </svg>
+                <span class="bottom-nav-item-label">Home</span>
+            </a>
+            <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3v18h18M6 18V9M12 18v-6M18 18v-3"/>
+                </svg>
+                <span class="bottom-nav-item-label">Stats</span>
+                <div class="nav-badge" id="stats-badge" style="display: none;"></div>
+            </a>
+            <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+                </svg>
+                <span class="bottom-nav-item-label">Profile</span>
+            </a>
+        </nav>
+    </div>
 </body>
 </html>

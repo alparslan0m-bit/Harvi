@@ -1,0 +1,300 @@
+/**
+ * Showcase Glass 2.0 Design System
+ * Premium glassmorphism with grain, mesh backgrounds, and modern depth
+ */
+
+/* ============================================
+   MESH BACKGROUND GRADIENT ENGINE
+   ============================================ */
+
+.mesh-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.mesh-gradient {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 25%, #22D3EE 50%, #06B6D4 75%, #0EA5E9 100%);
+    animation: meshShift 15s ease-in-out infinite;
+}
+
+@keyframes meshShift {
+    0% {
+        background-position: 0% 0%;
+        background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 25%, #22D3EE 50%, #06B6D4 75%, #0EA5E9 100%);
+    }
+    25% {
+        background: linear-gradient(135deg, #22D3EE 0%, #0EA5E9 25%, #06B6D4 50%, #14B8A6 75%, #22D3EE 100%);
+    }
+    50% {
+        background: linear-gradient(135deg, #06B6D4 0%, #22D3EE 25%, #0EA5E9 50%, #14B8A6 75%, #06B6D4 100%);
+    }
+    75% {
+        background: linear-gradient(135deg, #14B8A6 0%, #06B6D4 25%, #22D3EE 50%, #0EA5E9 75%, #14B8A6 100%);
+    }
+    100% {
+        background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 25%, #22D3EE 50%, #06B6D4 75%, #0EA5E9 100%);
+    }
+}
+
+/* Girl mode mesh */
+body.girl-mode .mesh-gradient {
+    background: linear-gradient(135deg, #EC4899 0%, #F472B6 25%, #F87171 50%, #FB923C 75%, #EC4899 100%);
+    animation: meshShiftGirl 15s ease-in-out infinite;
+}
+
+@keyframes meshShiftGirl {
+    0% {
+        background: linear-gradient(135deg, #EC4899 0%, #F472B6 25%, #F87171 50%, #FB923C 75%, #EC4899 100%);
+    }
+    25% {
+        background: linear-gradient(135deg, #F87171 0%, #EC4899 25%, #FB923C 50%, #F472B6 75%, #F87171 100%);
+    }
+    50% {
+        background: linear-gradient(135deg, #FB923C 0%, #F87171 25%, #EC4899 50%, #F472B6 75%, #FB923C 100%);
+    }
+    75% {
+        background: linear-gradient(135deg, #F472B6 0%, #FB923C 25%, #F87171 50%, #EC4899 75%, #F472B6 100%);
+    }
+    100% {
+        background: linear-gradient(135deg, #EC4899 0%, #F472B6 25%, #F87171 50%, #FB923C 75%, #EC4899 100%);
+    }
+}
+
+/* ============================================
+   PREMIUM GLASSMORPHISM + GRAIN TEXTURE
+   ============================================ */
+
+/* Grain texture overlay for all glass elements */
+.glass-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Enhanced Card with Glass 2.0 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 1px rgba(255, 255, 255, 0.5) inset;
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.6;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 
+        0 20px 48px rgba(0, 0, 0, 0.12),
+        0 0 1px rgba(255, 255, 255, 0.7) inset;
+}
+
+/* Dark mode glass card */
+body.girl-mode .glass-card {
+    background: rgba(30, 30, 30, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.girl-mode .glass-card:hover {
+    background: rgba(30, 30, 30, 0.85);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ============================================
+   SKELETON LOADER STATES
+   ============================================ */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(255, 255, 255, 0.7) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+body.girl-mode .skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(100, 100, 100, 0.2) 0%,
+        rgba(150, 150, 150, 0.3) 50%,
+        rgba(100, 100, 100, 0.2) 100%
+    );
+}
+
+/* Skeleton card mimicking MCQ layout */
+.skeleton-card {
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.skeleton-card-title {
+    height: 20px;
+    margin-bottom: 12px;
+    width: 80%;
+    border-radius: 4px;
+}
+
+.skeleton-card-option {
+    height: 48px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-card-button {
+    height: 44px;
+    margin-top: 12px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+/* ============================================
+   DUAL FONT SYSTEM
+   ============================================ */
+
+/* Display Font: Bold, high-character (Outfit) */
+.font-display {
+    font-family: 'Outfit', 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Body Font: Legible sans-serif (Inter) */
+.font-body {
+    font-family: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+/* Apply to key elements */
+h1, h2, h3, .app-title, .question-text, .score-display {
+    font-family: 'Outfit', 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.question-text, .option-text, p, span, .label {
+    font-family: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+}
+
+/* ============================================
+   PREMIUM DEPTH SHADOWS
+   ============================================ */
+
+.shadow-depth-sm {
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.04),
+        0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-depth-md {
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-depth-lg {
+    box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.12),
+        0 4px 8px rgba(0, 0, 0, 0.16);
+}
+
+.shadow-depth-xl {
+    box-shadow: 
+        0 20px 48px rgba(0, 0, 0, 0.16),
+        0 8px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* ============================================
+   INTERACTIVE GLASS EFFECTS
+   ============================================ */
+
+.glass-interactive {
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-interactive:hover {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.glass-interactive:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.88);
+}
+
+/* Focus state with premium ring */
+.glass-interactive:focus-visible {
+    outline: none;
+    box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.8),
+        0 0 0 4px rgba(14, 165, 233, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   PREMIUM TRANSITIONS
+   ============================================ */
+
+.transition-smooth {
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.transition-bounce {
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.transition-spring {
+    transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
