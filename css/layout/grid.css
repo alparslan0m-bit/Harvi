@@ -1,0 +1,67 @@
+.screen {
+    display: none !important;
+    min-height: 100vh;
+    padding: 24px;
+    overflow: hidden;
+}
+
+.screen.active {
+    display: block !important;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+    width: 100%;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+    position: relative;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0 clamp(0.5rem, 2vw, 1rem);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .screen {
+        padding: clamp(12px, 3vw, 16px);
+    }
+    
+    .container {
+        padding: 0 clamp(8px, 2vw, 16px);
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+    .cards-grid {
+        gap: 1rem;
+        margin: 0 -8px;
+        padding: 0 8px;
+        scroll-padding: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        margin-bottom: 2rem;
+    }
+}

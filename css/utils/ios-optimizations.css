@@ -1,0 +1,79 @@
+/* iOS Animation Optimizations */
+
+/* Enhanced hardware acceleration */
+.hardware-accelerated {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+    will-change: transform;
+}
+
+/* Smooth animations for iOS */
+.smooth-animation {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+/* Prevent iOS text rendering issues during animations */
+.prevent-text-flicker {
+    -webkit-font-smoothing: antialiased;
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Force GPU acceleration for animations */
+.force-gpu {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* iOS-specific touch optimizations */
+.ios-touch-optimized {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-touch-action: manipulation;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Prevent iOS bounce scrolling */
+.no-bounce {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+
+/* iOS-specific animation performance */
+.ios-animation {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    will-change: transform, opacity;
+}
+
+/* Reduce motion for iOS users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .ios-animation,
+    .hardware-accelerated,
+    .smooth-animation {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+    }
+}

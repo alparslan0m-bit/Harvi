@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harvi">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="msapplication-navbutton-color" content="#6366F1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MCQ App - Medical Students</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/utils/mobile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="./js/animations.js"></script>
+</head>
+<body class="mobile-touch-fix">
+    <div id="app" class="ios-touch-optimized">
+        <div id="navigation-screen" class="screen active">
+            <div class="container">
+                <div class="header-container">
+                    <div class="brand-container">
+                        <h1 class="app-title">Harvi</h1>
+                        <p class="brand-description">Questions you need</p>
+                    </div>
+<button class="mode-toggle" id="mode-toggle" aria-label="Toggle girl mode">
+                        <!-- Boy icon -->
+                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <!-- Simple person silhouette (boy) -->
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Girl icon -->
+                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <!-- Person silhouette with a dress-like shape (girl) -->
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="breadcrumb" id="breadcrumb"></div>
+                <div class="cards-grid" id="cards-container"></div>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <button class="back-btn" id="back-to-nav">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="quiz-progress">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        <span class="question-counter"><span id="current-question">1</span> / <span id="total-questions">10</span></span>
+                    </div>
+<button class="mode-toggle quiz-mode-toggle" id="quiz-mode-toggle" aria-label="Toggle girl mode">
+                        <!-- Boy icon -->
+                        <svg class="boy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Girl icon -->
+                        <svg class="girl-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="quiz-content">
+                    <h2 class="question-text" id="question-text">Question text goes here?</h2>
+                    <div class="options-container" id="options-container">
+                        </div>
+                    <button class="btn-primary continue-btn" id="continue-btn" disabled>Continue</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="results-screen" class="screen results-screen">
+            <div class="results-container" id="results-container">
+                <div class="results-icon">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FFD700" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1 class="results-title">Quiz Complete!</h1>
+                <div class="score-display">
+                    <div class="score-info">
+                        <div class="score-number" id="score-number">0</div>
+                        <div class="score-text">
+                            <span class="score-label">Score</span>
+                            out of <span id="total-score">2</span> questions
+                        </div>
+                    </div>
+                    <div class="score-percentage" id="score-percentage">0%</div>
+                </div>
+                <div class="results-message" id="results-message">Keep studying! You can do better next time!</div>
+                <div class="results-actions">
+                    <button class="retake-quiz-btn" id="retake-quiz">Retake Quiz</button>
+                    <button class="back-home-btn" id="back-to-home">Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/results.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "mcq-medical-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCQ app backend with MongoDB and static frontend hosting",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "seed": "node server/seed.js",
+    "clean": "node -e \"require('fs').rmSync('node_modules', {recursive: true, force: true})\"",
+    "test": "mocha server/tests/clean-model-tests.js --timeout 10000",
+    "test:crud": "mocha server/tests/crud-integrity-tests.js --timeout 15000",
+    "test:all": "mocha server/tests/*.js --timeout 15000"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.6.3"
+  },
+  "devDependencies": {
+    "mocha": "^11.7.2",
+    "nodemon": "^3.1.4"
+  }
+}

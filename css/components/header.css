@@ -1,0 +1,337 @@
+/* ========================================
+   HEADER COMPONENT STYLES
+   ======================================== */
+
+/* ========================================
+   HEADER CONTAINER
+   ======================================== */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2.5rem;
+    margin: 1rem;
+    margin-bottom: 2rem;
+    width: calc(100% - 2rem);
+    min-height: 80px;
+    
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    border-radius: 16px;
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+/* ========================================
+   BRAND CONTAINER
+   ======================================== */
+.brand-container {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    padding-left: 0.75rem;
+    flex: 1;
+}
+
+/* ========================================
+   APP TITLE
+   ======================================== */
+.app-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.05em;
+    margin: 0;
+    
+    background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 25%, #14B8A6 50%, #0EA5E9 75%, #22D3EE 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    text-shadow: 0 4px 8px rgba(14, 165, 233, 0.2);
+    filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.28));
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    animation: 
+        titleFloat 6s cubic-bezier(0.37, 0, 0.63, 1) infinite, 
+        titleShimmer 12s cubic-bezier(0.37, 0, 0.63, 1) infinite,
+        titleGlow 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+.app-title:hover {
+    transform: scale(1.08) rotate(2deg);
+    text-shadow: 0 8px 16px rgba(14, 165, 233, 0.35);
+    filter: drop-shadow(0 0 16px rgba(14, 165, 233, 0.45));
+    animation-play-state: paused;
+}
+
+.app-title:active {
+    transform: scale(1.05) rotate(1deg);
+}
+
+/* ========================================
+   BRAND DESCRIPTION
+   ======================================== */
+.brand-description {
+    font-size: 1.2rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.025em;
+    margin: 0;
+    padding-left: 0.75rem;
+    
+    background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 50%, #14B8A6 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    text-shadow: 0 2px 4px rgba(14, 165, 233, 0.15);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    animation: descriptionShimmer 6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+.brand-description:hover {
+    transform: translateY(-2px) scale(1.05);
+    background-size: 100% 100%;
+    animation-play-state: paused;
+}
+
+
+/* ========================================
+   DARK MODE TOGGLE
+   ======================================== */
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0.75rem;
+    flex-shrink: 0;
+    
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.mode-toggle:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.mode-toggle svg {
+    width: 24px;
+    height: 24px;
+    color: #0EA5E9;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.mode-toggle:hover svg {
+    color: #0284C7;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.mode-toggle .boy-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.mode-toggle .girl-icon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* Quiz screen toggle variant */
+.quiz-mode-toggle {
+    width: 40px;
+    height: 40px;
+    padding: 0.5rem;
+}
+
+.quiz-mode-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes titleFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(-1deg);
+        text-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+    25%, 75% {
+        transform: translateY(-6px) rotate(0deg);
+        text-shadow: 0 12px 20px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        transform: translateY(0) rotate(1deg);
+        text-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+}
+
+@keyframes titleShimmer {
+    0% {
+        background-position: 300% 50%;
+        letter-spacing: 0.05em;
+    }
+    50% {
+        background-position: 0% 50%;
+        letter-spacing: 0.1em;
+    }
+    100% {
+        background-position: 300% 50%;
+        letter-spacing: 0.05em;
+    }
+}
+
+@keyframes titleGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.5));
+    }
+}
+
+@keyframes descriptionShimmer {
+    0% {
+        background-position: 200% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+/* ========================================
+   GIRL MODE STYLES
+   ======================================== */
+body.girl-mode .app-title {
+    background: linear-gradient(135deg, #FBCFE8 0%, #F9A8D4 25%, #F472B6 50%, #DB2777 75%, #FBCFE8 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 8px rgba(251, 207, 232, 0.3);
+    filter: drop-shadow(0 0 12px rgba(251, 207, 232, 0.4));
+}
+
+body.girl-mode .brand-description {
+    background: linear-gradient(135deg, #FBCFE8 0%, #F9A8D4 50%, #F472B6 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(251, 207, 232, 0.2);
+}
+
+
+body.girl-mode .mode-toggle .boy-icon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+body.girl-mode .mode-toggle .girl-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .brand-container {
+        gap: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+    .app-title {
+        font-size: 2.25rem;
+        letter-spacing: 0.025em;
+    }
+    
+    .brand-description {
+        font-size: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+.mode-toggle {
+        width: 44px;
+        height: 44px;
+        padding: 0.625rem;
+    }
+    
+.mode-toggle svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 1.875rem;
+    }
+    
+    .brand-description {
+        font-size: 0.9rem;
+        padding-left: 0.5rem;
+    }
+    
+.mode-toggle {
+        width: 40px;
+        height: 40px;
+        padding: 0.5rem;
+    }
+    
+.mode-toggle svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    .app-title,
+    .brand-description,
+.mode-toggle {
+        animation: none;
+    }
+    
+    .app-title:hover {
+        transform: scale(1.02);
+    }
+    
+    .brand-description:hover {
+        transform: translateY(-1px) scale(1.02);
+    }
+    
+    .mode-toggle:hover {
+        transform: scale(1.02);
+    }
+}

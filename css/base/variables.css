@@ -1,0 +1,38 @@
+:root {
+    /* Boy mode (default) — cool, clinical blues/teals with strong contrast */
+    --primary-color: #0EA5E9;       /* Sky 500 */
+    --primary-hover: #0284C7;       /* Sky 600 */
+    --primary-light: #E0F2FE;       /* Sky 100 */
+    --bg-hover: #F1F5F9;            /* Slate 100 */
+
+    --success-color: #10B981;
+    --success-light: #ECFDF5;
+    --success-dark: #059669;
+
+    --error-color: #EF4444;
+    --error-light: #FEF2F2;
+    --error-dark: #DC2626;
+
+    --text-primary: #1F2937;        /* Slate 800 */
+    --text-secondary: #475569;      /* Slate 600 */
+    --text-muted: #94A3B8;          /* Slate 400 */
+
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8FAFC;        /* Slate 50 */
+    --bg-tertiary: #F1F5F9;         /* Slate 100 */
+
+    --border-color: #E2E8F0;        /* Slate 200 */
+    --border-light: #F1F5F9;        /* Slate 100 */
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
+    --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);  /* sky -> teal */
+    --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    --gradient-error: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    --gradient-bg: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);       /* sky -> cyan */
+}
