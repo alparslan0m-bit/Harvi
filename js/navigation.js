@@ -117,43 +117,53 @@ class Navigation {
     }
     
     /**
-     * Show loading state
+     * Show loading state using SkeletonLoader
      */
     showLoadingState(container, message = 'Loading...') {
         container.innerHTML = '';
         container.style.opacity = '1';
         
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'navigation-loading';
-        loadingDiv.style.cssText = `
-            color: white; 
-            text-align: center; 
-            width: 100%; 
-            padding: 3rem 2rem; 
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        `;
-        
-        const spinner = document.createElement('div');
-        spinner.className = 'loading-spinner';
-        spinner.style.cssText = `
-            width: 40px; 
-            height: 40px; 
-            border: 3px solid rgba(255,255,255,0.3); 
-            border-top: 3px solid white; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite;
-        `;
-        
-        const loadingText = document.createElement('div');
-        loadingText.textContent = message;
-        
-        loadingDiv.appendChild(spinner);
-        loadingDiv.appendChild(loadingText);
-        container.appendChild(loadingDiv);
+        // Use SkeletonLoader if available, otherwise fallback to spinner
+        if (window.SkeletonLoader) {
+            SkeletonLoader.renderGrid(container, {
+                columns: 2,
+                rows: 3,
+                cardHeight: '120px'
+            });
+        } else {
+            // Fallback for older browsers
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'navigation-loading';
+            loadingDiv.style.cssText = `
+                color: white; 
+                text-align: center; 
+                width: 100%; 
+                padding: 3rem 2rem; 
+                font-size: 1.1rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            `;
+            
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner';
+            spinner.style.cssText = `
+                width: 40px; 
+                height: 40px; 
+                border: 3px solid rgba(255,255,255,0.3); 
+                border-top: 3px solid white; 
+                border-radius: 50%; 
+                animation: spin 1s linear infinite;
+            `;
+            
+            const loadingText = document.createElement('div');
+            loadingText.textContent = message;
+            
+            loadingDiv.appendChild(spinner);
+            loadingDiv.appendChild(loadingText);
+            container.appendChild(loadingDiv);
+        }
     }
     
     /**

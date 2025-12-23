@@ -131,6 +131,72 @@
                 </div>
             </div>
         </div>
+
+        <!-- Stats Screen -->
+        <div id="stats-screen" class="screen">
+            <div class="container">
+                <div class="header-container">
+                    <h2 class="screen-title">Your Statistics</h2>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-quizzes">0</div>
+                            <div class="stat-label">Quizzes Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="average-score">0%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="current-streak">0</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="best-score">0%</div>
+                            <div class="stat-label">Best Score</div>
+                        </div>
+                    </div>
+                    <div class="heatmap-section">
+                        <h3>Your Activity Heatmap</h3>
+                        <div id="activity-heatmap" class="heatmap-container">
+                            <!-- Heatmap will be generated here by gamification.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile-screen" class="screen">
+            <div class="container">
+                <div class="header-container">
+                    <h2 class="screen-title">Profile & Achievements</h2>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-header">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <h3 class="profile-name" id="profile-name">Student</h3>
+                            <p class="profile-level" id="profile-level">Level 1</p>
+                        </div>
+                    </div>
+                    <div class="achievements-section">
+                        <h3>Achievements Unlocked</h3>
+                        <div id="achievements-container" class="achievements-grid">
+                            <!-- Badges will be generated here by gamification.js -->
+                        </div>
+                    </div>
+                    <div class="badges-section">
+                        <h3>Your Badges</h3>
+                        <div id="badges-container" class="badges-display">
+                            <!-- Badges will be generated here -->
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="reset-progress" style="margin-top: 2rem;">Reset Progress</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <canvas id="confetti-canvas"></canvas>

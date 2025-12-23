@@ -73,8 +73,41 @@ class Results {
             }
         }
         
+        // Record activity for gamification tracking
+        this.recordGamificationProgress(score, total, percentage);
+        
         this.animateScore(score);
         celebrateQuizCompletion(score, total);
+    }
+
+    /**
+     * Record gamification progress (streaks, heatmap, badges)
+     */
+    recordGamificationProgress(score, total, percentage) {
+        // Record activity for streak and heatmap
+        if (window.StreakTracker) {
+            StreakTracker.recordActivity({
+                type: 'quiz_completed',
+                score: score,
+                total: total,
+                percentage: percentage,
+                timestamp: Date.now()
+            });
+        }
+        
+        // Check for badge unlocks
+        if (window.BadgeSystem) {
+            BadgeSystem.checkAndUnlock({
+                quizScore: score,
+                totalQuestions: total,
+                percentage: percentage
+            });
+        }
+        
+        // Log activity to heatmap
+        if (window.HeatmapGenerator) {
+            HeatmapGenerator.recordDate(new Date());
+        }
     }
 
     animateScore(targetScore) {
