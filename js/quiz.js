@@ -142,8 +142,8 @@ class Quiz {
     }
 
     start(questions, metadata) {
-        // Reinitialize confetti canvas if needed (in case it was cleaned up)
-        if (!this.confettiCanvas) {
+        // Initialize confetti only once to avoid memory leaks
+        if (!this.confetti && !this.confettiCanvas) {
             this.confettiCanvas = document.getElementById('confetti-canvas');
             this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
         }
@@ -207,7 +207,7 @@ class Quiz {
         const sourceQuestion = this.questions[this.currentIndex];
         
         // Deep clone to avoid mutating the original data for retakes
-        const question = JSON.parse(JSON.stringify(sourceQuestion));
+        const question = structuredClone(sourceQuestion);
         
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;

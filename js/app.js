@@ -30,7 +30,36 @@ class MCQApp {
         this.setupBottomNavigation();
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
+        this.setupServiceWorkerUpdateListener();
         this.navigation.showYears();
+    }
+
+    /**
+     * Listen for service worker updates and prompt user to refresh
+     */
+    setupServiceWorkerUpdateListener() {
+        window.addEventListener('sw-update-available', () => {
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '📦 Update Available',
+                    subtitle: 'New version ready. Tap to refresh.',
+                    type: 'success',
+                    duration: 0, // Don't auto-dismiss
+                    onTap: () => {
+                        window.dynamicIsland.hide();
+                        // Trigger service worker to activate update and refresh page
+                        window.location.reload();
+                    },
+                    onClose: () => {
+                        // User dismissed - can refresh later
+                    }
+                });
+            } else {
+                // Fallback notification
+                console.log('Service worker update available');
+                alert('A new version of Harvi is available. Please refresh the page to update.');
+            }
+        });
     }
 
     /**
@@ -156,7 +185,7 @@ class MCQApp {
                 try {
                     // Example: Sync quiz results to server
                     if (item.action === 'saveQuizResult') {
-                        const response = await fetch('/api/quiz-results', {
+                        const response = await fetch('./api/quiz-results', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(item.data)

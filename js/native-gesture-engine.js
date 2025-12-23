@@ -20,7 +20,9 @@ class NativeGestureEngine {
         document.addEventListener('touchstart', (e) => this.handleTouchStart(e), false);
         document.addEventListener('touchmove', (e) => this.handleTouchMove(e), false);
         document.addEventListener('touchend', (e) => this.handleTouchEnd(e), false);
-        document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('[data-context-menu]')) e.preventDefault();
+        }, false);
     }
 
     /**
@@ -56,26 +58,30 @@ class NativeGestureEngine {
 
         if (!screen) return;
 
-        // Swipe progress (0 to 1)
+        // Throttle transforms to refresh rate using requestAnimationFrame
+        requestAnimationFrame(() => {
+            // Swipe progress (0 to 1)
+            const progress = Math.min(deltaX / 200, 1);
+
+            // Move screen with finger
+            screen.style.transform = `translateX(${deltaX}px)`;
+            screen.style.opacity = 1 - (progress * 0.3);
+
+            // Scale menu behind (subtle rubber-banding effect)
+            const behindScreen = screen.previousElementSibling;
+            if (behindScreen) {
+                behindScreen.style.transform = `scale(${1 - (progress * 0.05)})`;
+            }
+
+            // Update overlay dimming
+            const overlay = document.querySelector('.swipe-overlay');
+            if (overlay) {
+                overlay.style.backgroundColor = `rgba(0, 0, 0, ${progress * 0.4})`;
+            }
+        });
+
+        // Haptic feedback on progress (kept out of RAF for responsiveness)
         const progress = Math.min(deltaX / 200, 1);
-
-        // Move screen with finger
-        screen.style.transform = `translateX(${deltaX}px)`;
-        screen.style.opacity = 1 - (progress * 0.3);
-
-        // Scale menu behind (subtle rubber-banding effect)
-        const behindScreen = screen.previousElementSibling;
-        if (behindScreen) {
-            behindScreen.style.transform = `scale(${1 - (progress * 0.05)})`;
-        }
-
-        // Update overlay dimming
-        const overlay = document.querySelector('.swipe-overlay');
-        if (overlay) {
-            overlay.style.backgroundColor = `rgba(0, 0, 0, ${progress * 0.4})`;
-        }
-
-        // Haptic feedback on progress
         if (navigator.vibrate && progress > 0.3) {
             navigator.vibrate(5);
         }
@@ -117,8 +123,8 @@ class NativeGestureEngine {
                     // Fallback: use tracked previous screen
                     window.app.showScreen(window.app.previousScreen);
                 } else {
-                    // Last resort: go to quiz list
-                    window.app?.showScreen?.('quiz-list');
+                    // Last resort: go to navigation screen
+                    window.app?.showScreen?.('navigation-screen');
                 }
                 
                 screen.style.transition = '';
@@ -150,7 +156,13 @@ class NativeGestureEngine {
         event.preventDefault();
 
         // Get menu items from data attribute
-        const menuData = JSON.parse(target.dataset.contextMenu || '[]');
+        let menuData = [];
+        try {
+            menuData = JSON.parse(target.dataset.contextMenu || '[]');
+        } catch (e) {
+            console.warn('Invalid context menu data:', e);
+            return;
+        }
         if (menuData.length === 0) return;
 
         const touch = event.touches?.[0] || { clientX: event.clientX, clientY: event.clientY };

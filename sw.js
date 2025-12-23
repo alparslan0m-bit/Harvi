@@ -185,7 +185,7 @@ self.addEventListener('fetch', (event) => {
               if (cachedResponse) {
                 return cachedResponse;
               }
-              return caches.match('/offline.html');
+              return caches.match(BASE_PATH + '/offline.html');
             });
         })
     );
@@ -222,7 +222,7 @@ self.addEventListener('fetch', (event) => {
             // Graceful degradation for missing static assets
             if (request.destination === 'image') {
               // Return a placeholder image or cached fallback
-              return caches.match('/icons/icon-192x192.png');
+              return caches.match(BASE_PATH + '/icons/icon-192x192.png');
             }
             return new Response('Asset not found', { status: 404 });
           });

@@ -67,7 +67,7 @@ class Navigation {
         if (!isCacheValid || !this.remoteYears) {
             try {
                 this.abortController = new AbortController();
-                const res = await fetch('/api/years', {
+                const res = await fetch('./api/years', {
                     signal: this.abortController.signal
                 });
                 
@@ -76,8 +76,8 @@ class Navigation {
                 
                 // Sort years
                 years.sort((a, b) => {
-                    const aNum = parseInt(a.id.replace('year', ''));
-                    const bNum = parseInt(b.id.replace('year', ''));
+                    const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
+                    const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
                     return aNum - bNum;
                 });
                 
@@ -369,7 +369,7 @@ class Navigation {
         
         // START FETCHING IN BACKGROUND - Don't wait for rendering
         const fetchPromises = subject.lectures.map(lecture => 
-            fetch(`/api/lectures/${encodeURIComponent(lecture.id)}`, {
+            fetch(`./api/lectures/${encodeURIComponent(lecture.id)}`, {
                 signal: abortController.signal,
                 cache: 'no-cache' // Ensure fresh data
             })
@@ -492,7 +492,8 @@ class Navigation {
                 year: year.name,
                 module: module.name,
                 subject: subject.name,
-                lecture: lecture.name
+                lecture: lecture.name,
+                lectureId: lecture.id
             });
         });
     }

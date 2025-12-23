@@ -193,7 +193,7 @@ class AdaptiveThemeColor {
         // Listen for mode changes
         const modeToggle = document.getElementById('mode-toggle');
         if (modeToggle) {
-            modeToggle.addEventListener('change', () => {
+            modeToggle.addEventListener('click', () => {
                 setTimeout(() => this.updateTheme(), 100);
             });
         }
