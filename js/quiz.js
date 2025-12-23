@@ -387,10 +387,29 @@ class Quiz {
     }
     
     
-    nextQuestion() {
+    /**
+     * Move to next question with real-time progress saving
+     * Ensures quiz progress is saved after each question for resume capability
+     */
+    async nextQuestion() {
         this.currentIndex++;
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
+        
+        // Save progress in real-time for recovery if app crashes
+        try {
+            if (this.app.lastLectureId && harviDB) {
+                await harviDB.saveQuizProgress(this.app.lastLectureId, {
+                    currentIndex: this.currentIndex,
+                    score: this.score,
+                    questions: this.questions,
+                    metadata: this.metadata
+                });
+            }
+        } catch (error) {
+            console.warn('Failed to save progress:', error);
+            // Continue even if save fails
+        }
         
         if (this.currentIndex < this.questions.length) {
             this.showQuestion();

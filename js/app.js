@@ -156,11 +156,25 @@ class MCQApp {
         }
     }
 
+    /**
+     * Show screen with View Transitions API support
+     * Creates smooth directional animations between screens
+     */
     showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
-        document.getElementById(screenId).classList.add('active');
+        const transition = () => {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        };
+        
+        // Use View Transitions API if available (modern browsers)
+        if (document.startViewTransition) {
+            document.startViewTransition(transition);
+        } else {
+            // Fallback for older browsers
+            transition();
+        }
     }
 
     async startQuiz(questions, pathInfo) {

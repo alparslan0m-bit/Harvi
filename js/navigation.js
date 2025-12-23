@@ -91,12 +91,18 @@ class Navigation {
         container.innerHTML = '';
         const fragment = document.createDocumentFragment();
         
-        years.forEach((year) => {
+        years.forEach((year, index) => {
             const card = this.createCard(
                 year.icon || '📘', 
                 year.name, 
                 `${year.modules?.length || 0} Modules`
             );
+            
+            // Mark first card as featured for Bento layout
+            if (index === 0) {
+                card.classList.add('featured');
+            }
+            
             card.addEventListener('click', () => this.showModules(year));
             fragment.appendChild(card);
         });
@@ -241,6 +247,10 @@ class Navigation {
         });
     }
 
+    /**
+     * Show lectures with offline-first strategy
+     * Displays cached content immediately, then fetches fresh data in background
+     */
     showLectures(year, module, subject) {
         this.currentPath = [year, module, subject];
         this.updateBreadcrumb();
@@ -260,7 +270,50 @@ class Navigation {
         const abortController = new AbortController();
         this.abortController = abortController;
         
-        // START FETCHING IMMEDIATELY - Don't wait for rendering
+        // OFFLINE-FIRST: Try cache first for instant display
+        (async () => {
+            const cachedResults = [];
+            for (const lecture of subject.lectures) {
+                try {
+                    const cached = await harviDB.getLecture(lecture.id);
+                    if (cached) {
+                        cachedResults.push({ lecture, data: cached, source: 'cache', success: true });
+                    } else {
+                        cachedResults.push({ lecture, source: 'network' });
+                    }
+                } catch (error) {
+                    cachedResults.push({ lecture, source: 'network' });
+                }
+            }
+            
+            // Show cached content immediately
+            const hasCached = cachedResults.some(r => r.source === 'cache');
+            if (hasCached) {
+                this.renderWithTransition(container, () => {
+                    const fragment = document.createDocumentFragment();
+                    cachedResults.forEach(result => {
+                        const data = result.data || result.lecture;
+                        const card = this.createCard(
+                            '📝',
+                            result.lecture.name,
+                            `${data.questions?.length || 0} Questions`
+                        );
+                        if (result.success) {
+                            card.addEventListener('click', () => 
+                                this.app.startQuiz(result.data.questions, {
+                                    lectureId: result.lecture.id,
+                                    name: result.lecture.name
+                                })
+                            );
+                        }
+                        fragment.appendChild(card);
+                    });
+                    return fragment;
+                });
+            }
+        })();
+        
+        // START FETCHING IN BACKGROUND - Don't wait for rendering
         const fetchPromises = subject.lectures.map(lecture => 
             fetch(`/api/lectures/${encodeURIComponent(lecture.id)}`, {
                 signal: abortController.signal,
@@ -272,7 +325,15 @@ class Navigation {
                 }
                 return response.json();
             })
-            .then(data => ({ lecture, data, success: true }))
+            .then(data => {
+                // Update cache with fresh data
+                if (harviDB && data.questions) {
+                    harviDB.saveLecture(lecture.id, data).catch(e => 
+                        console.warn('Failed to cache lecture:', e)
+                    );
+                }
+                return { lecture, data, success: true };
+            })
             .catch(error => {
                 if (error.name === 'AbortError') {
                     throw error; // Re-throw abort errors
