@@ -43,11 +43,56 @@ class MCQApp {
                     this.resumableQuiz = progress;
                     this.lastLectureId = lastLectureId;
                     console.log('✓ Resumable quiz found:', lastLectureId);
+                    
+                    // Show floating resume prompt
+                    this.showResumePrompt(lastLectureId, progress);
                 }
             }
         } catch (error) {
             console.warn('Could not check resumable quiz:', error);
         }
+    }
+    
+    /**
+     * Show floating pill prompting user to resume their quiz
+     */
+    showResumePrompt(lectureId, progress) {
+        // Wait for navigation to be initialized
+        setTimeout(() => {
+            const container = document.getElementById('cards-container');
+            if (!container) return;
+            
+            const prompt = document.createElement('div');
+            prompt.className = 'resume-prompt';
+            prompt.innerHTML = `
+                <div class="resume-content">
+                    <span class="resume-icon">▶️</span>
+                    <div class="resume-text">
+                        <p class="resume-label">Resume Quiz</p>
+                        <p class="resume-progress">${progress.metadata?.name || 'Your Quiz'} (${progress.currentIndex}/${progress.questions.length})</p>
+                    </div>
+                    <button class="resume-close" aria-label="Dismiss">✕</button>
+                </div>
+            `;
+            
+            // Resume button click handler
+            prompt.addEventListener('click', (e) => {
+                if (e.target.classList.contains('resume-close')) {
+                    prompt.remove();
+                } else {
+                    this.startQuiz(progress.questions, progress.metadata);
+                }
+            });
+            
+            // Close button specifically
+            prompt.querySelector('.resume-close').addEventListener('click', (e) => {
+                e.stopPropagation();
+                prompt.classList.add('fade-out');
+                setTimeout(() => prompt.remove(), 300);
+            });
+            
+            container.parentElement.insertBefore(prompt, container);
+        }, 100);
     }
 
     /**
@@ -166,6 +211,11 @@ class MCQApp {
                 screen.classList.remove('active');
             });
             document.getElementById(screenId).classList.add('active');
+            
+            // Subtle haptic tick on screen transition
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
         };
         
         // Use View Transitions API if available (modern browsers)

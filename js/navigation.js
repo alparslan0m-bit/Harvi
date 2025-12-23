@@ -351,6 +351,7 @@ class Navigation {
                 card.style.pointerEvents = 'none';
                 card.style.opacity = '0.7';
                 card.classList.add('loading');
+                card.classList.add('skeleton-loader');
                 card.dataset.lectureId = lecture.id;
                 loadingCards.set(lecture.id, card);
                 fragment.appendChild(card);

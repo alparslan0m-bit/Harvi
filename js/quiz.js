@@ -451,6 +451,11 @@ class Quiz {
             const progress = ((this.currentIndex + 1) / this.questions.length) * 100;
             this.progressBar.style.width = `${progress}%`;
             this.currentQuestionElement.textContent = this.currentIndex + 1;
+            
+            // Subtle haptic tick on progress update
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
         }
     }
     
