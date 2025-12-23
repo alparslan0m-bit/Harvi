@@ -38,7 +38,7 @@ class Results {
         this.lastScore = score;
         this.lastTotal = total;
 
-        const percentage = Math.round((score / total) * 100);
+        const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
         
         document.getElementById('score-number').textContent = score;
         document.getElementById('total-score').textContent = total;

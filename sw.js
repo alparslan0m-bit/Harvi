@@ -7,42 +7,46 @@ const CACHE_NAME = 'harvi-v2';
 const RUNTIME_CACHE = 'harvi-runtime-v2';
 const API_CACHE = 'harvi-api-v2';
 const IMAGE_CACHE = 'harvi-images-v2';
+
+// Determine base path (works for root or subdirectory deployments)
+const BASE_PATH = self.registration.scope.replace(self.location.origin, '').slice(0, -1);
+
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/css/main.css',
-  '/css/base/variables.css',
-  '/css/base/reset.css',
-  '/css/components/cards.css',
-  '/css/components/buttons.css',
-  '/css/components/header.css',
-  '/css/components/quiz-container.css',
-  '/css/components/quiz-options.css',
-  '/css/components/results-screen.css',
-  '/css/components/breadcrumb.css',
-  '/css/components/micro-interactions.css',
-  '/css/components/glassmorphism.css',
-  '/css/components/view-transitions.css',
-  '/css/components/showcase-glass-2.0.css',
-  '/css/components/bottom-nav.css',
-  '/css/components/gamification.css',
-  '/css/layout/grid.css',
-  '/css/themes/dark-mode.css',
-  '/css/themes/girl-mode.css',
-  '/css/utils/responsive.css',
-  '/css/utils/mobile.css',
-  '/css/utils/animations.css',
-  '/css/utils/ios-optimizations.css',
-  '/css/animations.css',
-  '/js/app.js',
-  '/js/quiz.js',
-  '/js/results.js',
-  '/js/navigation.js',
-  '/js/animations.js',
-  '/js/showcase-features.js',
-  '/js/gamification.js',
-  '/js/db.js',
-  '/offline.html'
+  BASE_PATH + '/',
+  BASE_PATH + '/index.html',
+  BASE_PATH + '/css/main.css',
+  BASE_PATH + '/css/base/variables.css',
+  BASE_PATH + '/css/base/reset.css',
+  BASE_PATH + '/css/components/cards.css',
+  BASE_PATH + '/css/components/buttons.css',
+  BASE_PATH + '/css/components/header.css',
+  BASE_PATH + '/css/components/quiz-container.css',
+  BASE_PATH + '/css/components/quiz-options.css',
+  BASE_PATH + '/css/components/results-screen.css',
+  BASE_PATH + '/css/components/breadcrumb.css',
+  BASE_PATH + '/css/components/micro-interactions.css',
+  BASE_PATH + '/css/components/glassmorphism.css',
+  BASE_PATH + '/css/components/view-transitions.css',
+  BASE_PATH + '/css/components/showcase-glass-2.0.css',
+  BASE_PATH + '/css/components/bottom-nav.css',
+  BASE_PATH + '/css/components/gamification.css',
+  BASE_PATH + '/css/layout/grid.css',
+  BASE_PATH + '/css/themes/dark-mode.css',
+  BASE_PATH + '/css/themes/girl-mode.css',
+  BASE_PATH + '/css/utils/responsive.css',
+  BASE_PATH + '/css/utils/mobile.css',
+  BASE_PATH + '/css/utils/animations.css',
+  BASE_PATH + '/css/utils/ios-optimizations.css',
+  BASE_PATH + '/css/animations.css',
+  BASE_PATH + '/js/app.js',
+  BASE_PATH + '/js/quiz.js',
+  BASE_PATH + '/js/results.js',
+  BASE_PATH + '/js/navigation.js',
+  BASE_PATH + '/js/animations.js',
+  BASE_PATH + '/js/showcase-features.js',
+  BASE_PATH + '/js/gamification.js',
+  BASE_PATH + '/js/db.js',
+  BASE_PATH + '/offline.html'
 ];
 
 /**
@@ -249,7 +253,23 @@ self.addEventListener('sync', (event) => {
  */
 self.addEventListener('push', (event) => {
   if (event.data) {
-    const data = event.data.json();
+    let data = { title: 'Harvi', body: 'New content available' };
+    
+    try {
+      data = event.data.json();
+    } catch (error) {
+      console.warn('Failed to parse push notification JSON:', error);
+      // Use event.data.text() as fallback if JSON parsing fails
+      if (event.data) {
+        try {
+          data = { title: 'Harvi', body: event.data.text() };
+        } catch (textError) {
+          // Use default values if text parsing also fails
+          console.warn('Failed to read push notification text:', textError);
+        }
+      }
+    }
+    
     const options = {
       body: data.body || 'New content available',
       icon: '/icons/icon-192x192.png',

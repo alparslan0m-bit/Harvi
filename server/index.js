@@ -26,7 +26,14 @@ mongoose.connect(MONGODB_URI).then(() => {
 
 app.get('/api/years', async (req, res) => {
     try {
-        const years = await Year.find({}).sort({ id: 1 }).lean();
+        // 1. Fetch ALL data in parallel (only 4 database calls total!)
+        const [years, allModules, allSubjects, allLectures] = await Promise.all([
+            Year.find({}).sort({ id: 1 }).lean(),
+            Module.find({}).lean(),
+            Subject.find({}).lean(),
+            Lecture.find({}, 'id name subjectId').lean()
+        ]);
+
         if (!years || years.length === 0) {
             return res.status(404).json({ 
                 error: 'No years found',
@@ -34,22 +41,19 @@ app.get('/api/years', async (req, res) => {
             });
         }
 
-        for (let year of years) {
-            const modules = await Module.find({ yearId: year.id }).lean();
-            year.modules = await Promise.all(modules.map(async module => {
-                const subjects = await Subject.find({ moduleId: module.id }).lean();
-                const subjectsWithLectures = await Promise.all(subjects.map(async (s) => {
-                    const lectures = await Lecture.find({ subjectId: s.id }, 'id name').lean();
-                    return { ...s, lectures };
-                }));
-                return {
-                    ...module,
-                    subjects: subjectsWithLectures
-                };
-            }));
-        }
+        // 2. Map everything together in memory (blazing fast)
+        const response = years.map(year => {
+            const modules = allModules.filter(m => m.yearId === year.id).map(module => {
+                const subjects = allSubjects.filter(s => s.moduleId === module.id).map(subject => {
+                    const lectures = allLectures.filter(l => l.subjectId === subject.id);
+                    return { ...subject, lectures };
+                });
+                return { ...module, subjects };
+            });
+            return { ...year, modules };
+        });
 
-        res.json(years);
+        res.json(response);
     } catch (err) {
         console.error('Error fetching years:', err);
         res.status(500).json({ 
@@ -76,24 +80,27 @@ app.get('/api/lectures/:lectureId', async (req, res) => {
 
 app.get('/api/admin/years', async (req, res) => {
     try {
-        const years = await Year.find({}).sort({ id: 1 }).lean();
-        
-        for (let year of years) {
-            const modules = await Module.find({ yearId: year.id }).lean();
-            year.modules = await Promise.all(modules.map(async module => {
-                const subjects = await Subject.find({ moduleId: module.id }).lean();
-                const subjectsWithLectures = await Promise.all(subjects.map(async (s) => {
-                    const lectures = await Lecture.find({ subjectId: s.id }, 'id name').lean();
-                    return { ...s, lectures };
-                }));
-                return {
-                    ...module,
-                    subjects: subjectsWithLectures
-                };
-            }));
-        }
-        
-        res.json(years);
+        // 1. Fetch ALL data in parallel (only 4 database calls total!)
+        const [years, allModules, allSubjects, allLectures] = await Promise.all([
+            Year.find({}).sort({ id: 1 }).lean(),
+            Module.find({}).lean(),
+            Subject.find({}).lean(),
+            Lecture.find({}).lean()
+        ]);
+
+        // 2. Map everything together in memory (blazing fast)
+        const response = years.map(year => {
+            const modules = allModules.filter(m => m.yearId === year.id).map(module => {
+                const subjects = allSubjects.filter(s => s.moduleId === module.id).map(subject => {
+                    const lectures = allLectures.filter(l => l.subjectId === subject.id);
+                    return { ...subject, lectures };
+                });
+                return { ...module, subjects };
+            });
+            return { ...year, modules };
+        });
+
+        res.json(response);
     } catch (err) {
         console.error('Error fetching years:', err);
         res.status(500).json({ error: 'Failed to fetch years' });

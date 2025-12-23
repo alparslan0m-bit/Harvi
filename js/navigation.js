@@ -382,7 +382,10 @@ class Navigation {
             .then(data => {
                 // Update cache with fresh data
                 if (harviDB && data.questions) {
-                    harviDB.saveLecture(lecture.id, data).catch(e => 
+                    harviDB.saveLecture({
+                        id: lecture.id,
+                        ...data
+                    }).catch(e => 
                         console.warn('Failed to cache lecture:', e)
                     );
                 }

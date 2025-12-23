@@ -8,22 +8,29 @@ class HarviDatabase {
         this.version = 1;
         this.db = null;
         this.initialized = false;
+        this.initPromise = null; // Track initialization promise to prevent race conditions
     }
 
     /**
      * Initialize IndexedDB with object stores
      */
     async init() {
-        return new Promise((resolve, reject) => {
-            if (this.initialized && this.db) {
-                resolve(this.db);
-                return;
-            }
+        // Return existing initialization promise if one is in progress
+        if (this.initPromise) {
+            return this.initPromise;
+        }
 
+        if (this.initialized && this.db) {
+            return this.db;
+        }
+
+        // Create and store the initialization promise
+        this.initPromise = new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, this.version);
 
             request.onerror = () => {
                 console.error('IndexedDB initialization failed:', request.error);
+                this.initPromise = null; // Reset on error so retry is possible
                 reject(request.error);
             };
 
@@ -65,6 +72,8 @@ class HarviDatabase {
                 console.log('✓ Object stores created');
             };
         });
+
+        return this.initPromise;
     }
 
     /**
@@ -234,7 +243,7 @@ class HarviDatabase {
                 lectureId,
                 score: result.score,
                 total: result.total,
-                percentage: Math.round((result.score / result.total) * 100),
+                percentage: result.total > 0 ? Math.round((result.score / result.total) * 100) : 0,
                 timeSpent: result.timeSpent,
                 date: new Date().toISOString(),
                 synced: false

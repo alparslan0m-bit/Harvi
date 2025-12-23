@@ -148,7 +148,14 @@ class Quiz {
             this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
         }
         
-        this.questions = this.shuffleArray([...questions]);
+        // Deep clone questions to avoid mutating the original data
+        // This is critical for retake functionality
+        const clonedQuestions = questions.map(q => ({
+            ...q,
+            options: Array.isArray(q.options) ? [...q.options] : q.options
+        }));
+        
+        this.questions = this.shuffleArray(clonedQuestions);
         this.metadata = metadata;
         this.currentIndex = 0;
         this.score = 0;
@@ -197,7 +204,11 @@ class Quiz {
     }
 
     showQuestion() {
-        const question = this.questions[this.currentIndex];
+        const sourceQuestion = this.questions[this.currentIndex];
+        
+        // Deep clone to avoid mutating the original data for retakes
+        const question = JSON.parse(JSON.stringify(sourceQuestion));
+        
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
         
@@ -279,7 +290,8 @@ class Quiz {
                 navigator.vibrate(5); // Light feedback - 5ms tick
             }
             
-            e.preventDefault();
+            // Note: e.preventDefault() removed to allow scrolling through long option lists
+            // Touch action controlled via CSS touch-action: manipulation;
         }, { passive: false });
         
         option.addEventListener('touchmove', (e) => {

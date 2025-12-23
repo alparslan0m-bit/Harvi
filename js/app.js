@@ -156,12 +156,19 @@ class MCQApp {
                 try {
                     // Example: Sync quiz results to server
                     if (item.action === 'saveQuizResult') {
-                        await fetch('/api/quiz-results', {
+                        const response = await fetch('/api/quiz-results', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(item.data)
                         });
-                        await harviDB.markSynced(item.id);
+                        
+                        // Only mark as synced if server accepted the data
+                        if (response.ok) {
+                            await harviDB.markSynced(item.id);
+                            console.log(`✓ Synced item ${item.id}`);
+                        } else {
+                            console.warn(`Server rejected item ${item.id}: ${response.status}`);
+                        }
                     }
                 } catch (error) {
                     console.warn(`Failed to sync item ${item.id}:`, error);
