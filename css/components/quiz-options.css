@@ -1,7 +1,9 @@
 .option {
     background: #FFFFFF;
     border: 2px solid #E5E7EB;
-    border-radius: clamp(12px, 2vw, 16px);
+    border-radius: 24px;
+    /* iOS Squircle approximation */
+    border-radius: max(24px, min(100% - 4px, 24px + (100% - 100px) * 0.1));
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: clamp(1rem, 2vw, 1.25rem);
     cursor: pointer;

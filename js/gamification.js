@@ -426,7 +426,7 @@ class BadgeSystem {
 class StatisticsAggregator {
     static async aggregateStats() {
         try {
-            const allProgress = await harviDB.getAllQuizProgress();
+            const allProgress = await harviDB.getAllResults();
             
             let stats = {
                 totalQuizzes: allProgress.length,
@@ -441,18 +441,18 @@ class StatisticsAggregator {
             let totalScore = 0;
 
             for (const progress of allProgress) {
-                const score = Math.round((progress.correctCount / progress.questions.length) * 100);
+                const score = Math.round((progress.score / progress.total) * 100);
                 totalScore += score;
 
                 if (score === 100) {
                     stats.perfectScores++;
                 }
 
-                stats.totalCorrect += progress.correctCount;
-                stats.totalQuestions += progress.questions.length;
+                stats.totalCorrect += progress.score;
+                stats.totalQuestions += progress.total;
 
-                if (progress.completionTime) {
-                    stats.fastestQuizTime = Math.min(stats.fastestQuizTime, progress.completionTime);
+                if (progress.timeSpent) {
+                    stats.fastestQuizTime = Math.min(stats.fastestQuizTime, progress.timeSpent);
                 }
 
                 // Check for improvement on retakes

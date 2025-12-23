@@ -84,29 +84,40 @@ class Results {
      * Record gamification progress (streaks, heatmap, badges)
      */
     recordGamificationProgress(score, total, percentage) {
-        // Record activity for streak and heatmap
-        if (window.StreakTracker) {
-            StreakTracker.recordActivity({
-                type: 'quiz_completed',
-                score: score,
-                total: total,
-                percentage: percentage,
-                timestamp: Date.now()
-            });
-        }
-        
-        // Check for badge unlocks
-        if (window.BadgeSystem) {
-            BadgeSystem.checkAndUnlock({
-                quizScore: score,
-                totalQuestions: total,
-                percentage: percentage
-            });
-        }
-        
-        // Log activity to heatmap
-        if (window.HeatmapGenerator) {
-            HeatmapGenerator.recordDate(new Date());
+        try {
+            // Record quiz completion for streak tracking
+            if (window.StreakTracker) {
+                const tracker = new StreakTracker();
+                tracker.recordQuizCompletion();
+            }
+            
+            // Record heatmap activity
+            if (window.HeatmapGenerator) {
+                const heatmap = new HeatmapGenerator('#activity-heatmap');
+                heatmap.recordActivity(new Date());
+            }
+            
+            // Get stats for badge checking
+            if (window.StatisticsAggregator && window.BadgeSystem) {
+                StatisticsAggregator.aggregateStats().then(stats => {
+                    if (stats) {
+                        const unlocked = BadgeSystem.getUnlockedBadges(stats);
+                        if (unlocked && unlocked.length > 0) {
+                            unlocked.forEach(badge => {
+                                console.log('🏆 Badge unlocked:', badge.name);
+                                if (window.HapticsEngine) {
+                                    try { HapticsEngine.strongPulse(); } catch (e) { }
+                                }
+                                if (window.audioToolkit) {
+                                    try { audioToolkit.play('celebration'); } catch (e) { }
+                                }
+                            });
+                        }
+                    }
+                }).catch(e => console.warn('Badge check failed:', e));
+            }
+        } catch (e) {
+            console.warn('Gamification tracking error:', e);
         }
     }
 

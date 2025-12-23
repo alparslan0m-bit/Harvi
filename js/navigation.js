@@ -582,4 +582,36 @@ class Navigation {
                 break;
         }
     }
+
+    /**
+     * Setup Large Title scroll transition
+     * Monitors scroll position to collapse header
+     */
+    setupScrollListener() {
+        const screen = document.querySelector('.screen.active');
+        if (!screen) return;
+
+        const header = screen.querySelector('.scrollable-header');
+        const cardsContainer = screen.querySelector('#cards-container');
+
+        if (!header || !cardsContainer) return;
+
+        // Remove existing listeners to avoid duplicates
+        if (this.scrollListener) {
+            cardsContainer.removeEventListener('scroll', this.scrollListener);
+        }
+
+        this.scrollListener = () => {
+            const scrollY = cardsContainer.scrollTop;
+            const threshold = 100; // px
+
+            if (scrollY > threshold) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        };
+
+        cardsContainer.addEventListener('scroll', this.scrollListener, false);
+    }
 }

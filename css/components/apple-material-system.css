@@ -1,0 +1,348 @@
+/**
+ * APPLE MATERIAL DESIGN SYSTEM
+ * Premium native-feeling PWA aesthetic
+ * Based on iOS 18+ Material Design Language
+ */
+
+/* ============================================
+   PHASE 1: MATERIAL TOKENS & SYSTEM COLORS
+   ============================================ */
+
+:root {
+    /* === Material Blur Layers (Fixed Syntax) === */
+    --ios-material-thin-filter: blur(10px) saturate(180%) brightness(1.15);
+    --ios-material-regular-filter: blur(20px) saturate(180%) brightness(1.2);
+    --ios-material-thick-filter: blur(30px) saturate(180%) brightness(1.25);
+
+    /* === System Background Colors === */
+    --system-background: #FFFFFF;
+    --secondary-system-background: #F2F2F7;
+    --tertiary-system-background: #FFFFFF;
+    
+    --system-group-background: #F2F2F7;
+    --secondary-system-group-background: #FFFFFF;
+    
+    --system-fill: rgba(120, 120, 128, 0.1);
+    --secondary-system-fill: rgba(120, 120, 128, 0.08);
+    --tertiary-system-fill: rgba(120, 120, 128, 0.06);
+    
+    /* === Semantic Separators === */
+    --separator: rgba(60, 60, 67, 0.29);
+    --opaque-separator: #C6C6C6;
+
+    /* === Label Colors === */
+    --label-primary: rgba(0, 0, 0, 1);
+    --label-secondary: rgba(60, 60, 67, 0.6);
+    --label-tertiary: rgba(60, 60, 67, 0.3);
+    --label-quaternary: rgba(60, 60, 67, 0.18);
+
+    /* === Tint Colors === */
+    --tint-boy: #0EA5E9;
+    --tint-girl: #EC4899;
+    
+    /* === Typography Tracking === */
+    --tracking-tight: -0.022em;
+    --tracking-normal: -0.011em;
+    --tracking-loose: 0em;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --system-background: #000000;
+        --secondary-system-background: #1C1C1E;
+        --tertiary-system-background: #2C2C2E;
+        
+        --system-group-background: #1C1C1E;
+        --secondary-system-group-background: #2C2C2E;
+        
+        --label-primary: rgba(255, 255, 255, 1);
+        --label-secondary: rgba(235, 235, 240, 0.6);
+        --label-tertiary: rgba(235, 235, 240, 0.3);
+        --label-quaternary: rgba(235, 235, 240, 0.18);
+        
+        --separator: rgba(84, 84, 88, 0.65);
+    }
+}
+
+/* ============================================
+   TYPOGRAPHY: SF PRO SYSTEM & DYNAMIC TYPE
+   ============================================ */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    color: var(--label-primary);
+    background-color: var(--system-background);
+}
+
+/* Large Title - Scroll to Inline Transition */
+.screen-title {
+    font-family: -apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif;
+    font-size: clamp(28px, 7vw, 34px);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    line-height: 1.1;
+    margin: 0 0 1rem 0;
+    transition: font-size 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.header-title {
+    font-size: clamp(17px, 4.5vw, 20px);
+    font-weight: 600;
+    letter-spacing: var(--tracking-normal);
+}
+
+.body-text {
+    font-size: clamp(15px, 3.8vw, 17px);
+    letter-spacing: var(--tracking-normal);
+    line-height: 1.5;
+    color: var(--label-primary);
+}
+
+.caption-text {
+    font-size: clamp(13px, 3vw, 15px);
+    letter-spacing: var(--tracking-normal);
+    color: var(--label-secondary);
+}
+
+/* ============================================
+   CONTINUOUS CURVATURE (SQUIRCLES)
+   ============================================ */
+
+/* iOS Squircle Approximation (24px radius with subtle smoothing) */
+.ios-squircle {
+    border-radius: 24px;
+    /* Use CSS mask for true squircles (requires vendor prefixes) */
+    -webkit-mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
+}
+
+/* Card-style squircles */
+.glass-card,
+.material-card {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+/* Small component squircles (buttons, badges) */
+.icon-button,
+.badge,
+.segmented-control-item {
+    border-radius: 20px;
+}
+
+/* Large corner squircles (bottom sheets, full modals) */
+.bottom-sheet {
+    border-radius: 28px 28px 0 0;
+}
+
+/* ============================================
+   MATERIAL LAYERS & VIBRANCY
+   ============================================ */
+
+.material-thin {
+    backdrop-filter: var(--ios-material-thin-filter);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.material-regular {
+    backdrop-filter: var(--ios-material-regular-filter);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.material-thick {
+    backdrop-filter: var(--ios-material-thick-filter);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+    .material-thin {
+        background: rgba(0, 0, 0, 0.15);
+    }
+    .material-regular {
+        background: rgba(0, 0, 0, 0.25);
+    }
+    .material-thick {
+        background: rgba(0, 0, 0, 0.35);
+    }
+}
+
+/* ============================================
+   SEMANTIC COMPONENT PATTERNS
+   ============================================ */
+
+/* Inset Grouped List */
+.list-inset-grouped {
+    background: var(--system-group-background);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0.5rem 1rem;
+}
+
+.list-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--separator);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.2s ease;
+    /* Vibrancy effect for separator */
+    background: linear-gradient(180deg, transparent 0%, transparent calc(100% - 1px), var(--separator) calc(100% - 1px), var(--separator) 100%);
+    background-attachment: fixed;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:active {
+    background-color: var(--system-fill);
+}
+
+/* Segmented Control */
+.segmented-control {
+    display: inline-flex;
+    background: var(--secondary-system-background);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.segmented-control-item {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--label-secondary);
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.segmented-control-item.active {
+    background: var(--system-background);
+    color: var(--label-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   DEPTH & ELEVATION SHADOWS
+   ============================================ */
+
+.shadow-elevation-1 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-elevation-2 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-elevation-3 {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-elevation-4 {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   INTERACTIVE STATES
+   ============================================ */
+
+.interactive-element {
+    transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.interactive-element:hover {
+    opacity: 0.85;
+    transform: scale(0.98);
+}
+
+.interactive-element:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+/* ============================================
+   FOCUS STATES (ACCESSIBILITY)
+   ============================================ */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--tint-boy);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   SAFE AREA & NOTCH HANDLING
+   ============================================ */
+
+.safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-area-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+}
+
+.safe-area-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.home-indicator-space {
+    height: env(safe-area-inset-bottom, 0);
+    min-height: 20px;
+}
+
+/* ============================================
+   VIBRANCY EFFECTS (COLOR LAYERING)
+   ============================================ */
+
+.vibrancy-light {
+    mix-blend-mode: screen;
+    opacity: 0.8;
+}
+
+.vibrancy-dark {
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+}
+
+.vibrancy-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.05;
+}
+
+/* ============================================
+   ACCESSIBILITY: REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}

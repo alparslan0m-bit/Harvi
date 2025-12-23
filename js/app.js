@@ -9,6 +9,7 @@ class MCQApp {
         this.isDarkMode = false;
         this.lastLectureId = null;
         this.resumableQuiz = null;
+        this.previousScreen = 'navigation-screen'; // Track previous screen for back gestures
         this.init();
     }
 
@@ -26,6 +27,7 @@ class MCQApp {
         this.results = new Results(this);
         
         this.initDarkMode();
+        this.setupBottomNavigation();
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
         this.navigation.showYears();
@@ -57,6 +59,30 @@ class MCQApp {
      * Show floating pill prompting user to resume their quiz
      */
     showResumePrompt(lectureId, progress) {
+        // Use Dynamic Island notification system instead of custom prompt
+        if (window.dynamicIsland) {
+            const progressText = `${progress.metadata?.name || 'Quiz'} (${progress.currentIndex}/${progress.questions.length})`;
+            
+            window.dynamicIsland.show({
+                title: '▶️ Resume Quiz',
+                subtitle: progressText,
+                type: 'info',
+                duration: 0, // Don't auto-dismiss
+                onTap: () => {
+                    window.dynamicIsland.hide();
+                    this.startQuiz(progress.questions, progress.metadata);
+                },
+                onClose: () => {
+                    // User dismissed it
+                }
+            });
+        } else {
+            // Fallback: show in custom prompt if DynamicIsland not available
+            this.showResumeFallback(lectureId, progress);
+        }
+    }
+
+    showResumeFallback(lectureId, progress) {
         // Wait for navigation to be initialized
         setTimeout(() => {
             const container = document.getElementById('cards-container');
@@ -148,6 +174,62 @@ class MCQApp {
         }
     }
 
+    /**
+     * Setup bottom navigation screen switching
+     */
+    setupBottomNavigation() {
+        const navItems = document.querySelectorAll('.bottom-nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const screenId = item.dataset.screen;
+                if (screenId) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    this.showScreen(screenId);
+                    
+                    // Update stats UI when stats screen is shown
+                    if (screenId === 'stats-screen') {
+                        setTimeout(() => {
+                            this.updateStatsUI();
+                            // Render heatmap
+                            if (window.HeatmapGenerator) {
+                                const heatmap = new HeatmapGenerator('#activity-heatmap');
+                                heatmap.render();
+                            }
+                        }, 100);
+                    }
+                    
+                    if (navigator.vibrate) navigator.vibrate(8);
+                }
+            });
+        });
+    }
+
+    /**
+     * Update stats screen with current data
+     */
+    async updateStatsUI() {
+        try {
+            if (window.StatisticsAggregator) {
+                const stats = await StatisticsAggregator.aggregateStats();
+                if (stats) {
+                    document.getElementById('total-quizzes').textContent = stats.totalQuizzes;
+                    document.getElementById('average-score').textContent = Math.round(stats.averageScore) + '%';
+                    document.getElementById('current-streak').textContent = stats.streak;
+                    document.getElementById('best-score').textContent = stats.bestScore || '0%';
+                    
+                    // Render badges if available
+                    if (window.BadgeSystem) {
+                        BadgeSystem.renderBadges('#achievements-container', stats);
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to update stats UI:', e);
+        }
+    }
+
     initDarkMode() {
         const savedMode = localStorage.getItem('girlMode');
         if (savedMode !== null) {
@@ -207,10 +289,22 @@ class MCQApp {
      */
     showScreen(screenId) {
         const transition = () => {
+            // Track previous screen for back gesture navigation
+            const currentActive = document.querySelector('.screen.active');
+            if (currentActive) {
+                this.previousScreen = currentActive.id;
+            }
+
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
-            document.getElementById(screenId).classList.add('active');
+            const screen = document.getElementById(screenId);
+            screen.classList.add('active');
+            
+            // Setup scroll listener for Large Title transition
+            if (this.navigation) {
+                this.navigation.setupScrollListener();
+            }
             
             // Subtle haptic tick on screen transition
             if (navigator.vibrate) {
