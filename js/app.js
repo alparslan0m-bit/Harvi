@@ -75,6 +75,8 @@ class MCQApp {
         this.statsCache = null; // PHASE 1: Cache for statistics
         this.statsLastUpdated = 0;
         this.statsCacheDuration = 30000; // 30 second cache
+        // PHASE 2 FIX: Master copy of lecture questions for protecting against shuffle corruption
+        this.masterCopyQuestions = null;
         this.init();
     }
 
@@ -476,8 +478,16 @@ class MCQApp {
     }
 
     async startQuiz(questions, pathInfo) {
+        // PHASE 2 FIX: Store master copy of unshuffled questions
+        // This prevents shuffling from one session from affecting retakes
+        this.masterCopyQuestions = structuredClone(questions);
+        
+        // Create a deep clone for the quiz session
+        // The quiz will shuffle this clone; the master copy stays pristine for retakes
+        const quizSessionQuestions = structuredClone(questions);
+        
         this.currentQuiz = {
-            questions: questions,
+            questions: quizSessionQuestions,
             pathInfo: pathInfo,
             currentIndex: 0,
             answers: [],
@@ -491,7 +501,7 @@ class MCQApp {
             await harviDB.setSetting('lastActiveLectureId', pathInfo.lectureId);
         }
 
-        this.quiz.start(questions, pathInfo);
+        this.quiz.start(quizSessionQuestions, pathInfo);
     }
 
     async showResults(score, total, metadata) {

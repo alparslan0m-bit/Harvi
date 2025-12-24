@@ -14,7 +14,12 @@ class Results {
 
     bindEvents() {
         document.getElementById('retake-quiz').addEventListener('click', () => {
-            if (this.lastQuizQuestions && this.lastQuizMetadata) {
+            // PHASE 2 FIX: Use master copy (unshuffled original) instead of session questions
+            // This ensures retakes start fresh without the previous session's shuffle corruption
+            if (this.app.masterCopyQuestions && this.lastQuizMetadata) {
+                this.app.startQuiz(this.app.masterCopyQuestions, this.lastQuizMetadata);
+            } else if (this.lastQuizQuestions && this.lastQuizMetadata) {
+                // Fallback: if master copy not available, use what we have
                 this.app.startQuiz(this.lastQuizQuestions, this.lastQuizMetadata);
             }
         });

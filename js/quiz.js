@@ -155,7 +155,33 @@ class Quiz {
             options: Array.isArray(q.options) ? [...q.options] : q.options
         }));
         
+        // PHASE 1 FIX: Shuffle question order (this is OK)
         this.questions = this.shuffleArray(clonedQuestions);
+        
+        // PHASE 1 FIX: Shuffle options for EACH question once and permanently update correctAnswer index
+        // This ensures UI rendering and answer validation use the SAME map
+        this.questions.forEach(question => {
+            if (question && question.options && question.options.length > 0) {
+                // Create array of options with their original indices
+                const optionsWithIndices = question.options.map((text, index) => ({
+                    text,
+                    originalIndex: index
+                }));
+                
+                // Shuffle the options
+                const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
+                
+                // Update the question's options to the shuffled order
+                question.options = shuffledOptions.map(opt => opt.text);
+                
+                // Find where the correct answer ended up after shuffling
+                const correctOptionObject = shuffledOptions.find(opt => opt.originalIndex === question.correctAnswer);
+                
+                // Permanently update the correctAnswer index to the new shuffled position
+                question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
+            }
+        });
+        
         this.metadata = metadata;
         this.currentIndex = 0;
         this.score = 0;
@@ -204,10 +230,11 @@ class Quiz {
     }
 
     showQuestion() {
-        const sourceQuestion = this.questions[this.currentIndex];
+        const currentQuestion = this.questions[this.currentIndex];
         
-        // Deep clone to avoid mutating the original data for retakes
-        const question = structuredClone(sourceQuestion);
+        // PHASE 1 FIX: showQuestion() is now a "dumb" renderer
+        // The options are already shuffled in start(), so we just display them as-is
+        // No re-shuffling happens here!
         
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
@@ -216,27 +243,16 @@ class Quiz {
             this.updateProgress();
         }
         
-        if (this.questionTextElement && question) {
-            this.questionTextElement.textContent = question.text || 'Question not found';
+        if (this.questionTextElement && currentQuestion) {
+            this.questionTextElement.textContent = currentQuestion.text || 'Question not found';
         }
 
-        if (question && question.options) {
-            const optionsWithIndices = question.options.map((text, index) => ({
-                text,
-                originalIndex: index
-            }));
-            
-            const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
-            
-            question.options = shuffledOptions.map(opt => opt.text);
-            const correctOptionObject = shuffledOptions.find(opt => opt.originalIndex === question.correctAnswer);
-            question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
-        }
-        
-        if (this.optionsContainer && question && question.options) {
+        if (this.optionsContainer && currentQuestion && currentQuestion.options) {
             this.optionsContainer.innerHTML = '';
             
-            question.options.forEach((option, index) => {
+            // PHASE 1 FIX: Render pre-shuffled options directly from currentQuestion.options
+            // The correctAnswer index in currentQuestion already points to the shuffled position
+            currentQuestion.options.forEach((option, index) => {
                 const optionElement = this.createOption(option, index);
                 this.optionsContainer.appendChild(optionElement);
             });
