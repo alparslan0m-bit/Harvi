@@ -1,17 +1,22 @@
 /**
  * Animation Utilities
  * Device-aware animations optimized for performance across mobile and desktop
+ * Uses AdaptivePerformance as single source of truth for device capabilities
  */
 
 function triggerConfetti() {
+    // Use AdaptivePerformance detection if available, otherwise fallback to inline detection
+    const isLowPerformance = window.adaptivePerformance?.isLowPerformance || 
+        (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+    
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
     
-    const particleCount = isIOS ? 30 : (isMobile ? 50 : 100);
-    const spread = isIOS ? 45 : (isMobile ? 60 : 70);
-    const ticks = isIOS ? 100 : (isMobile ? 150 : 200);
-    const scalar = isIOS ? 0.8 : (isMobile ? 1.0 : 1.2);
+    // Adjust particle count based on device performance
+    const particleCount = isLowPerformance ? 20 : (isIOS ? 30 : (isMobile ? 50 : 100));
+    const spread = isLowPerformance ? 35 : (isIOS ? 45 : (isMobile ? 60 : 70));
+    const ticks = isLowPerformance ? 80 : (isIOS ? 100 : (isMobile ? 150 : 200));
+    const scalar = isLowPerformance ? 0.6 : (isIOS ? 0.8 : (isMobile ? 1.0 : 1.2));
     
     requestAnimationFrame(() => {
         confetti({
@@ -22,12 +27,12 @@ function triggerConfetti() {
             ticks: ticks,
             scalar: scalar,
             shapes: isIOS ? ['circle'] : ['circle', 'square'],
-            gravity: isIOS ? 0.8 : (isMobile ? 1.0 : 1.2),
-            decay: isIOS ? 0.9 : (isMobile ? 0.92 : 0.94),
+            gravity: isLowPerformance ? 0.6 : (isIOS ? 0.8 : (isMobile ? 1.0 : 1.2)),
+            decay: isLowPerformance ? 0.85 : (isIOS ? 0.9 : (isMobile ? 0.92 : 0.94)),
             drift: 0,
-            startVelocity: isIOS ? 20 : (isMobile ? 25 : 30),
-            disableForReducedMotion: false,
-            useWorker: true
+            startVelocity: isLowPerformance ? 15 : (isIOS ? 20 : (isMobile ? 25 : 30)),
+            disableForReducedMotion: true,
+            useWorker: !isLowPerformance // Disable worker threads on low-end devices
         });
     });
 }

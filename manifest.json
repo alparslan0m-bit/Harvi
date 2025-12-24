@@ -2,82 +2,85 @@
   "name": "Harvi - Medical MCQ Learning Platform",
   "short_name": "Harvi",
   "description": "Comprehensive medical multiple-choice questions for students preparing for exams",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#FFFFFF",
   "theme_color": "#0EA5E9",
-  "categories": ["education", "medical"],
+  "categories": [
+    "education",
+    "medical"
+  ],
   "screenshots": [
     {
-      "src": "/icons/screenshot-192.png",
+      "src": "./icons/screenshot-192.png",
       "sizes": "192x192",
       "form_factor": "narrow"
     },
     {
-      "src": "/icons/screenshot-512.png",
+      "src": "./icons/screenshot-512.png",
       "sizes": "512x512",
       "form_factor": "wide"
     }
   ],
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
+      "src": "./icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-96x96.png",
+      "src": "./icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-128x128.png",
+      "src": "./icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-144x144.png",
+      "src": "./icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-152x152.png",
+      "src": "./icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "./icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-384x384.png",
+      "src": "./icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "./icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192x192-maskable.png",
+      "src": "./icons/icon-192x192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512x512-maskable.png",
+      "src": "./icons/icon-512x512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -88,10 +91,10 @@
       "name": "Resume Last Quiz",
       "short_name": "Resume",
       "description": "Continue your last quiz session",
-      "url": "/index.html?action=resume",
+      "url": "./index.html?action=resume",
       "icons": [
         {
-          "src": "/icons/shortcut-resume-96.png",
+          "src": "./icons/shortcut-resume-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -101,10 +104,10 @@
       "name": "Browse Questions",
       "short_name": "Browse",
       "description": "Browse all available medical questions",
-      "url": "/index.html?action=browse",
+      "url": "./index.html?action=browse",
       "icons": [
         {
-          "src": "/icons/shortcut-browse-96.png",
+          "src": "./icons/shortcut-browse-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -114,10 +117,10 @@
       "name": "My Progress",
       "short_name": "Progress",
       "description": "View your learning statistics",
-      "url": "/index.html?action=progress",
+      "url": "./index.html?action=progress",
       "icons": [
         {
-          "src": "/icons/shortcut-progress-96.png",
+          "src": "./icons/shortcut-progress-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -125,7 +128,7 @@
     }
   ],
   "share_target": {
-    "action": "/share",
+    "action": "./share",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {

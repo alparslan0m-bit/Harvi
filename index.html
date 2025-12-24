@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +14,8 @@
     <meta name="description" content="Harvi - Comprehensive medical multiple-choice questions for exam preparation">
     <meta name="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230EA5E9' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>H</text></svg>">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230EA5E9' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>H</text></svg>">
     <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png">
     <title>Harvi - Medical MCQ Learning Platform</title>
     <link rel="stylesheet" href="./css/main.css">
@@ -26,9 +29,13 @@
     <link rel="stylesheet" href="./css/components/apple-material-system.css">
     <link rel="stylesheet" href="./css/components/native-navigation.css">
     <link rel="stylesheet" href="./css/components/dynamic-island.css">>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="./js/adaptive-performance.js"></script>
+    <script src="./js/haptics-engine.js"></script>
     <script src="./js/animations.js"></script>
     <script src="./js/showcase-features.js"></script>
     <script src="./js/gamification.js"></script>
@@ -37,6 +44,7 @@
     <script src="./js/dynamic-island.js"></script>
     <script src="./js/db.js"></script>
 </head>
+
 <body class="mobile-touch-fix">
     <!-- Animated Mesh Background -->
     <div class="mesh-background">
@@ -53,25 +61,28 @@
                             <h1 class="app-title">Harvi</h1>
                             <p class="brand-description">Questions you need</p>
                         </div>
-                        
+
                         <!-- Dynamic Navigation Area (Large Title / Inline Title) -->
                         <div id="navigation-title-area" style="display: none;">
                             <!-- Populated by navigation.js -->
                         </div>
                     </div>
-                    
+
                     <button class="mode-toggle" id="mode-toggle" aria-label="Toggle girl mode">
                         <!-- Boy icon -->
                         <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <!-- Simple person silhouette (boy) -->
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <!-- Girl icon -->
-                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            aria-hidden="true">
                             <!-- Person silhouette with a dress-like shape (girl) -->
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                 </div>
@@ -85,42 +96,50 @@
                 <div class="quiz-header">
                     <button class="back-btn" id="back-to-nav">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                     <div class="quiz-progress">
                         <div class="progress-bar-container">
                             <div class="progress-bar" id="progress-bar"></div>
                         </div>
-                        <span class="question-counter"><span id="current-question">1</span> / <span id="total-questions">10</span></span>
+                        <span class="question-counter"><span id="current-question">1</span> / <span
+                                id="total-questions">10</span></span>
                     </div>
-<button class="mode-toggle quiz-mode-toggle" id="quiz-mode-toggle" aria-label="Toggle girl mode">
+                    <button class="mode-toggle quiz-mode-toggle" id="quiz-mode-toggle" aria-label="Toggle girl mode">
                         <!-- Boy icon -->
                         <svg class="boy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <!-- Girl icon -->
-                        <svg class="girl-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg class="girl-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                 </div>
                 <div class="quiz-content">
                     <h2 class="question-text" id="question-text">Question text goes here?</h2>
                     <div class="options-container" id="options-container">
-                        </div>
+                    </div>
                     <button class="btn-primary continue-btn" id="continue-btn" disabled>Continue</button>
                 </div>
             </div>
         </div>
-        
+
         <div id="results-screen" class="screen results-screen">
             <div class="results-container" id="results-container">
                 <div class="results-icon">
                     <svg width="100" height="100" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FFD700" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path
+                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                            fill="#FFD700" stroke="#FFD700" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                 </div>
                 <h1 class="results-title">Quiz Complete!</h1>
@@ -136,7 +155,8 @@
                 </div>
                 <div class="results-message" id="results-message">Keep studying! You can do better next time!</div>
                 <div class="results-actions">
-                    <button class="share-results-btn" id="share-results" title="Share your score">📤 Share Results</button>
+                    <button class="share-results-btn" id="share-results" title="Share your score">📤 Share
+                        Results</button>
                     <button class="retake-quiz-btn" id="retake-quiz">Retake Quiz</button>
                     <button class="back-home-btn" id="back-to-home">Back to Home</button>
                 </div>
@@ -221,7 +241,7 @@
     <script src="js/quiz.js"></script>
     <script src="js/results.js"></script>
     <script src="js/app.js"></script>
-    
+
     <!-- PWA: Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -229,12 +249,12 @@
                 navigator.serviceWorker.register('./sw.js', { scope: '/' })
                     .then(registration => {
                         console.log('✓ Service Worker registered:', registration);
-                        
+
                         // Check for updates periodically (every 6 hours)
                         setInterval(() => {
                             registration.update();
                         }, 6 * 60 * 60 * 1000);
-                        
+
                         // Handle service worker updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
@@ -257,8 +277,8 @@
     <!-- Pull-to-Refresh Indicator -->
     <div id="pull-refresh-indicator">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
     </div>
 
@@ -267,24 +287,25 @@
         <nav class="bottom-nav">
             <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10"/>
+                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10" />
                 </svg>
                 <span class="bottom-nav-item-label">Home</span>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3v18h18M6 18V9M12 18v-6M18 18v-3"/>
+                    <path d="M3 3v18h18M6 18V9M12 18v-6M18 18v-3" />
                 </svg>
                 <span class="bottom-nav-item-label">Stats</span>
                 <div class="nav-badge" id="stats-badge" style="display: none;"></div>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
                 </svg>
                 <span class="bottom-nav-item-label">Profile</span>
             </a>
         </nav>
     </div>
 </body>
+
 </html>

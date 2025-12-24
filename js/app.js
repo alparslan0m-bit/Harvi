@@ -1,15 +1,80 @@
 /**
+ * PHASE 2: SafeFetch Utility
+ * Handles timeout, retry, and error states for all API calls
+ * Prevents "infinite loading spinners" on network issues
+ */
+class SafeFetch {
+    static async fetch(url, options = {}) {
+        const timeout = options.timeout || 10000; // 10s default timeout
+        const retries = options.retries || 1;
+        let lastError;
+
+        for (let attempt = 0; attempt < retries; attempt++) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                lastError = error;
+                console.warn(`Fetch attempt ${attempt + 1} failed:`, error);
+                
+                // Show retry UI if this was the last attempt
+                if (attempt === retries - 1) {
+                    SafeFetch.showRetryUI(url, error);
+                }
+                
+                // Wait before retry
+                if (attempt < retries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+                }
+            }
+        }
+
+        throw lastError;
+    }
+
+    static showRetryUI(url, error) {
+        // Use Dynamic Island for retry notification
+        if (window.dynamicIsland) {
+            window.dynamicIsland.show({
+                title: '⚠️ Connection Failed',
+                subtitle: 'Unable to reach server. Check your internet.',
+                type: 'error',
+                duration: 5000,
+                onTap: () => {
+                    window.dynamicIsland.hide();
+                    window.location.reload();
+                }
+            });
+        } else {
+            console.warn(`Failed to fetch ${url}: ${error.message}`);
+        }
+    }
+}
+
+/**
  * Main Application Controller
  * Coordinates screen transitions, persistent state, and global application state
  */
 class MCQApp {
     constructor() {
         this.currentPath = [];
+        this.navigationStack = ['navigation-screen']; // PHASE 2: Explicit stack for gestures
         this.currentQuiz = null;
         this.isDarkMode = false;
         this.lastLectureId = null;
         this.resumableQuiz = null;
-        this.previousScreen = 'navigation-screen'; // Track previous screen for back gestures
+        this.previousScreen = 'navigation-screen';
+        this.statsCache = null; // PHASE 1: Cache for statistics
+        this.statsLastUpdated = 0;
+        this.statsCacheDuration = 30000; // 30 second cache
         this.init();
     }
 
@@ -185,10 +250,13 @@ class MCQApp {
                 try {
                     // Example: Sync quiz results to server
                     if (item.action === 'saveQuizResult') {
-                        const response = await fetch('./api/quiz-results', {
+                        // WIRED: Use SafeFetch for automatic retry and error handling on sync
+                        const response = await SafeFetch.fetch('./api/quiz-results', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(item.data)
+                            body: JSON.stringify(item.data),
+                            timeout: 15000,
+                            retries: 3
                         });
                         
                         // Only mark as synced if server accepted the data
@@ -329,6 +397,12 @@ class MCQApp {
             const currentActive = document.querySelector('.screen.active');
             if (currentActive) {
                 this.previousScreen = currentActive.id;
+                // PHASE 2: Maintain explicit navigation stack
+                if (!this.navigationStack.includes(screenId)) {
+                    this.navigationStack.push(screenId);
+                } else {
+                    this.navigationStack = this.navigationStack.slice(0, this.navigationStack.indexOf(screenId) + 1);
+                }
             }
 
             document.querySelectorAll('.screen').forEach(screen => {
@@ -342,9 +416,9 @@ class MCQApp {
                 this.navigation.setupScrollListener();
             }
             
-            // Subtle haptic tick on screen transition
+            // Subtle haptic tick on screen transition (PHASE 3: iOS-style short pulse)
             if (navigator.vibrate) {
-                navigator.vibrate(10);
+                navigator.vibrate(5);
             }
         };
         
@@ -355,6 +429,50 @@ class MCQApp {
             // Fallback for older browsers
             transition();
         }
+    }
+
+    /**
+     * Navigate back using explicit stack (PHASE 2: Replaces previousElementSibling logic)
+     */
+    goBack() {
+        if (this.navigationStack.length > 1) {
+            this.navigationStack.pop();
+            const previousId = this.navigationStack[this.navigationStack.length - 1];
+            this.showScreen(previousId);
+        }
+    }
+
+    /**
+     * Get cached stats or recalculate (PHASE 1: Prevent stats recalculation every 20ms)
+     */
+    async getCachedStats() {
+        const now = Date.now();
+        
+        // Return cache if valid
+        if (this.statsCache && (now - this.statsLastUpdated) < this.statsCacheDuration) {
+            return this.statsCache;
+        }
+        
+        // Recalculate and update cache only if expired
+        try {
+            if (window.StatisticsAggregator) {
+                this.statsCache = await StatisticsAggregator.aggregateStats();
+                this.statsLastUpdated = now;
+                return this.statsCache;
+            }
+        } catch (e) {
+            console.warn('Stats calculation failed:', e);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Invalidate stats cache when quiz is completed (PHASE 1)
+     */
+    invalidateStatsCache() {
+        this.statsCache = null;
+        this.statsLastUpdated = 0;
     }
 
     async startQuiz(questions, pathInfo) {

@@ -73,10 +73,10 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && 
-              cacheName !== RUNTIME_CACHE && 
-              cacheName !== API_CACHE &&
-              cacheName !== IMAGE_CACHE) {
+          if (cacheName !== CACHE_NAME &&
+            cacheName !== RUNTIME_CACHE &&
+            cacheName !== API_CACHE &&
+            cacheName !== IMAGE_CACHE) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -254,7 +254,7 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('push', (event) => {
   if (event.data) {
     let data = { title: 'Harvi', body: 'New content available' };
-    
+
     try {
       data = event.data.json();
     } catch (error) {
@@ -269,11 +269,11 @@ self.addEventListener('push', (event) => {
         }
       }
     }
-    
+
     const options = {
       body: data.body || 'New content available',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/badge-72x72.png',
+      icon: BASE_PATH + '/icons/icon-192x192.png',
+      badge: BASE_PATH + '/icons/badge-72x72.png',
       tag: 'harvi-notification',
       requireInteraction: false
     };

@@ -97,6 +97,11 @@ class Results {
             }
         }
         
+        // PHASE 1: Invalidate stats cache so fresh stats are shown on stats screen
+        if (this.app && this.app.invalidateStatsCache) {
+            this.app.invalidateStatsCache();
+        }
+        
         // Record activity for gamification tracking
         this.recordGamificationProgress(score, total, percentage);
         
@@ -123,7 +128,8 @@ class Results {
             
             // Get stats for badge checking
             if (window.StatisticsAggregator && window.BadgeSystem) {
-                StatisticsAggregator.aggregateStats().then(stats => {
+                // WIRED: Use getCachedStats from app instead of expensive recalculation
+                this.app.getCachedStats().then(stats => {
                     if (stats) {
                         const unlocked = BadgeSystem.getUnlockedBadges(stats);
                         if (unlocked && unlocked.length > 0) {
@@ -168,9 +174,16 @@ class Results {
         const shareTitle = 'My Quiz Results - Harvi';
         const shareText = `I scored ${this.lastScore}/${this.lastTotal} (${percentage}%) on the Harvi medical quiz! Can you beat my score?`;
         
-        // Haptic feedback for share action
+        // PHASE 3: Ensure fonts are loaded before generating image for professional quality
+        try {
+            await document.fonts.ready;
+        } catch (e) {
+            console.warn('Font loading check failed:', e);
+        }
+        
+        // PHASE 3: Haptic feedback (iOS-style short pulses instead of long 50ms vibrate)
         if (navigator.vibrate) {
-            navigator.vibrate(50);
+            navigator.vibrate([5, 10, 5]);
         }
 
         try {

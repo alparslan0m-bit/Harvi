@@ -79,8 +79,11 @@ class Navigation {
         if (!isCacheValid || !this.remoteYears) {
             try {
                 this.abortController = new AbortController();
-                const res = await fetch('./api/years', {
-                    signal: this.abortController.signal
+                // WIRED: Use SafeFetch for automatic retry and error handling
+                const res = await SafeFetch.fetch('./api/years', {
+                    signal: this.abortController.signal,
+                    timeout: 10000,
+                    retries: 2
                 });
                 
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -381,9 +384,12 @@ class Navigation {
         
         // START FETCHING IN BACKGROUND - Don't wait for rendering
         const fetchPromises = subject.lectures.map(lecture => 
-            fetch(`./api/lectures/${encodeURIComponent(lecture.id)}`, {
+            // WIRED: Use SafeFetch for automatic retry and error handling
+            SafeFetch.fetch(`./api/lectures/${encodeURIComponent(lecture.id)}`, {
                 signal: abortController.signal,
-                cache: 'no-cache' // Ensure fresh data
+                cache: 'no-cache', // Ensure fresh data
+                timeout: 10000,
+                retries: 2
             })
             .then(response => {
                 if (!response.ok) {

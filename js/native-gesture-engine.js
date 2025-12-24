@@ -82,8 +82,8 @@ class NativeGestureEngine {
 
         // Haptic feedback on progress (kept out of RAF for responsiveness)
         const progress = Math.min(deltaX / 200, 1);
-        if (navigator.vibrate && progress > 0.3) {
-            navigator.vibrate(5);
+        if (progress > 0.3) {
+            HapticsEngine.swipe();
         }
     }
 
@@ -114,16 +114,12 @@ class NativeGestureEngine {
                 this.hideSwipeOverlay();
                 this.isBackSwipping = false;
                 
-                // Navigate back in stack instead of always going home
-                const breadcrumbs = document.querySelector('.breadcrumb');
-                if (breadcrumbs && breadcrumbs.children.length > 1) {
-                    // Click the previous breadcrumb item for proper navigation
-                    breadcrumbs.children[breadcrumbs.children.length - 2]?.click?.();
+                // PHASE 2: Use explicit navigation stack instead of previousElementSibling
+                if (window.app?.navigationStack?.length > 1) {
+                    window.app.goBack();
                 } else if (window.app?.previousScreen) {
-                    // Fallback: use tracked previous screen
                     window.app.showScreen(window.app.previousScreen);
                 } else {
-                    // Last resort: go to navigation screen
                     window.app?.showScreen?.('navigation-screen');
                 }
                 
@@ -219,7 +215,7 @@ class NativeGestureEngine {
 
                     // Haptic feedback on selection
                     if (navigator.vibrate) {
-                        navigator.vibrate(20);
+                        HapticsEngine.feedback();
                     }
                 });
 
@@ -258,7 +254,7 @@ class NativeGestureEngine {
         document.addEventListener('mouseover', (e) => {
             const target = e.target.closest('button, [role="button"], .interactive-element');
             if (target && navigator.vibrate) {
-                navigator.vibrate(5); // Subtle 5ms tick
+                HapticsEngine.tap(); // Subtle 5ms tick on option tap
             }
         });
     }

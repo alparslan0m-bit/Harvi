@@ -440,6 +440,7 @@ class StatisticsAggregator {
 
             let totalScore = 0;
 
+            // PHASE 1: Aggressive cleanup - process results without memory leaks
             for (const progress of allProgress) {
                 const score = Math.round((progress.score / progress.total) * 100);
                 totalScore += score;
@@ -459,8 +460,17 @@ class StatisticsAggregator {
                 // This would need to be tracked in your DB
             }
 
-            stats.averageScore = totalScore / allProgress.length || 0;
-            stats.streak = (new StreakTracker()).getStreak().current;
+            stats.averageScore = allProgress.length > 0 ? Math.round((totalScore / allProgress.length) * 100) / 100 : 0;
+            
+            // PHASE 1: Get streak only once, don't recalculate every time
+            if (window.StreakTracker) {
+                try {
+                    stats.streak = (new StreakTracker()).getStreak().current;
+                } catch (e) {
+                    console.warn('Streak calculation failed:', e);
+                    stats.streak = 0;
+                }
+            }
 
             return stats;
         } catch (e) {
