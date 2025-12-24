@@ -72,9 +72,6 @@ class MCQApp {
         this.lastLectureId = null;
         this.resumableQuiz = null;
         this.previousScreen = 'navigation-screen';
-        this.statsCache = null; // PHASE 1: Cache for statistics
-        this.statsLastUpdated = 0;
-        this.statsCacheDuration = 30000; // 30 second cache
         // PHASE 2 FIX: Master copy of lecture questions for protecting against shuffle corruption
         this.masterCopyQuestions = null;
         this.init();
@@ -94,7 +91,7 @@ class MCQApp {
         this.results = new Results(this);
         
         this.initDarkMode();
-        this.setupBottomNavigation();
+        this.setupBrandButton();
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
         this.setupServiceWorkerUpdateListener();
@@ -280,62 +277,6 @@ class MCQApp {
         }
     }
 
-    /**
-     * Setup bottom navigation screen switching
-     */
-    setupBottomNavigation() {
-        const navItems = document.querySelectorAll('.bottom-nav-item');
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const screenId = item.dataset.screen;
-                if (screenId) {
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-                    this.showScreen(screenId);
-                    
-                    // Update stats UI when stats screen is shown
-                    if (screenId === 'stats-screen') {
-                        setTimeout(() => {
-                            this.updateStatsUI();
-                            // Render heatmap
-                            if (window.HeatmapGenerator) {
-                                const heatmap = new HeatmapGenerator('#activity-heatmap');
-                                heatmap.render();
-                            }
-                        }, 100);
-                    }
-                    
-                    if (navigator.vibrate) navigator.vibrate(8);
-                }
-            });
-        });
-    }
-
-    /**
-     * Update stats screen with current data
-     */
-    async updateStatsUI() {
-        try {
-            if (window.StatisticsAggregator) {
-                const stats = await StatisticsAggregator.aggregateStats();
-                if (stats) {
-                    document.getElementById('total-quizzes').textContent = stats.totalQuizzes;
-                    document.getElementById('average-score').textContent = Math.round(stats.averageScore) + '%';
-                    document.getElementById('current-streak').textContent = stats.streak;
-                    document.getElementById('best-score').textContent = stats.bestScore || '0%';
-                    
-                    // Render badges if available
-                    if (window.BadgeSystem) {
-                        BadgeSystem.renderBadges('#achievements-container', stats);
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn('Failed to update stats UI:', e);
-        }
-    }
-
     initDarkMode() {
         const savedMode = localStorage.getItem('girlMode');
         if (savedMode !== null) {
@@ -353,6 +294,18 @@ class MCQApp {
                 this.applyDarkMode();
             }
         });
+    }
+
+    /**
+     * Setup brand button (Harvi title) to return home
+     */
+    setupBrandButton() {
+        const brandButton = document.getElementById('brand-container');
+        if (brandButton) {
+            brandButton.addEventListener('click', () => {
+                this.resetApp();
+            });
+        }
     }
 
     setupDarkModeToggles() {
@@ -442,39 +395,6 @@ class MCQApp {
             const previousId = this.navigationStack[this.navigationStack.length - 1];
             this.showScreen(previousId);
         }
-    }
-
-    /**
-     * Get cached stats or recalculate (PHASE 1: Prevent stats recalculation every 20ms)
-     */
-    async getCachedStats() {
-        const now = Date.now();
-        
-        // Return cache if valid
-        if (this.statsCache && (now - this.statsLastUpdated) < this.statsCacheDuration) {
-            return this.statsCache;
-        }
-        
-        // Recalculate and update cache only if expired
-        try {
-            if (window.StatisticsAggregator) {
-                this.statsCache = await StatisticsAggregator.aggregateStats();
-                this.statsLastUpdated = now;
-                return this.statsCache;
-            }
-        } catch (e) {
-            console.warn('Stats calculation failed:', e);
-        }
-        
-        return null;
-    }
-
-    /**
-     * Invalidate stats cache when quiz is completed (PHASE 1)
-     */
-    invalidateStatsCache() {
-        this.statsCache = null;
-        this.statsLastUpdated = 0;
     }
 
     async startQuiz(questions, pathInfo) {

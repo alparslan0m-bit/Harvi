@@ -38,7 +38,6 @@
     <script src="./js/haptics-engine.js"></script>
     <script src="./js/animations.js"></script>
     <script src="./js/showcase-features.js"></script>
-    <script src="./js/gamification.js"></script>
     <script src="./js/pwa-features.js"></script>
     <script src="./js/native-gesture-engine.js"></script>
     <script src="./js/dynamic-island.js"></script>
@@ -56,11 +55,11 @@
             <div class="container">
                 <div class="header-container">
                     <div id="header-content-wrapper">
-                        <!-- Brand/Logo Area (Always stays or fades in/out) -->
-                        <div class="brand-container" id="brand-container">
+                        <!-- Brand/Logo Area (Clickable to return home) -->
+                        <button class="brand-container" id="brand-container" style="background: none; border: none; cursor: pointer; padding: 0;">
                             <h1 class="app-title">Harvi</h1>
                             <p class="brand-description">Questions you need</p>
-                        </div>
+                        </button>
 
                         <!-- Dynamic Navigation Area (Large Title / Inline Title) -->
                         <div id="navigation-title-area" style="display: none;">
@@ -162,72 +161,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Stats Screen -->
-        <div id="stats-screen" class="screen">
-            <div class="container">
-                <div class="header-container">
-                    <h2 class="screen-title">Your Statistics</h2>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-quizzes">0</div>
-                            <div class="stat-label">Quizzes Completed</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="average-score">0%</div>
-                            <div class="stat-label">Average Score</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="current-streak">0</div>
-                            <div class="stat-label">Current Streak</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="best-score">0%</div>
-                            <div class="stat-label">Best Score</div>
-                        </div>
-                    </div>
-                    <div class="heatmap-section">
-                        <h3>Your Activity Heatmap</h3>
-                        <div id="activity-heatmap" class="heatmap-container">
-                            <!-- Heatmap will be generated here by gamification.js -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Profile Screen -->
-        <div id="profile-screen" class="screen">
-            <div class="container">
-                <div class="header-container">
-                    <h2 class="screen-title">Profile & Achievements</h2>
-                </div>
-                <div class="profile-content">
-                    <div class="profile-header">
-                        <div class="profile-avatar">👤</div>
-                        <div class="profile-info">
-                            <h3 class="profile-name" id="profile-name">Student</h3>
-                            <p class="profile-level" id="profile-level">Level 1</p>
-                        </div>
-                    </div>
-                    <div class="achievements-section">
-                        <h3>Achievements Unlocked</h3>
-                        <div id="achievements-container" class="achievements-grid">
-                            <!-- Badges will be generated here by gamification.js -->
-                        </div>
-                    </div>
-                    <div class="badges-section">
-                        <h3>Your Badges</h3>
-                        <div id="badges-container" class="badges-display">
-                            <!-- Badges will be generated here -->
-                        </div>
-                    </div>
-                    <button class="btn-secondary" id="reset-progress" style="margin-top: 2rem;">Reset Progress</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -282,30 +215,6 @@
         </svg>
     </div>
 
-    <!-- Bottom Navigation Bar -->
-    <div class="bottom-nav-container" id="bottom-nav-container">
-        <nav class="bottom-nav">
-            <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10" />
-                </svg>
-                <span class="bottom-nav-item-label">Home</span>
-            </a>
-            <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3v18h18M6 18V9M12 18v-6M18 18v-3" />
-                </svg>
-                <span class="bottom-nav-item-label">Stats</span>
-                <div class="nav-badge" id="stats-badge" style="display: none;"></div>
-            </a>
-            <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
-                </svg>
-                <span class="bottom-nav-item-label">Profile</span>
-            </a>
-        </nav>
-    </div>
 </body>
 
 </html>
