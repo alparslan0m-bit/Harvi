@@ -1,0 +1,338 @@
+/* ===== APPLE-NATIVE TYPOGRAPHY SYSTEM ===== */
+/* iOS-accurate typography with SF Pro font stack and Dynamic Type scaling */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* ===== APPLE SF PRO FONT STACK ===== */
+  /* Primary system font with fallbacks */
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", 
+                 "Helvetica Neue", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", 
+                  "Helvetica Neue", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", 
+               "Helvetica Neue", system-ui, sans-serif;
+  
+  /* Fallback fonts */
+  --font-fallback-1: "Outfit", system-ui, sans-serif;
+  --font-fallback-2: "Inter", system-ui, sans-serif;
+
+  /* ===== iOS DYNAMIC TYPE SIZES ===== */
+  /* Large Title: 34px (max), scales down fluidly */
+  --type-large-title: clamp(28px, 7vw, 34px);
+  
+  /* Title 1: 28px */
+  --type-title-1: clamp(24px, 6vw, 28px);
+  
+  /* Title 2: 22px */
+  --type-title-2: clamp(20px, 5vw, 22px);
+  
+  /* Title 3: 20px */
+  --type-title-3: clamp(18px, 4.5vw, 20px);
+  
+  /* Headline: 17px (bold emphasis) */
+  --type-headline: clamp(16px, 4vw, 17px);
+  
+  /* Body: 17px (standard text) */
+  --type-body: clamp(15px, 4vw, 17px);
+  
+  /* Callout: 16px */
+  --type-callout: clamp(15px, 3.8vw, 16px);
+  
+  /* Subheadline: 15px */
+  --type-subheadline: clamp(14px, 3.5vw, 15px);
+  
+  /* Footnote: 13px */
+  --type-footnote: clamp(12px, 3vw, 13px);
+  
+  /* Caption 1: 12px */
+  --type-caption-1: clamp(11px, 2.8vw, 12px);
+  
+  /* Caption 2: 11px */
+  --type-caption-2: clamp(10px, 2.5vw, 11px);
+
+  /* ===== FONT WEIGHT SCALE ===== */
+  --font-weight-thin: 300;
+  --font-weight-light: 400;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ===== LINE HEIGHT SCALE ===== */
+  /* iOS uses tighter line-heights than web defaults */
+  --line-height-tight: 1.1;      /* For titles */
+  --line-height-snug: 1.2;       /* For body with emphasis */
+  --line-height-normal: 1.4;     /* Standard body text */
+  --line-height-relaxed: 1.6;    /* For longer form content */
+  --line-height-loose: 1.8;      /* For accessibility */
+
+  /* ===== LETTER SPACING (TRACKING) ===== */
+  /* Negative tracking for large headlines (iOS style) */
+  --tracking-large-title: -0.03em;   /* -0.51px at 17px */
+  --tracking-title-1: -0.022em;      /* -0.37px at 17px */
+  --tracking-body: -0.01em;          /* Subtle negative tracking */
+  --tracking-normal: 0;              /* Default */
+  --tracking-wide: 0.01em;           /* For all-caps labels */
+  --tracking-wider: 0.05em;          /* For badges */
+
+  /* ===== TEXT RENDERING OPTIMIZATION ===== */
+  --text-rendering-default: optimizeLegibility;
+  --text-rendering-performance: optimizeSpeed;
+  
+  /* ===== FONT FEATURE SETTINGS ===== */
+  /* OpenType features for refined typography */
+  --font-feature-settings-default: "kern" 1, "liga" 1;
+  --font-feature-settings-numbers: "kern" 1, "liga" 1, "tnum" 1;  /* Tabular numbers */
+}
+
+/* ===== BASE TEXT RENDERING ===== */
+html {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 4vw, 17px);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: var(--text-rendering-default);
+  font-feature-settings: var(--font-feature-settings-default);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--tracking-body);
+  -webkit-text-size-adjust: 100%;
+  color: var(--text-primary);
+}
+
+/* ===== HEADING TYPOGRAPHY ===== */
+h1 {
+  font-family: var(--font-display);
+  font-size: var(--type-large-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-large-title);
+  margin: 0;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--type-title-1);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-title-1);
+  margin: 0;
+}
+
+h3 {
+  font-family: var(--font-display);
+  font-size: var(--type-title-2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--tracking-body);
+  margin: 0;
+}
+
+h4 {
+  font-family: var(--font-system);
+  font-size: var(--type-title-3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  margin: 0;
+}
+
+h5 {
+  font-family: var(--font-system);
+  font-size: var(--type-headline);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  margin: 0;
+}
+
+h6 {
+  font-family: var(--font-system);
+  font-size: var(--type-subheadline);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  margin: 0;
+}
+
+/* ===== SEMANTIC TEXT ELEMENTS ===== */
+.text-large-title {
+  font-family: var(--font-display);
+  font-size: var(--type-large-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-large-title);
+}
+
+.text-title-1 {
+  font-family: var(--font-display);
+  font-size: var(--type-title-1);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-title-1);
+}
+
+.text-title-2 {
+  font-family: var(--font-display);
+  font-size: var(--type-title-2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.text-title-3 {
+  font-family: var(--font-system);
+  font-size: var(--type-title-3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.text-headline {
+  font-family: var(--font-system);
+  font-size: var(--type-headline);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--tracking-body);
+}
+
+.text-callout {
+  font-family: var(--font-system);
+  font-size: var(--type-callout);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+}
+
+.text-subheadline {
+  font-family: var(--font-system);
+  font-size: var(--type-subheadline);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+}
+
+.text-footnote {
+  font-family: var(--font-system);
+  font-size: var(--type-footnote);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+}
+
+.text-caption {
+  font-family: var(--font-system);
+  font-size: var(--type-caption-1);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-muted);
+}
+
+.text-caption-2 {
+  font-family: var(--font-system);
+  font-size: var(--type-caption-2);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-muted);
+}
+
+/* ===== WEIGHT UTILITY CLASSES ===== */
+.font-thin { font-weight: var(--font-weight-thin); }
+.font-light { font-weight: var(--font-weight-light); }
+.font-regular { font-weight: var(--font-weight-regular); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+.font-extrabold { font-weight: var(--font-weight-extrabold); }
+
+/* ===== LINE HEIGHT UTILITIES ===== */
+.leading-tight { line-height: var(--line-height-tight); }
+.leading-snug { line-height: var(--line-height-snug); }
+.leading-normal { line-height: var(--line-height-normal); }
+.leading-relaxed { line-height: var(--line-height-relaxed); }
+.leading-loose { line-height: var(--line-height-loose); }
+
+/* ===== TRACKING/LETTER-SPACING UTILITIES ===== */
+.tracking-tight { letter-spacing: var(--tracking-large-title); }
+.tracking-normal { letter-spacing: var(--tracking-normal); }
+.tracking-wide { letter-spacing: var(--tracking-wide); }
+.tracking-wider { letter-spacing: var(--tracking-wider); }
+
+/* ===== TEXT RENDERING UTILITIES ===== */
+.text-render-quality {
+  text-rendering: var(--text-rendering-default);
+}
+
+.text-render-speed {
+  text-rendering: var(--text-rendering-performance);
+}
+
+/* ===== APPLE OPTICAL SIZING ===== */
+/* For variable fonts that support optical sizing */
+@supports (font-variation-settings: 'opsz' 17) {
+  body {
+    font-variation-settings: 'opsz' 17;
+  }
+  
+  h1, h2 {
+    font-variation-settings: 'opsz' 34;
+  }
+  
+  .text-caption, .text-caption-2 {
+    font-variation-settings: 'opsz' 12;
+  }
+}
+
+/* ===== ACCESSIBILITY: REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: more) {
+  body {
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ===== DARK MODE TYPOGRAPHY ADJUSTMENTS ===== */
+@media (prefers-color-scheme: dark) {
+  html {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+  
+  body {
+    color: var(--text-primary);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+}

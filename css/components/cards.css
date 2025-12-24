@@ -1,6 +1,6 @@
 .card {
     background: #FFFFFF;
-    border-radius: 16px;
+    border-radius: 24px;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -15,7 +15,7 @@
 @media screen and (max-width: 768px) {
     .card {
         padding: 1rem;
-        border-radius: 12px;
+        border-radius: 20px;
     }
 }
 

@@ -1,0 +1,355 @@
+/* ===== SF SYMBOLS ICON STYLING ===== */
+/* Font weight transitions and icon animations matching iOS design */
+
+/* ===== BASIC SF SYMBOL STYLING ===== */
+.icon,
+.sf-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  font-weight: var(--font-weight-regular);
+  font-variation-settings: 'wght' 400;
+  transition: font-variation-settings var(--duration-fast) var(--motion-ease-in-out),
+              color var(--duration-fast) var(--motion-ease-in-out),
+              transform var(--duration-instant) var(--motion-spring-tight);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ===== ICON SIZES ===== */
+.icon-xs {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.icon-sm {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+}
+
+.icon-xl {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+}
+
+/* ===== ICON WEIGHT VARIATIONS ===== */
+.icon-light {
+  --icon-weight: 300;
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+.icon-regular {
+  --icon-weight: 400;
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+.icon-medium {
+  --icon-weight: 500;
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+.icon-semibold {
+  --icon-weight: 600;
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+.icon-bold {
+  --icon-weight: 700;
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+/* ===== NAVIGATION ICON TRANSITIONS ===== */
+.nav-icon {
+  --icon-weight: 400;
+  font-variation-settings: 'wght' var(--icon-weight);
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  color: var(--text-secondary);
+  transition: color var(--duration-normal) var(--motion-ease-in-out),
+              font-variation-settings var(--duration-normal) var(--motion-ease-in-out),
+              transform var(--duration-instant) var(--motion-spring-tight);
+}
+
+.nav-icon.active {
+  --icon-weight: 700;
+  color: var(--primary-color);
+  font-variation-settings: 'wght' var(--icon-weight);
+}
+
+.nav-icon:active {
+  transform: scale(0.9);
+}
+
+/* ===== TAB BAR ICON STYLING ===== */
+.tab-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  --icon-weight: 400;
+  font-variation-settings: 'wght' var(--icon-weight);
+  color: var(--text-secondary);
+  transition: color var(--duration-normal) var(--motion-ease-in-out),
+              font-variation-settings var(--duration-normal) var(--motion-ease-in-out),
+              transform var(--duration-instant) var(--motion-spring-tight);
+}
+
+.tab-icon.active {
+  --icon-weight: 700;
+  color: var(--primary-color);
+  font-variation-settings: 'wght' var(--icon-weight);
+  animation: tab-icon-pop var(--duration-instant) var(--motion-spring);
+}
+
+@keyframes tab-icon-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ===== PRESSABLE ICON BUTTON ===== */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--motion-ease-in-out),
+              transform var(--duration-instant) var(--motion-spring-tight);
+  -webkit-touch-callout: none;
+  user-select: none;
+  position: relative;
+  color: var(--primary-color);
+  font-size: 20px;
+}
+
+.icon-btn:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+  background-color: var(--primary-light);
+}
+
+/* Emphasis variant */
+.icon-btn.emphasis {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.icon-btn.emphasis:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.icon-btn.emphasis:active {
+  transform: scale(0.92);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+/* ===== ICON WITH BADGE ===== */
+.icon-with-badge {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: var(--error-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  border: 2px solid white;
+  animation: badge-pop var(--animation-entrance);
+}
+
+@keyframes badge-pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== ICON STATE COLORS ===== */
+.icon-primary {
+  color: var(--primary-color);
+}
+
+.icon-success {
+  color: var(--success-color);
+}
+
+.icon-error {
+  color: var(--error-color);
+}
+
+.icon-warning {
+  color: #F59E0B;
+}
+
+.icon-muted {
+  color: var(--text-muted);
+}
+
+/* ===== ICON ANIMATIONS ===== */
+/* Rotate animation */
+@keyframes icon-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-animate-rotate {
+  animation: icon-rotate var(--duration-slow) linear infinite;
+}
+
+/* Pulse animation */
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.icon-animate-pulse {
+  animation: icon-pulse var(--duration-slow) ease-in-out infinite;
+}
+
+/* Bounce animation */
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.icon-animate-bounce {
+  animation: icon-bounce 600ms var(--motion-spring) infinite;
+}
+
+/* Float animation */
+@keyframes icon-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.icon-animate-float {
+  animation: icon-float 3s ease-in-out infinite;
+}
+
+/* ===== FILL TRANSITION (SF Symbol style) ===== */
+.icon-fill-transition {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  transition: font-variation-settings var(--duration-normal) var(--motion-ease-in-out);
+}
+
+.icon-fill-transition.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ===== ICON GRADIENT ===== */
+.icon-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.icon-gradient.success {
+  background: var(--gradient-success);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===== ACCESSIBILITY ===== */
+.icon[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon,
+  .sf-symbol,
+  .nav-icon,
+  .tab-icon,
+  .icon-btn {
+    transition: none;
+  }
+  
+  .tab-icon.active {
+    animation: none;
+  }
+  
+  .icon-animate-rotate,
+  .icon-animate-pulse,
+  .icon-animate-bounce,
+  .icon-animate-float {
+    animation: none;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: more) {
+  .icon,
+  .sf-symbol {
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  .nav-icon {
+    --icon-weight: 600;
+  }
+  
+  .nav-icon.active {
+    --icon-weight: 800;
+  }
+}

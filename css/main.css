@@ -1,6 +1,9 @@
 /* Base */
 @import url('base/variables.css');
+@import url('base/color-palette.css');
 @import url('base/reset.css');
+@import url('base/typography-system.css');
+@import url('base/motion-tokens.css');
 
 /* Layout */
 @import url('layout/grid.css');
@@ -12,6 +15,8 @@
 @import url('components/buttons.css');
 @import url('components/breadcrumb.css');
 @import url('components/micro-interactions.css');
+@import url('components/touch-states.css');
+@import url('components/sf-symbols.css');
 @import url('components/cards.css');
 @import url('components/header.css');
 @import url('components/quiz-container.css');
@@ -24,3 +29,4 @@
 /* Utils */
 @import url('utils/animations.css');
 @import url('utils/utilities.css');
+@import url('utils/quick-wins.css');

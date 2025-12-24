@@ -1,0 +1,383 @@
+/* ===== QUICK WINS: IMMEDIATE VISUAL IMPROVEMENTS ===== */
+/* These changes provide immediate visual polish without complex implementation */
+
+/* ===== QUICK WIN 1: HOVER GLOW FOR PRIMARY BUTTONS ===== */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3),
+              0 0 24px rgba(14, 165, 233, 0.2);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center,
+                              rgba(255, 255, 255, 0.3),
+                              transparent 70%);
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+  pointer-events: none;
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+/* Girl mode variant */
+body.girl-mode .btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3),
+              0 0 24px rgba(236, 72, 153, 0.2);
+}
+
+/* ===== QUICK WIN 2: PROGRESS BAR GLOW ===== */
+.progress-bar,
+progress {
+  position: relative;
+}
+
+.progress-bar::after,
+progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+                              transparent,
+                              rgba(255, 255, 255, 0.3),
+                              transparent);
+  animation: progress-shimmer 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Glow effect around progress */
+progress {
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
+}
+
+body.girl-mode progress {
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+}
+
+/* ===== QUICK WIN 3: FLOATING LABEL ANIMATION ===== */
+.floating-label-input {
+  position: relative;
+}
+
+.floating-label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition: all 200ms ease-in-out;
+  transform-origin: left center;
+}
+
+.floating-label-input input:focus ~ .floating-label,
+.floating-label-input input:not(:placeholder-shown) ~ .floating-label {
+  top: -8px;
+  left: 0;
+  font-size: 12px;
+  color: var(--primary-color);
+  font-weight: 600;
+  background: var(--bg-primary);
+  padding: 0 4px;
+}
+
+/* ===== QUICK WIN 4: GRID LINE SEPARATORS IN QUIZ OPTIONS ===== */
+.quiz-option {
+  position: relative;
+  border-bottom: 1px solid var(--border-light);
+  transition: all 150ms ease;
+}
+
+.quiz-option:last-child {
+  border-bottom: none;
+}
+
+.quiz-option::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg,
+                              transparent,
+                              var(--border-color),
+                              transparent);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.quiz-option:hover::before {
+  opacity: 1;
+}
+
+/* ===== QUICK WIN 5: WILL-CHANGE OPTIMIZATION ===== */
+/* Apply will-change to animated elements for performance */
+.card,
+.btn,
+button,
+.list-item,
+.icon-btn {
+  will-change: transform, box-shadow;
+}
+
+.card:hover,
+.btn:hover,
+button:hover,
+.list-item:active,
+.icon-btn:active {
+  will-change: transform, box-shadow, background-color;
+}
+
+/* Remove will-change after animation */
+.card:not(:hover),
+.btn:not(:hover),
+button:not(:hover) {
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    will-change: auto !important;
+  }
+}
+
+/* ===== QUICK WIN 6: SUBTLE CARD SEPARATOR GRID ===== */
+.cards-container {
+  position: relative;
+}
+
+.cards-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(0deg, var(--border-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+  background-size: 100% 80px, 100% 100%;
+  background-position: 0 0, 0 0;
+  pointer-events: none;
+  opacity: 0.3;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .cards-container::before {
+    display: block;
+  }
+}
+
+/* ===== QUICK WIN 7: ENHANCED BUTTON PRESS FEEDBACK ===== */
+.btn,
+button {
+  position: relative;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn:active,
+button:active {
+  transform: scale(0.97);
+}
+
+.btn-lg:active,
+button.btn-lg:active {
+  transform: scale(0.98);
+}
+
+.btn-sm:active,
+button.btn-sm:active {
+  transform: scale(0.95);
+}
+
+/* ===== QUICK WIN 8: ENHANCED INPUT FOCUS STATES ===== */
+input,
+textarea,
+select {
+  transition: all 200ms ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1),
+              0 0 12px rgba(14, 165, 233, 0.15);
+}
+
+body.girl-mode input:focus,
+body.girl-mode textarea:focus,
+body.girl-mode select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1),
+              0 0 12px rgba(236, 72, 153, 0.15);
+}
+
+/* ===== QUICK WIN 9: ENHANCED LIST ITEM HOVER ===== */
+.list-item {
+  position: relative;
+  transition: all 200ms ease;
+  border-radius: 12px;
+}
+
+.list-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-light);
+  opacity: 0;
+  border-radius: 12px;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.list-item:hover::before {
+  opacity: 0.5;
+}
+
+.list-item:active::before {
+  opacity: 1;
+}
+
+/* ===== QUICK WIN 10: CHEVRON/ARROW ANIMATION ===== */
+.chevron,
+.arrow-icon {
+  display: inline-block;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.list-item:hover .chevron,
+.list-item:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+.expandable.expanded .chevron {
+  transform: rotate(90deg);
+}
+
+/* ===== QUICK WIN 11: BADGE PULSE ===== */
+.badge {
+  position: relative;
+  display: inline-block;
+  background: var(--error-color);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+}
+
+/* ===== QUICK WIN 12: SMOOTH SCROLL BEHAVIOR ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ===== QUICK WIN 13: TEXT SELECTION STYLING ===== */
+::selection {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* ===== QUICK WIN 14: ENHANCED FOCUS RING ===== */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ===== QUICK WIN 15: SMOOTH COLOR TRANSITIONS ===== */
+* {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  * {
+    color-scheme: dark;
+  }
+}
+
+/* ===== PERFORMANCE: GPU ACCELERATION ===== */
+.card,
+.btn,
+button,
+.list-item {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  button,
+  .list-item {
+    transition: none;
+  }
+
+  .btn:active,
+  button:active,
+  .list-item:active {
+    transform: none;
+  }
+
+  .badge {
+    animation: none;
+  }
+
+  @keyframes progress-shimmer {
+    0%, 100% { transform: none; }
+  }
+}
+
+@media (prefers-contrast: more) {
+  .btn-primary:hover {
+    box-shadow: 0 0 0 3px var(--primary-color);
+  }
+
+  .list-item::before {
+    opacity: 0;
+  }
+
+  .list-item:hover::before {
+    opacity: 1;
+    background: var(--bg-hover);
+  }
+}
