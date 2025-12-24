@@ -27,23 +27,12 @@
     visibility: visible !important;
 }
 
-.header-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: clamp(2rem, 5vw, 3rem);
-    position: relative;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 0 clamp(0.5rem, 2vw, 1rem);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .screen {
         padding: clamp(12px, 3vw, 16px);
     }
-    
+
     .container {
         padding: 0 clamp(8px, 2vw, 16px);
     }

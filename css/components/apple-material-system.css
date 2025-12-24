@@ -18,14 +18,14 @@
     --system-background: #FFFFFF;
     --secondary-system-background: #F2F2F7;
     --tertiary-system-background: #FFFFFF;
-    
+
     --system-group-background: #F2F2F7;
     --secondary-system-group-background: #FFFFFF;
-    
+
     --system-fill: rgba(120, 120, 128, 0.1);
     --secondary-system-fill: rgba(120, 120, 128, 0.08);
     --tertiary-system-fill: rgba(120, 120, 128, 0.06);
-    
+
     /* === Semantic Separators === */
     --separator: rgba(60, 60, 67, 0.29);
     --opaque-separator: #C6C6C6;
@@ -39,7 +39,7 @@
     /* === Tint Colors === */
     --tint-boy: #0EA5E9;
     --tint-girl: #EC4899;
-    
+
     /* === Typography Tracking === */
     --tracking-tight: -0.022em;
     --tracking-normal: -0.011em;
@@ -52,15 +52,15 @@
         --system-background: #000000;
         --secondary-system-background: #1C1C1E;
         --tertiary-system-background: #2C2C2E;
-        
+
         --system-group-background: #1C1C1E;
         --secondary-system-group-background: #2C2C2E;
-        
+
         --label-primary: rgba(255, 255, 255, 1);
         --label-secondary: rgba(235, 235, 240, 0.6);
         --label-tertiary: rgba(235, 235, 240, 0.3);
         --label-quaternary: rgba(235, 235, 240, 0.18);
-        
+
         --separator: rgba(84, 84, 88, 0.65);
     }
 }
@@ -112,8 +112,8 @@ body {
 /* iOS Squircle Approximation (24px radius with subtle smoothing) */
 .ios-squircle {
     border-radius: 24px;
-    /* Use CSS mask for true squircles (requires vendor prefixes) */
     -webkit-mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
+    mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
 }
 
 /* Card-style squircles */
@@ -158,9 +158,11 @@ body {
     .material-thin {
         background: rgba(0, 0, 0, 0.15);
     }
+
     .material-regular {
         background: rgba(0, 0, 0, 0.25);
     }
+
     .material-thick {
         background: rgba(0, 0, 0, 0.35);
     }
@@ -170,37 +172,50 @@ body {
    SEMANTIC COMPONENT PATTERNS
    ============================================ */
 
-/* Inset Grouped List */
+/* Base Inset Grouped List - Fallback */
 .list-inset-grouped {
     background: var(--system-group-background);
     border-radius: 12px;
     overflow: hidden;
-    margin: 0.5rem 1rem;
+    margin: 1rem;
 }
 
-/* Alias for grouped list wrapper */
+/* Inset Grouped List - Premium Glass 2.0 Version */
 .grouped-list {
-    background: var(--system-group-background);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
     overflow: hidden;
-    margin: 0.5rem 1rem;
+    margin: 1rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+body.girl-mode .grouped-list {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .list-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--separator);
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
-    /* Vibrancy effect for separator */
-    background: linear-gradient(180deg, transparent 0%, transparent calc(100% - 1px), var(--separator) calc(100% - 1px), var(--separator) 100%);
-    background-attachment: fixed;
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.list-item:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding-left: 1.75rem;
 }
 
 .list-item:active {
-    background-color: var(--system-fill, rgba(0, 0, 0, 0.05));
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(0.98);
 }
 
 .list-item:last-child {
@@ -353,7 +368,7 @@ input:focus-visible {
     .no-print {
         display: none;
     }
-    
+
     body {
         background: white;
         color: black;

@@ -21,20 +21,32 @@ class Navigation {
      */
     updateHeader(titleText) {
         this.currentHeaderTitle = titleText;
-        const headerContainer = document.querySelector('.header-container');
-        if (!headerContainer) return;
+        const brandContainer = document.getElementById('brand-container');
+        const navTitleArea = document.getElementById('navigation-title-area');
+        
+        if (!brandContainer || !navTitleArea) return;
 
-        headerContainer.innerHTML = `
-            <div class="scrollable-header">
-                <h1 class="large-title">${titleText}</h1>
-                <div class="inline-title">${titleText}</div>
-            </div>
-        `;
-
-        // Reset scroll state when header is updated
-        const scrollableHeader = headerContainer.querySelector('.scrollable-header');
-        if (scrollableHeader) {
-            scrollableHeader.classList.remove('scrolled');
+        // If at the root level (Years), show the master brand
+        if (titleText === 'Years' || !titleText) {
+            brandContainer.style.display = 'flex';
+            navTitleArea.style.display = 'none';
+        } else {
+            // Otherwise show the Navigation Large Title
+            brandContainer.style.display = 'none';
+            navTitleArea.style.display = 'block';
+            
+            navTitleArea.innerHTML = `
+                <div class="scrollable-header">
+                    <h1 class="large-title">${titleText}</h1>
+                    <div class="inline-title">${titleText}</div>
+                </div>
+            `;
+            
+            // Reset scroll state
+            const scrollableHeader = navTitleArea.querySelector('.scrollable-header');
+            if (scrollableHeader) {
+                scrollableHeader.classList.remove('scrolled');
+            }
         }
     }
 

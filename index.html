@@ -47,11 +47,20 @@
         <div id="navigation-screen" class="screen active">
             <div class="container">
                 <div class="header-container">
-                    <div class="brand-container">
-                        <h1 class="app-title">Harvi</h1>
-                        <p class="brand-description">Questions you need</p>
+                    <div id="header-content-wrapper">
+                        <!-- Brand/Logo Area (Always stays or fades in/out) -->
+                        <div class="brand-container" id="brand-container">
+                            <h1 class="app-title">Harvi</h1>
+                            <p class="brand-description">Questions you need</p>
+                        </div>
+                        
+                        <!-- Dynamic Navigation Area (Large Title / Inline Title) -->
+                        <div id="navigation-title-area" style="display: none;">
+                            <!-- Populated by navigation.js -->
+                        </div>
                     </div>
-<button class="mode-toggle" id="mode-toggle" aria-label="Toggle girl mode">
+                    
+                    <button class="mode-toggle" id="mode-toggle" aria-label="Toggle girl mode">
                         <!-- Boy icon -->
                         <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <!-- Simple person silhouette (boy) -->
