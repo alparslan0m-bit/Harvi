@@ -44,7 +44,8 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/js/navigation.js',
   BASE_PATH + '/js/animations.js',
   BASE_PATH + '/js/showcase-features.js',
-  BASE_PATH + '/js/gamification.js',
+  BASE_PATH + '/js/dynamic-island.js',
+  BASE_PATH + '/js/haptics-engine.js',
   BASE_PATH + '/js/db.js',
   BASE_PATH + '/offline.html'
 ];
@@ -252,35 +253,53 @@ self.addEventListener('sync', (event) => {
  * Handle push notifications
  */
 self.addEventListener('push', (event) => {
-  if (event.data) {
+  try {
+    if (!event || !event.data) {
+      console.warn('Invalid push event received');
+      return;
+    }
+
     let data = { title: 'Harvi', body: 'New content available' };
 
+    // Try to parse JSON data
     try {
-      data = event.data.json();
-    } catch (error) {
-      console.warn('Failed to parse push notification JSON:', error);
-      // Use event.data.text() as fallback if JSON parsing fails
-      if (event.data) {
-        try {
-          data = { title: 'Harvi', body: event.data.text() };
-        } catch (textError) {
-          // Use default values if text parsing also fails
-          console.warn('Failed to read push notification text:', textError);
+      const jsonData = event.data.json();
+      if (jsonData && typeof jsonData === 'object') {
+        data = { ...data, ...jsonData };
+      }
+    } catch (jsonError) {
+      console.warn('Failed to parse push notification JSON:', jsonError);
+      
+      // Fallback: try to get text content
+      try {
+        const textData = event.data.text();
+        if (textData) {
+          data.body = textData;
         }
+      } catch (textError) {
+        console.warn('Failed to read push notification text:', textError);
       }
     }
 
+    // Validate and sanitize notification data
+    const title = String(data.title || 'Harvi').substring(0, 100);
+    const body = String(data.body || 'New content available').substring(0, 200);
+    const requireInteraction = Boolean(data.requireInteraction);
+
     const options = {
-      body: data.body || 'New content available',
+      body: body,
       icon: BASE_PATH + '/icons/icon-192x192.png',
       badge: BASE_PATH + '/icons/badge-72x72.png',
-      tag: 'harvi-notification',
-      requireInteraction: false
+      tag: data.tag || 'harvi-notification',
+      requireInteraction: requireInteraction,
+      data: data.data || {}
     };
 
     event.waitUntil(
-      self.registration.showNotification(data.title || 'Harvi', options)
+      self.registration.showNotification(title, options)
     );
+  } catch (error) {
+    console.error('Push notification handler error:', error);
   }
 });
 

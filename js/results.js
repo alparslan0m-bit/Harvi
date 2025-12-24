@@ -131,21 +131,108 @@ class Results {
         }
 
         try {
-            // Share text using Web Share API
-            if (navigator.share) {
+            // Try screenshot if html2canvas is available
+            if (window.html2canvas) {
+                await this.shareWithScreenshot(shareTitle, shareText);
+            } else if (navigator.share) {
+                // Fallback: Share text only using Web Share API
                 await navigator.share({
                     title: shareTitle,
                     text: shareText,
                     url: window.location.href
                 });
             } else {
-                // Fallback to clipboard if Web Share API not available
+                // Last resort: Copy to clipboard
                 this.copyToClipboard(shareText);
             }
         } catch (error) {
             if (error.name !== 'AbortError') {
                 console.warn('Share error:', error);
-                this.copyToClipboard(shareText);
+                // Try next fallback option
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: shareTitle,
+                            text: shareText,
+                            url: window.location.href
+                        });
+                    } catch (shareError) {
+                        this.copyToClipboard(shareText);
+                    }
+                } else {
+                    this.copyToClipboard(shareText);
+                }
+            }
+        }
+    }
+
+    /**
+     * Share results with screenshot using html2canvas
+     * Falls back gracefully if html2canvas unavailable
+     */
+    async shareWithScreenshot(title, text) {
+        try {
+            if (!window.html2canvas) {
+                throw new Error('html2canvas not loaded');
+            }
+
+            const resultsContainer = document.getElementById('results-container');
+            if (!resultsContainer) {
+                throw new Error('Results container not found');
+            }
+
+            const canvas = await window.html2canvas(resultsContainer, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                allowTaint: true
+            });
+
+            canvas.toBlob(async (blob) => {
+                try {
+                    // Try Web Share API with file if available
+                    if (navigator.share && navigator.canShare && blob) {
+                        const file = new File([blob], 'quiz-results.png', { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: title,
+                                text: text,
+                                files: [file]
+                            });
+                            return;
+                        }
+                    }
+                    
+                    // Fallback to text sharing
+                    if (navigator.share) {
+                        await navigator.share({
+                            title: title,
+                            text: text,
+                            url: window.location.href
+                        });
+                    } else {
+                        this.copyToClipboard(text);
+                    }
+                } catch (shareError) {
+                    console.warn('Screenshot share failed, falling back:', shareError);
+                    this.copyToClipboard(text);
+                }
+            }, 'image/png');
+        } catch (error) {
+            console.warn('Screenshot generation failed:', error);
+            // Fallback to text-only sharing
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: text,
+                        url: window.location.href
+                    });
+                } catch (shareError) {
+                    this.copyToClipboard(text);
+                }
+            } else {
+                this.copyToClipboard(text);
             }
         }
     }

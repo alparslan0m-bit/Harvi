@@ -195,12 +195,12 @@ class Quiz {
                 this.showQuestion();
             } else {
                 this.cleanup();
-                this.app.showScreen('nav-screen');
+                this.app.showScreen('navigation-screen');
                 alert('Error: Quiz interface failed to load. Please try again.');
             }
         }).catch(err => {
             this.cleanup();
-            this.app.showScreen('nav-screen');
+            this.app.showScreen('navigation-screen');
             alert('Error: Quiz interface failed to load. Please try again.');
         });
     }
@@ -372,10 +372,21 @@ class Quiz {
             option.setAttribute('tabindex', '-1');
         });
         
+        // IMMEDIATE OPTIMISTIC UI FEEDBACK (before validation)
+        if (window.OptimisticUI) {
+            OptimisticUI.updateOptionSelection(selectedOption);
+        }
+        
         if (selectedIndex === correctAnswerIndex) {
             this.score++;
             selectedOption.classList.add('correct');
             celebrateCorrectAnswer(selectedOption);
+            
+            // Audio feedback for correct answer
+            if (window.audioToolkit) {
+                audioToolkit.play('ding');
+            }
+            
             // Haptic feedback for correct answer using HapticsEngine
             if (window.HapticsEngine) {
                 HapticsEngine.success();
@@ -386,6 +397,12 @@ class Quiz {
             if (correctOption) {
                 correctOption.classList.add('correct');
             }
+            
+            // Audio feedback for incorrect answer
+            if (window.audioToolkit) {
+                audioToolkit.play('thud');
+            }
+            
             // Haptic feedback for incorrect answer using HapticsEngine
             if (window.HapticsEngine) {
                 HapticsEngine.failure();

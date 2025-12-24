@@ -150,6 +150,16 @@ class DynamicIsland {
         }
     }
 
+    /**
+     * Hide/dismiss the current notification
+     * Alias for dismiss() with current notification ID
+     */
+    hide() {
+        if (this.activeNotification) {
+            this.dismiss(this.activeNotification.id);
+        }
+    }
+
     dismiss(notificationId) {
         const island = document.querySelector('.dynamic-island');
         if (island && this.activeNotification?.id === notificationId) {
@@ -157,11 +167,17 @@ class DynamicIsland {
 
             setTimeout(() => {
                 island.remove();
+                
+                // Remove the dismissed notification from queue
+                const dismissedIndex = this.notifications.findIndex(n => n.id === notificationId);
+                if (dismissedIndex !== -1) {
+                    this.notifications.splice(dismissedIndex, 1);
+                }
+                
                 this.activeNotification = null;
 
                 // Show next notification if queued
-                if (this.notifications.length > 1) {
-                    this.notifications.shift();
+                if (this.notifications.length > 0) {
                     this.display(this.notifications[0]);
                 }
             }, 300);

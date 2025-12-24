@@ -24,7 +24,6 @@
     <link rel="stylesheet" href="./css/components/view-transitions.css">
     <link rel="stylesheet" href="./css/components/showcase-glass-2.0.css">
     <link rel="stylesheet" href="./css/components/bottom-nav.css">
-    <link rel="stylesheet" href="./css/components/gamification.css">
     <link rel="stylesheet" href="./css/components/pwa-features.css">
     <link rel="stylesheet" href="./css/components/apple-material-system.css">
     <link rel="stylesheet" href="./css/components/native-navigation.css">
@@ -38,9 +37,9 @@
     <script src="./js/haptics-engine.js"></script>
     <script src="./js/animations.js"></script>
     <script src="./js/showcase-features.js"></script>
-    <script src="./js/pwa-features.js"></script>
-    <script src="./js/native-gesture-engine.js"></script>
     <script src="./js/dynamic-island.js"></script>
+    <script src="./js/native-gesture-engine.js"></script>
+    <script src="./js/pwa-features.js"></script>
     <script src="./js/db.js"></script>
 </head>
 
@@ -158,6 +157,54 @@
                         Results</button>
                     <button class="retake-quiz-btn" id="retake-quiz">Retake Quiz</button>
                     <button class="back-home-btn" id="back-to-home">Back to Home</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Screen -->
+        <div id="stats-screen" class="screen">
+            <div class="container">
+                <div class="header-container">
+                    <button class="brand-container" id="brand-stats" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <h1 class="app-title">Statistics</h1>
+                    </button>
+                    <button class="mode-toggle" id="stats-mode-toggle" aria-label="Toggle girl mode">
+                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="stats-content">
+                    <!-- Stats will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile-screen" class="screen">
+            <div class="container">
+                <div class="header-container">
+                    <button class="brand-container" id="brand-profile" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <h1 class="app-title">Profile</h1>
+                    </button>
+                    <button class="mode-toggle" id="profile-mode-toggle" aria-label="Toggle girl mode">
+                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="profile-content">
+                    <!-- Profile content will be populated here -->
                 </div>
             </div>
         </div>

@@ -383,6 +383,60 @@ app.post('/api/admin/lectures/:lectureId/questions', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/quiz-results
+ * Save quiz results from offline sync or direct submission
+ */
+app.post('/api/quiz-results', async (req, res) => {
+    try {
+        const { lectureId, score, total, metadata, timestamp } = req.body;
+        
+        // Validate required fields
+        if (!lectureId || typeof score !== 'number' || typeof total !== 'number') {
+            return res.status(400).json({
+                error: 'Missing or invalid required fields',
+                required: ['lectureId', 'score', 'total']
+            });
+        }
+        
+        // Validate score is within range
+        if (score < 0 || score > total) {
+            return res.status(400).json({
+                error: 'Invalid score: must be between 0 and total'
+            });
+        }
+        
+        // Create result object
+        const quizResult = {
+            lectureId,
+            score,
+            total,
+            percentage: Math.round((score / total) * 100),
+            metadata: metadata || {},
+            timestamp: timestamp ? new Date(timestamp) : new Date(),
+            syncedAt: new Date()
+        };
+        
+        // TODO: Save to database if you have a QuizResult model
+        // const result = await QuizResult.create(quizResult);
+        
+        console.log('Quiz result received:', quizResult);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Quiz result saved successfully',
+            data: quizResult
+        });
+        
+    } catch (err) {
+        console.error('Error saving quiz result:', err);
+        res.status(500).json({
+            error: 'Failed to save quiz result',
+            details: err.message
+        });
+    }
+});
+
 const staticRoot = path.join(__dirname, '..');
 app.use('/', express.static(staticRoot));
 

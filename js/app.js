@@ -78,10 +78,23 @@ class MCQApp {
     }
 
     async init() {
+        // Expose premium features to window for cross-script access
+        window.SkeletonLoader = SkeletonLoader;
+        window.audioToolkit = new AudioToolkit();
+        
         // Initialize IndexedDB
         try {
             await harviDB.init();
-            console.log('✓ Database initialized');
+            // Use Dynamic Island for initialization feedback
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '✓ Ready to Learn',
+                    type: 'success',
+                    duration: 1500
+                });
+            } else {
+                console.log('✓ Database initialized');
+            }
         } catch (error) {
             console.warn('Database initialization warning:', error);
         }
@@ -92,6 +105,8 @@ class MCQApp {
         
         this.initDarkMode();
         this.setupBrandButton();
+        // this.setupBottomNavigation(); // TODO: Add bottom-nav-item elements to HTML if needed
+        this.setupPullToRefresh();
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
         this.setupServiceWorkerUpdateListener();
@@ -219,14 +234,32 @@ class MCQApp {
      */
     setupOnlineStatusHandling() {
         window.addEventListener('online', () => {
-            console.log('✓ Connection restored');
             document.body.classList.remove('offline-mode');
+            
+            // Notify via Dynamic Island
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '✓ Connection Restored',
+                    type: 'success',
+                    duration: 2000
+                });
+            }
+            
             this.syncPendingData();
         });
 
         window.addEventListener('offline', () => {
-            console.log('⚠ Connection lost');
             document.body.classList.add('offline-mode');
+            
+            // Notify via Dynamic Island
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '⚠ Connection Lost',
+                    subtitle: 'Working offline - changes will sync when reconnected',
+                    type: 'warning',
+                    duration: 3000
+                });
+            }
         });
 
         // Set initial offline state
@@ -308,11 +341,48 @@ class MCQApp {
         }
     }
 
+    /**
+     * Setup bottom navigation bar click handlers
+     */
+    setupBottomNavigation() {
+        const navItems = document.querySelectorAll('.bottom-nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const screenId = item.dataset.screen;
+                if (screenId) {
+                    // Update active state
+                    navItems.forEach(ni => ni.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Show the requested screen
+                    this.showScreen(screenId);
+                    
+                    // Haptic feedback
+                    if (navigator.vibrate) {
+                        navigator.vibrate(8);
+                    }
+                }
+            });
+        });
+    }
+
+    /**
+     * Setup pull-to-refresh gesture for lecture list
+     */
+    setupPullToRefresh() {
+        const container = document.getElementById('app');
+        if (container && window.PullToRefresh) {
+            this.pullToRefresh = new PullToRefresh(container);
+        }
+    }
+
     setupDarkModeToggles() {
         const toggles = [
             document.getElementById('mode-toggle'),
             document.getElementById('quiz-mode-toggle'),
-            document.getElementById('results-mode-toggle')
+            document.getElementById('stats-mode-toggle'),
+            document.getElementById('profile-mode-toggle')
         ];
         
         toggles.forEach(toggle => {
@@ -339,6 +409,11 @@ class MCQApp {
             document.body.classList.add('girl-mode');
         } else {
             document.body.classList.remove('girl-mode');
+        }
+        
+        // Sync browser UI theme color with app mode
+        if (window.ThemeSyncEngine) {
+            ThemeSyncEngine.syncToMode(this.isDarkMode);
         }
     }
 

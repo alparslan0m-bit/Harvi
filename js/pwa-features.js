@@ -390,9 +390,6 @@ function initializePWAFeatures() {
     // Initialize adaptive theme color
     AdaptiveThemeColor.init();
 
-    // Initialize safe area handling (already done in showcase-features.js)
-    SafeAreaHandler.init();
-
     // Prefetch resources
     PrefetchingStrategy.prefetchResources();
 

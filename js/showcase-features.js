@@ -1,51 +1,8 @@
 /**
  * Showcase-Level Enhancement Features
- * Haptics, Gesture Recognition, Audio Feedback, and Advanced UI Patterns
+ * Gesture Recognition, Audio Feedback, and Advanced UI Patterns
+ * Note: HapticsEngine is defined in haptics-engine.js
  */
-
-// ============================================
-// ADVANCED HAPTICS ENGINE
-// ============================================
-
-class HapticsEngine {
-    static get isSupported() {
-        return 'vibrate' in navigator || 'mozVibrate' in navigator || 'webkitVibrate' in navigator;
-    }
-
-    static vibrate(pattern) {
-        if (!this.isSupported) return;
-        try {
-            (navigator.vibrate || navigator.mozVibrate || navigator.webkitVibrate).call(navigator, pattern);
-        } catch (e) {
-            console.warn('Haptics not available:', e);
-        }
-    }
-
-    static success() {
-        // Light double-tap pattern
-        this.vibrate([10, 30, 10]);
-    }
-
-    static failure() {
-        // Heavy, single long buzz
-        this.vibrate(50);
-    }
-
-    static selection() {
-        // Precise "tick" when clicking options
-        this.vibrate(8);
-    }
-
-    static pulse() {
-        // Soft pulsing pattern
-        this.vibrate([20, 40, 20, 40, 20]);
-    }
-
-    static strongPulse() {
-        // Strong pulsing pattern
-        this.vibrate([40, 60, 40, 60, 40]);
-    }
-}
 
 // ============================================
 // AUDIO FEEDBACK SYSTEM (Web Audio API)
@@ -90,9 +47,9 @@ class AudioToolkit {
 
     createPopSound() {
         const duration = 0.1;
-        const now = this.audioContext.currentTime;
         
         return () => {
+            const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             
@@ -112,9 +69,9 @@ class AudioToolkit {
 
     createDingSound() {
         const duration = 0.3;
-        const now = this.audioContext.currentTime;
         
         return () => {
+            const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             
@@ -133,9 +90,9 @@ class AudioToolkit {
 
     createThudSound() {
         const duration = 0.2;
-        const now = this.audioContext.currentTime;
         
         return () => {
+            const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             
@@ -154,9 +111,8 @@ class AudioToolkit {
     }
 
     createCelebrationSound() {
-        const now = this.audioContext.currentTime;
-        
         return () => {
+            const now = this.audioContext.currentTime;
             // Play ascending notes
             const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
             notes.forEach((freq, idx) => {
@@ -178,9 +134,9 @@ class AudioToolkit {
 
     createRefreshSound() {
         const duration = 0.15;
-        const now = this.audioContext.currentTime;
         
         return () => {
+            const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             
@@ -282,8 +238,9 @@ const gestureHandler = new GestureHandler();
 // ============================================
 
 class PullToRefresh {
-    constructor(container) {
+    constructor(container, onRefresh = null) {
         this.container = container;
+        this.onRefresh = onRefresh; // Callback for actual refresh
         this.pullDistance = 0;
         this.pullThreshold = 100;
         this.isRefreshing = false;
@@ -292,18 +249,24 @@ class PullToRefresh {
 
     init() {
         let startY = 0;
+        let isPulling = false;
 
         this.container.addEventListener('touchstart', (e) => {
             if (this.container.scrollTop === 0) {
                 startY = e.touches[0].clientY;
+            } else {
+                startY = 0;
             }
         });
 
         this.container.addEventListener('touchmove', (e) => {
             if (this.container.scrollTop === 0 && startY > 0) {
-                this.pullDistance = e.touches[0].clientY - startY;
+                const currentY = e.touches[0].clientY;
+                this.pullDistance = currentY - startY;
                 
-                if (this.pullDistance > 0) {
+                // Only prevent default if we're actually pulling downward
+                if (this.pullDistance > 10) {
+                    isPulling = true;
                     e.preventDefault();
                     this.updatePullIndicator(this.pullDistance);
                 }
@@ -316,6 +279,7 @@ class PullToRefresh {
             }
             this.resetPull();
             startY = 0;
+            isPulling = false;
         });
     }
 
@@ -346,11 +310,24 @@ class PullToRefresh {
         audioToolkit.play('refresh');
         HapticsEngine.pulse();
 
-        // Simulate refresh (2 seconds)
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            // Execute callback if provided
+            if (this.onRefresh && typeof this.onRefresh === 'function') {
+                await this.onRefresh();
+            } else if (window.app && window.app.navigation) {
+                // Default: refresh lecture list
+                await window.app.navigation.showYears();
+            } else {
+                // Fallback: just wait
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        } catch (error) {
+            console.warn('Refresh failed:', error);
+        }
 
         this.isRefreshing = false;
         HapticsEngine.success();
+        this.resetPull();
     }
 }
 
@@ -500,6 +477,29 @@ class SkeletonLoader {
         return container;
     }
 
+    static renderGrid(container, options = {}) {
+        const {
+            columns = 2,
+            rows = 3,
+            cardHeight = '120px'
+        } = options;
+
+        container.innerHTML = '';
+        container.className = 'cards-grid';
+        
+        const totalCards = columns * rows;
+        for (let i = 0; i < totalCards; i++) {
+            const skeleton = document.createElement('div');
+            skeleton.className = 'card skeleton';
+            skeleton.style.height = cardHeight;
+            skeleton.style.borderRadius = '16px';
+            skeleton.style.minHeight = '100px';
+            container.appendChild(skeleton);
+        }
+        
+        return container;
+    }
+
     static replace(element) {
         element.innerHTML = '';
         const skeleton = this.createCardSkeleton();
@@ -602,7 +602,6 @@ class BadgeManager {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        HapticsEngine,
         AudioToolkit,
         GestureHandler,
         PullToRefresh,
