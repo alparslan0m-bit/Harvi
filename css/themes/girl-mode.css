@@ -4,6 +4,7 @@ body.girl-mode {
     --primary-color: #EC4899;       /* Rose 500 */
     --primary-hover: #DB2777;       /* Rose 600 */
     --primary-light: #FFE4E6;       /* Rose 100 */
+    --primary-dark: #BE185D;        /* Rose 700 */
 
     /* 2. Backgrounds (Clean & Bright, No "Dark" Gradients) */
     --bg-primary: #FFFFFF;

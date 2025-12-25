@@ -1,6 +1,6 @@
 .option {
     background: #FFFFFF;
-    border: 2px solid #E5E7EB;
+    border: 2px solid var(--border-color);
     border-radius: 24px;
     /* iOS Squircle approximation */
     border-radius: max(24px, min(100% - 4px, 24px + (100% - 100px) * 0.1));
@@ -75,32 +75,32 @@
 @media (hover: none) {
     .option:active {
         transform: scale(0.98);
-        background: #E0E7FF;
-        border-color: #6366F1;
+        background: var(--primary-light);
+        border-color: var(--primary-color);
     }
     
     .option.touch-active {
         transform: scale(0.95) translateZ(0);
-        background: #E0E7FF;
-        border-color: #6366F1;
+        background: var(--primary-light);
+        border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         transition: all 0.1s ease-out;
     }
 }
 
 .option:hover:not(.disabled):not(.correct):not(.incorrect) {
-    background: #EEF2FF !important;
-    border-color: #6366F1 !important;
+    background: var(--primary-light) !important;
+    border-color: var(--primary-color) !important;
     transform: translateX(6px) scale(1.03);
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18) !important;
-    color: #3730A3 !important;
+    color: var(--primary-dark) !important;
 }
 
 .option.selected {
     animation: selectGlow 1s cubic-bezier(0.4, 0, 0.2, 1);
-    border-color: #6366F1;
-    background: #EEF2FF;
-    color: #3730A3;
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+    color: var(--primary-dark);
 }
 
 .option:active {
@@ -218,8 +218,8 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #EEF2FF;
-    border: 2px solid #C7D2FE;
+    background: var(--primary-light);
+    border: 2px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -228,7 +228,7 @@
     transition: all 0.3s ease;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.10);
-    color: #3730A3;
+    color: var(--primary-dark);
 }
 
 .option.correct .option-letter {
