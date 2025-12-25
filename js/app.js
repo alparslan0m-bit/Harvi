@@ -102,10 +102,12 @@ class MCQApp {
         this.navigation = new Navigation(this);
         this.quiz = new Quiz(this);
         this.results = new Results(this);
+        this.stats = new Stats(this);
+        this.profile = new Profile(this);
         
         this.initDarkMode();
         this.setupBrandButton();
-        // this.setupBottomNavigation(); // TODO: Add bottom-nav-item elements to HTML if needed
+        this.setupBottomNavigation();
         this.setupPullToRefresh();
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
@@ -319,7 +321,6 @@ class MCQApp {
         }
         
         this.applyDarkMode();
-        this.setupDarkModeToggles();
         
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (localStorage.getItem('girlMode') === null) {
@@ -339,6 +340,21 @@ class MCQApp {
                 this.resetApp();
             });
         }
+
+        // Handle stats and profile brand buttons
+        const brandStats = document.getElementById('brand-stats');
+        if (brandStats) {
+            brandStats.addEventListener('click', () => {
+                this.showScreen('navigation-screen');
+            });
+        }
+
+        const brandProfile = document.getElementById('brand-profile');
+        if (brandProfile) {
+            brandProfile.addEventListener('click', () => {
+                this.showScreen('navigation-screen');
+            });
+        }
     }
 
     /**
@@ -351,11 +367,7 @@ class MCQApp {
                 e.preventDefault();
                 const screenId = item.dataset.screen;
                 if (screenId) {
-                    // Update active state
-                    navItems.forEach(ni => ni.classList.remove('active'));
-                    item.classList.add('active');
-                    
-                    // Show the requested screen
+                    // Show the requested screen (active state handled by showScreen)
                     this.showScreen(screenId);
                     
                     // Haptic feedback
@@ -377,31 +389,12 @@ class MCQApp {
         }
     }
 
-    setupDarkModeToggles() {
-        const toggles = [
-            document.getElementById('mode-toggle'),
-            document.getElementById('quiz-mode-toggle'),
-            document.getElementById('stats-mode-toggle'),
-            document.getElementById('profile-mode-toggle')
-        ];
-        
-        toggles.forEach(toggle => {
-            if (toggle) {
-                toggle.addEventListener('click', () => this.toggleDarkMode());
-                toggle.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        this.toggleDarkMode();
-                    }
-                });
-            }
-        });
-    }
-
     toggleDarkMode() {
+        document.body.classList.add('theme-transitioning');
         this.isDarkMode = !this.isDarkMode;
         localStorage.setItem('girlMode', this.isDarkMode.toString());
         this.applyDarkMode();
+        setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
     }
 
     applyDarkMode() {
@@ -446,6 +439,19 @@ class MCQApp {
                 this.navigation.setupScrollListener();
             }
             
+            // Initialize screen-specific content
+            if (screenId === 'stats-screen' && this.stats) {
+                this.stats.init();
+            } else if (screenId === 'profile-screen' && this.profile) {
+                this.profile.init();
+            }
+            
+            // Update bottom navigation active state
+            this.updateBottomNavActiveState(screenId);
+            
+            // Hide bottom nav during quiz for better focus
+            this.toggleBottomNavVisibility(screenId);
+            
             // Subtle haptic tick on screen transition (PHASE 3: iOS-style short pulse)
             if (navigator.vibrate) {
                 navigator.vibrate(5);
@@ -458,6 +464,35 @@ class MCQApp {
         } else {
             // Fallback for older browsers
             transition();
+        }
+    }
+
+    /**
+     * Update bottom navigation active state to match current screen
+     */
+    updateBottomNavActiveState(screenId) {
+        const navItems = document.querySelectorAll('.bottom-nav-item');
+        navItems.forEach(item => {
+            const navScreen = item.dataset.screen;
+            if (navScreen === screenId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Hide bottom nav during quiz for better focus, show otherwise
+     */
+    toggleBottomNavVisibility(screenId) {
+        const bottomNav = document.getElementById('bottom-nav-container');
+        if (bottomNav) {
+            if (screenId === 'quiz-screen') {
+                bottomNav.classList.remove('active');
+            } else {
+                bottomNav.classList.add('active');
+            }
         }
     }
 

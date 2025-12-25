@@ -1,32 +1,30 @@
-/* Base */
+/* ===== BASE (Load First) ===== */
 @import url('base/variables.css');
 @import url('base/color-palette.css');
 @import url('base/reset.css');
 @import url('base/typography-system.css');
 @import url('base/motion-tokens.css');
 
-/* Layout */
+/* ===== LAYOUT ===== */
 @import url('layout/grid.css');
 
-/* Utils */
-@import url('utils/responsive.css');
-
-/* Components */
+/* ===== COMPONENTS ===== */
 @import url('components/buttons.css');
 @import url('components/breadcrumb.css');
 @import url('components/micro-interactions.css');
-@import url('components/touch-states.css');
-@import url('components/sf-symbols.css');
 @import url('components/cards.css');
 @import url('components/header.css');
 @import url('components/quiz-container.css');
 @import url('components/quiz-options.css');
 @import url('components/results-screen.css');
 
-/* Themes */
+/* ===== THEMES ===== */
 @import url('themes/girl-mode.css');
 
-/* Utils */
+/* ===== UTILS (Load Last - Highest Specificity) ===== */
+@import url('utils/responsive.css');
 @import url('utils/animations.css');
 @import url('utils/utilities.css');
 @import url('utils/quick-wins.css');
+@import url('components/touch-states.css');
+@import url('components/sf-symbols.css');

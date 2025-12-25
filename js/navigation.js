@@ -150,6 +150,12 @@ class Navigation {
         fragment.appendChild(groupWrapper);
         container.appendChild(fragment);
         
+        // Apply stagger animation to list items
+        if (window.motionCoordinator) {
+            const items = groupWrapper.querySelectorAll('.list-item');
+            window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
+        }
+        
         if (animate) {
             requestAnimationFrame(() => {
                 container.style.opacity = '1';
@@ -282,6 +288,12 @@ class Navigation {
         });
         
         container.appendChild(groupWrapper);
+        
+        // Apply stagger animation to list items
+        if (window.motionCoordinator) {
+            const items = groupWrapper.querySelectorAll('.list-item');
+            window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
+        }
     }
 
     showSubjects(year, module) {
@@ -306,6 +318,15 @@ class Navigation {
             });
             
             fragment.appendChild(groupWrapper);
+            
+            // Apply stagger animation after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                if (window.motionCoordinator) {
+                    const items = groupWrapper.querySelectorAll('.list-item');
+                    window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
+                }
+            }, 50);
+            
             return fragment;
         });
     }
@@ -377,6 +398,15 @@ class Navigation {
                     });
                     
                     fragment.appendChild(groupWrapper);
+                    
+                    // Apply stagger animation after a short delay to ensure DOM is ready
+                    setTimeout(() => {
+                        if (window.motionCoordinator) {
+                            const items = groupWrapper.querySelectorAll('.list-item');
+                            window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
+                        }
+                    }, 50);
+                    
                     return fragment;
                 });
             }
@@ -573,7 +603,7 @@ class Navigation {
 
     createCard(icon, title, description) {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card card-pressable stagger-item';
         card.innerHTML = `
             <div class="card-icon">${icon}</div>
             <h3 class="card-title">${title}</h3>
@@ -588,7 +618,7 @@ class Navigation {
      */
     createListItem(icon, title, secondary) {
         const item = document.createElement('div');
-        item.className = 'list-item';
+        item.className = 'list-item pressable stagger-item';
         item.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                 <span style="font-size: 20px; min-width: 28px;">${icon}</span>

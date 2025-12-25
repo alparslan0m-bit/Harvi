@@ -129,6 +129,9 @@ class HapticsEngine {
     }
 }
 
+// Expose to window for cross-script access
+window.HapticsEngine = HapticsEngine;
+
 // Fallback for older browsers
 if (!HapticsEngine.isAvailable()) {
     console.warn('⚠️ Haptics (vibration) not available on this device');

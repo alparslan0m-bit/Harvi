@@ -107,97 +107,6 @@
 
 
 /* ========================================
-   DARK MODE TOGGLE
-   ======================================== */
-.mode-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    padding: 0.75rem;
-    flex-shrink: 0;
-    position: relative;
-    
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(99, 102, 241, 0.3);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-}
-
-@media (hover: hover) {
-    .mode-toggle:hover {
-        background: rgba(255, 255, 255, 0.95);
-        border-color: rgba(99, 102, 241, 0.5);
-        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
-        transform: translateY(-2px);
-    }
-}
-
-.mode-toggle:active {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(99, 102, 241, 0.5);
-}
-
-.mode-toggle svg {
-    width: 24px;
-    height: 24px;
-    color: #0EA5E9;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate3d(-50%, -50%, 0);
-    transition: all 0.3s ease;
-    will-change: transform;
-}
-
-@media (hover: hover) {
-    .mode-toggle:hover svg {
-        color: #0284C7;
-    }
-}
-
-.mode-toggle .boy-icon {
-    opacity: 1;
-    transform: translate3d(-50%, -50%, 0) rotate(0deg);
-    transition: all 0.3s ease;
-}
-
-.mode-toggle .girl-icon {
-    opacity: 0;
-    transform: translate3d(-50%, -50%, 0) rotate(180deg);
-    transition: all 0.3s ease;
-}
-
-@media (hover: hover) {
-    .mode-toggle:hover .boy-icon {
-        transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(1.1);
-    }
-    
-    .mode-toggle:hover .girl-icon {
-        transform: translate3d(-50%, -50%, 0) rotate(180deg) scale(1.1);
-    }
-}
-
-/* Quiz screen toggle variant */
-.quiz-mode-toggle {
-    width: 40px;
-    height: 40px;
-    padding: 0.5rem;
-}
-
-.quiz-mode-toggle svg {
-    width: 20px;
-    height: 20px;
-}
-
-/* ========================================
    ANIMATIONS
    ======================================== */
 @keyframes titleFloat {
@@ -271,17 +180,6 @@ body.girl-mode .brand-description {
     text-shadow: 0 2px 4px rgba(251, 207, 232, 0.2);
 }
 
-
-body.girl-mode .mode-toggle .boy-icon {
-    opacity: 0;
-    transform: translate3d(-50%, -50%, 0) rotate(180deg);
-}
-
-body.girl-mode .mode-toggle .girl-icon {
-    opacity: 1;
-    transform: translate3d(-50%, -50%, 0) rotate(0deg);
-}
-
 /* ========================================
    RESPONSIVE DESIGN
    ======================================== */
@@ -300,17 +198,6 @@ body.girl-mode .mode-toggle .girl-icon {
         font-size: 1rem;
         padding-left: 0.5rem;
     }
-    
-.mode-toggle {
-        width: 44px;
-        height: 44px;
-        padding: 0.625rem;
-    }
-    
-.mode-toggle svg {
-        width: 22px;
-        height: 22px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -322,17 +209,6 @@ body.girl-mode .mode-toggle .girl-icon {
         font-size: 0.9rem;
         padding-left: 0.5rem;
     }
-    
-.mode-toggle {
-        width: 40px;
-        height: 40px;
-        padding: 0.5rem;
-    }
-    
-.mode-toggle svg {
-        width: 20px;
-        height: 20px;
-    }
 }
 
 /* ========================================
@@ -340,8 +216,7 @@ body.girl-mode .mode-toggle .girl-icon {
    ======================================== */
 @media (prefers-reduced-motion: reduce) {
     .app-title,
-    .brand-description,
-.mode-toggle {
+    .brand-description {
         animation: none;
     }
     
@@ -351,9 +226,5 @@ body.girl-mode .mode-toggle .girl-icon {
     
     .brand-description:hover {
         transform: translateY(-1px) scale(1.02);
-    }
-    
-    .mode-toggle:hover {
-        transform: scale(1.02);
     }
 }

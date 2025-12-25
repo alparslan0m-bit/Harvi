@@ -126,7 +126,7 @@ class MotionCoordinator {
 
     elements.forEach((element, index) => {
       const delay = (index * stagger) + offset;
-      element.style.setProperty('--animation-delay', `${delay}ms`);
+      element.style.animationDelay = `${delay}ms`;
       element.classList.add(animationClass);
 
       // Track animation

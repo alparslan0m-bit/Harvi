@@ -73,4 +73,15 @@
     --backdrop-blur-md: blur(10px);
     --backdrop-blur-lg: blur(20px);
     --backdrop-brightness: brightness(1.1);
+
+    /* Bridge old variable names to new color palette system */
+    --primary-color: var(--color-primary, #0EA5E9);
+    --primary-hover: var(--color-primary-hover, #0284C7);
+    --primary-light: var(--color-primary-light, #E0F2FE);
+    --success-color: var(--color-success, #10B981);
+    --success-light: var(--color-success-light, #ECFDF5);
+    --success-dark: var(--color-success-dark, #059669);
+    --error-color: var(--color-error, #EF4444);
+    --error-light: var(--color-error-light, #FEF2F2);
+    --error-dark: var(--color-error-dark, #DC2626);
 }

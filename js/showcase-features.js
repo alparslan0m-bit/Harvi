@@ -599,6 +599,14 @@ class BadgeManager {
     }
 }
 
+// Expose to window for cross-script access
+window.PullToRefresh = PullToRefresh;
+window.OptimisticUI = OptimisticUI;
+window.SpringPhysics = SpringPhysics;
+window.ConfettiEngine = ConfettiEngine;
+window.ThemeSyncEngine = ThemeSyncEngine;
+window.BadgeManager = BadgeManager;
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {

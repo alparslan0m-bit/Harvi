@@ -26,6 +26,8 @@
     <link rel="stylesheet" href="./css/components/bottom-nav.css">
     <link rel="stylesheet" href="./css/components/pwa-features.css">
     <link rel="stylesheet" href="./css/components/apple-material-system.css">
+    <link rel="stylesheet" href="./css/components/stats.css">
+    <link rel="stylesheet" href="./css/components/profile.css">
     <link rel="stylesheet" href="./css/components/native-navigation.css">
     <link rel="stylesheet" href="./css/components/dynamic-island.css">
     <!-- Preload fonts with font-display: swap for better performance -->
@@ -69,24 +71,6 @@
                             <!-- Populated by navigation.js -->
                         </div>
                     </div>
-
-                    <button class="mode-toggle" id="mode-toggle" aria-label="Toggle girl mode">
-                        <!-- Boy icon -->
-                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <!-- Simple person silhouette (boy) -->
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <!-- Girl icon -->
-                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            aria-hidden="true">
-                            <!-- Person silhouette with a dress-like shape (girl) -->
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
                 </div>
                 <div class="breadcrumb" id="breadcrumb"></div>
                 <div class="cards-grid" id="cards-container"></div>
@@ -109,21 +93,6 @@
                         <span class="question-counter"><span id="current-question">1</span> / <span
                                 id="total-questions">10</span></span>
                     </div>
-                    <button class="mode-toggle quiz-mode-toggle" id="quiz-mode-toggle" aria-label="Toggle girl mode">
-                        <!-- Boy icon -->
-                        <svg class="boy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <!-- Girl icon -->
-                        <svg class="girl-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
                 </div>
                 <div class="quiz-content">
                     <h2 class="question-text" id="question-text">Question text goes here?</h2>
@@ -172,16 +141,6 @@
                     <button class="brand-container" id="brand-stats" style="background: none; border: none; cursor: pointer; padding: 0;">
                         <h1 class="app-title">Statistics</h1>
                     </button>
-                    <button class="mode-toggle" id="stats-mode-toggle" aria-label="Toggle girl mode">
-                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
                 </div>
                 <div id="stats-content">
                     <!-- Stats will be populated here -->
@@ -195,16 +154,6 @@
                 <div class="header-container">
                     <button class="brand-container" id="brand-profile" style="background: none; border: none; cursor: pointer; padding: 0;">
                         <h1 class="app-title">Profile</h1>
-                    </button>
-                    <button class="mode-toggle" id="profile-mode-toggle" aria-label="Toggle girl mode">
-                        <svg class="boy-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M6 20v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <svg class="girl-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="7" r="3" stroke="currentColor" stroke-width="2" />
-                            <path d="M8 21v-5l-2 2m10 3v-5l2 2M9 21h6M9 12l3-2 3 2 2 3H7l2-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
                     </button>
                 </div>
                 <div id="profile-content">
@@ -224,6 +173,8 @@
     <script src="js/navigation.js"></script>
     <script src="js/quiz.js"></script>
     <script src="js/results.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/app.js"></script>
 
     <!-- PWA: Service Worker Registration -->
@@ -264,6 +215,30 @@
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
             <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav-container active" id="bottom-nav-container">
+        <nav class="bottom-nav">
+            <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10"/>
+                </svg>
+                <span class="bottom-nav-item-label">Home</span>
+            </a>
+            <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3v18h18M7 16v-8m4 8V8m4 8v-4m4 4V6"/>
+                </svg>
+                <span class="bottom-nav-item-label">Stats</span>
+            </a>
+            <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                </svg>
+                <span class="bottom-nav-item-label">Profile</span>
+            </a>
+        </nav>
     </div>
 
 </body>

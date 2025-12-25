@@ -191,12 +191,7 @@ class AdaptiveThemeColor {
         this.updateTheme();
 
         // Listen for mode changes
-        const modeToggle = document.getElementById('mode-toggle');
-        if (modeToggle) {
-            modeToggle.addEventListener('click', () => {
-                setTimeout(() => this.updateTheme(), 100);
-            });
-        }
+        // Note: Header mode toggles removed, theme changes handled by profile settings
 
         // Listen for system preference changes
         if (window.matchMedia) {
