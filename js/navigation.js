@@ -169,53 +169,30 @@ class Navigation {
     showLoadingState(container, message = 'Loading...') {
         container.innerHTML = '';
         container.style.opacity = '1';
-        
-        // Use SkeletonLoader if available, otherwise fallback to spinner
-        if (window.SkeletonLoader) {
-            SkeletonLoader.renderGrid(container, {
-                columns: 2,
-                rows: 3,
-                cardHeight: '120px'
-            });
-        } else {
-            // Fallback for older browsers
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'navigation-loading';
-            loadingDiv.style.cssText = `
-                color: white; 
-                text-align: center; 
-                width: 100%; 
-                padding: 3rem 2rem; 
-                font-size: 1.1rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 1rem;
+
+        // Create skeleton list items that match the iOS list style
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'grouped-list';
+
+        // Generate 5-6 skeleton list items
+        for (let i = 0; i < 6; i++) {
+            const skeletonItem = document.createElement('div');
+            skeletonItem.className = 'list-item skeleton-loader';
+            skeletonItem.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                    <div style="width: 28px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 6px; animation: pulse 1.5s ease-in-out infinite;"></div>
+                    <div style="flex: 1;">
+                        <div style="height: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.1s;"></div>
+                        <div style="height: 12px; background: rgba(255,255,255,0.08); border-radius: 3px; width: 60%; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.2s;"></div>
+                    </div>
+                </div>
+                <div style="width: 12px; height: 12px; background: rgba(255,255,255,0.05); border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.3s;"></div>
             `;
-            
-            const spinner = document.createElement('div');
-            spinner.className = 'loading-spinner';
-            spinner.style.cssText = `
-                width: 40px; 
-                height: 40px; 
-                border: 3px solid rgba(255,255,255,0.3); 
-                border-top: 3px solid white; 
-                border-radius: 50%; 
-                animation: spin 1s linear infinite;
-            `;
-            
-            const loadingText = document.createElement('div');
-            loadingText.textContent = message;
-            
-            loadingDiv.appendChild(spinner);
-            loadingDiv.appendChild(loadingText);
-            container.appendChild(loadingDiv);
+            groupWrapper.appendChild(skeletonItem);
         }
+
+        container.appendChild(groupWrapper);
     }
-    
-    /**
-     * Show error state with retry option
-     */
     showErrorState(container, message) {
         container.innerHTML = '';
         container.style.opacity = '1';
