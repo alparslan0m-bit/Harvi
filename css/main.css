@@ -28,3 +28,13 @@
 @import url('utils/quick-wins.css');
 @import url('components/touch-states.css');
 @import url('components/sf-symbols.css');
+
+/* ===== APP CONTAINER (Fixed Body, Scrollable Wrapper) ===== */
+#app {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden; /* App itself doesn't scroll, screens do */
+}

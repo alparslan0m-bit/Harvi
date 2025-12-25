@@ -1,8 +1,9 @@
 .screen {
     display: none !important;
-    min-height: 100vh;
+    height: 100%; /* Fill the fixed app container */
+    overflow-y: auto; /* Allow scrolling within the screen */
+    -webkit-overflow-scrolling: touch; /* Enable momentum/bounce */
     padding: 24px;
-    overflow: hidden;
 }
 
 .screen.active {
