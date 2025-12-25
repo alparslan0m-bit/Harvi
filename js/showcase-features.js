@@ -237,100 +237,6 @@ const gestureHandler = new GestureHandler();
 // PULL-TO-REFRESH IMPLEMENTATION
 // ============================================
 
-class PullToRefresh {
-    constructor(container, onRefresh = null) {
-        this.container = container;
-        this.onRefresh = onRefresh; // Callback for actual refresh
-        this.pullDistance = 0;
-        this.pullThreshold = 100;
-        this.isRefreshing = false;
-        this.init();
-    }
-
-    init() {
-        let startY = 0;
-        let isPulling = false;
-
-        this.container.addEventListener('touchstart', (e) => {
-            if (this.container.scrollTop === 0) {
-                startY = e.touches[0].clientY;
-            } else {
-                startY = 0;
-            }
-        });
-
-        this.container.addEventListener('touchmove', (e) => {
-            if (this.container.scrollTop === 0 && startY > 0) {
-                const currentY = e.touches[0].clientY;
-                this.pullDistance = currentY - startY;
-                
-                // Only prevent default if we're actually pulling downward
-                if (this.pullDistance > 10) {
-                    isPulling = true;
-                    e.preventDefault();
-                    this.updatePullIndicator(this.pullDistance);
-                }
-            }
-        });
-
-        this.container.addEventListener('touchend', () => {
-            if (this.pullDistance >= this.pullThreshold) {
-                this.triggerRefresh();
-            }
-            this.resetPull();
-            startY = 0;
-            isPulling = false;
-        });
-    }
-
-    updatePullIndicator(distance) {
-        const indicator = document.getElementById('pull-refresh-indicator');
-        if (indicator) {
-            const opacity = Math.min(distance / this.pullThreshold, 1);
-            const rotation = Math.min((distance / this.pullThreshold) * 360, 360);
-            
-            indicator.style.opacity = opacity;
-            indicator.style.transform = `rotate(${rotation}deg) translateY(${distance * 0.5}px)`;
-        }
-    }
-
-    resetPull() {
-        this.pullDistance = 0;
-        const indicator = document.getElementById('pull-refresh-indicator');
-        if (indicator) {
-            indicator.style.opacity = '0';
-            indicator.style.transform = 'rotate(0deg) translateY(0)';
-        }
-    }
-
-    async triggerRefresh() {
-        if (this.isRefreshing) return;
-        this.isRefreshing = true;
-
-        audioToolkit.play('refresh');
-        HapticsEngine.pulse();
-
-        try {
-            // Execute callback if provided
-            if (this.onRefresh && typeof this.onRefresh === 'function') {
-                await this.onRefresh();
-            } else if (window.app && window.app.navigation) {
-                // Default: refresh lecture list
-                await window.app.navigation.showYears();
-            } else {
-                // Fallback: just wait
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        } catch (error) {
-            console.warn('Refresh failed:', error);
-        }
-
-        this.isRefreshing = false;
-        HapticsEngine.success();
-        this.resetPull();
-    }
-}
-
 // ============================================
 // OPTIMISTIC UI UPDATES
 // ============================================
@@ -600,7 +506,6 @@ class BadgeManager {
 }
 
 // Expose to window for cross-script access
-window.PullToRefresh = PullToRefresh;
 window.OptimisticUI = OptimisticUI;
 window.SpringPhysics = SpringPhysics;
 window.ConfettiEngine = ConfettiEngine;
@@ -612,7 +517,6 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         AudioToolkit,
         GestureHandler,
-        PullToRefresh,
         OptimisticUI,
         SpringPhysics,
         ConfettiEngine,

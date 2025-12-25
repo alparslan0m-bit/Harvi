@@ -108,7 +108,7 @@ class MCQApp {
         this.initDarkMode();
         this.setupBrandButton();
         this.setupBottomNavigation();
-        this.setupPullToRefresh();
+        // this.setupPullToRefresh(); // DISABLED: Pull-to-refresh feature removed
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
         this.setupServiceWorkerUpdateListener();

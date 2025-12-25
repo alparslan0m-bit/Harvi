@@ -154,27 +154,6 @@ body.girl-mode .bottom-nav {
     }
 }
 
-/* Pull-to-Refresh Indicator */
-#pull-refresh-indicator {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 40px;
-    opacity: 0;
-    transition: opacity 200ms ease;
-    z-index: 150;
-}
-
-#pull-refresh-indicator svg {
-    width: 100%;
-    height: 100%;
-    stroke: var(--primary-color);
-    stroke-width: 2;
-    fill: none;
-}
-
 /* Quiz content padding for bottom nav */
 .quiz-content {
     padding-bottom: 100px;
