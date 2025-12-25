@@ -33,8 +33,11 @@
 }
 
 body.girl-mode .bottom-nav {
-    background: rgba(30, 30, 30, 0.85);
-    border-top-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    border-top-color: rgba(251, 207, 232, 0.8);
+    /* Rose-200 */
+    box-shadow: 0 -8px 32px rgba(236, 72, 153, 0.15);
+    /* Pink glow up */
 }
 
 .bottom-nav-item {
@@ -90,10 +93,13 @@ body.girl-mode .bottom-nav {
 }
 
 @keyframes pulse-dot {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.2);
         opacity: 0.8;
@@ -123,6 +129,7 @@ body.girl-mode .bottom-nav {
         transform: scale(0.5);
         opacity: 0;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;

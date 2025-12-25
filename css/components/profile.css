@@ -27,8 +27,9 @@
 }
 
 body.girl-mode .profile-avatar {
-    background: rgba(30, 30, 30, 0.8);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .profile-avatar svg {
@@ -59,7 +60,8 @@ body.girl-mode .profile-avatar {
 }
 
 body.girl-mode .setting-group h4 {
-    border-bottom-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(236, 72, 153, 0.3);
+    color: var(--text-primary);
 }
 
 .setting-item {
@@ -80,8 +82,9 @@ body.girl-mode .setting-group h4 {
 }
 
 body.girl-mode .setting-label {
-    background: rgba(30, 30, 30, 0.6);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(251, 207, 232, 0.5); /* Rose-200 faint */
 }
 
 .setting-label:hover {
@@ -164,8 +167,9 @@ body.girl-mode .setting-label {
 }
 
 body.girl-mode .about-info {
-    background: rgba(30, 30, 30, 0.6);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(251, 207, 232, 0.5);
 }
 
 .about-info p {
