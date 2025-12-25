@@ -17,6 +17,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
+    min-height: calc(100% + 1px); /* Force scroll engine: always 1px taller than screen */
 }
 
 .cards-grid {
