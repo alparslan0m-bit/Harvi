@@ -26,7 +26,7 @@
 
 body.girl-mode .stats-card {
     background: rgba(30, 30, 30, 0.8);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
 .stats-number {
@@ -68,7 +68,7 @@ body.girl-mode .stats-card {
 
 body.girl-mode .recent-item {
     background: rgba(30, 30, 30, 0.6);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm);
 }
 
 .recent-info {

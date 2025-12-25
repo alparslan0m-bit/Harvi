@@ -1,337 +1,52 @@
-/* Girl Mode Support - Enhanced Colors */
+/* Girl Mode - Variable Override System only */
 body.girl-mode {
-/* Light rose background to mirror boy mode but pink */
-background: linear-gradient(135deg, #F9A8D4 0%, #EC4899 50%, #DB2777 100%);
+    /* 1. Color Palette Swaps (Blue -> Pink) */
+    --primary-color: #EC4899;       /* Rose 500 */
+    --primary-hover: #DB2777;       /* Rose 600 */
+    --primary-light: #FFE4E6;       /* Rose 100 */
 
-    /* Ensure theme gradient variable matches for components using var(--gradient-bg) */
-    --gradient-bg: linear-gradient(135deg, #F9A8D4 0%, #EC4899 50%, #DB2777 100%);
-    background-attachment: fixed;
-    background-size: 200% 200%;
-    animation: gradientMove 15s ease infinite;
-
-/* Text and surfaces (light theme) */
-    --text-primary: #1F2937;        /* Slate 800 */
-    --text-secondary: #475569;      /* Slate 600 */
-    --text-muted: #94A3B8;          /* Slate 400 */
+    /* 2. Backgrounds (Clean & Bright, No "Dark" Gradients) */
     --bg-primary: #FFFFFF;
     --bg-secondary: #FFF1F2;        /* Rose 50 */
     --bg-tertiary: #FFE4E6;         /* Rose 100 */
     --border-color: #FBCFE8;        /* Rose 200 */
-    --border-light: #FFE4E6;        /* Rose 100 */
 
-    /* Primary tokens for buttons/links */
-    --primary-color: #EC4899;       /* Rose 500 */
-    --primary-hover: #DB2777;       /* Rose 600 */
-    --primary-light: #FFE4E6;       /* Rose 100 */
-    --gradient-primary: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+    /* 3. Text (Keep high contrast mostly, but soften muted text) */
+    --text-primary: #1F2937;        /* Gray 800 (Sharp) */
+    --text-muted: #9CA3AF;
 
-    /* Focus ring override for a11y */
-    --focus-ring: 0 0 0 3px rgba(244, 114, 182, 0.30);
+    /* 4. SHADOWS - The "No Black Shadows" Fix */
+    /* We replace black shadows with Diffuse Pink Glows */
+    --shadow-color: 236, 72, 153; /* r,g,b of Pink */
 
-    /* Light breadcrumb tokens */
-    --breadcrumb-bg: linear-gradient(135deg, rgba(255, 241, 242, 0.95) 0%, rgba(255, 228, 230, 0.95) 100%);
-    --breadcrumb-hover: linear-gradient(135deg, rgba(251, 207, 232, 0.5) 0%, rgba(255, 228, 230, 0.5) 100%);
-    --breadcrumb-shadow: 0 4px 16px rgba(244, 114, 182, 0.12);
-    --breadcrumb-active: #EC4899;   /* Rose 500 */
-    --breadcrumb-text: #1F2937;     /* Dark text on light */
-    --breadcrumb-separator: #FB7185; /* Rose 400 */
+    --shadow-sm: 0 1px 2px 0 rgba(var(--shadow-color), 0.15);
+    --shadow-md: 0 4px 6px -1px rgba(var(--shadow-color), 0.2), 0 2px 4px -1px rgba(var(--shadow-color), 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(var(--shadow-color), 0.2), 0 4px 6px -2px rgba(var(--shadow-color), 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(var(--shadow-color), 0.25), 0 10px 10px -5px rgba(var(--shadow-color), 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(var(--shadow-color), 0.3);
+
+    /* Premium depth shadows for glassmorphism */
+    --shadow-glass-sm: 0 2px 8px rgba(var(--shadow-color), 0.12);
+    --shadow-glass-md: 0 8px 24px rgba(var(--shadow-color), 0.16);
+    --shadow-glass-lg: 0 20px 48px rgba(var(--shadow-color), 0.2);
+
+    /* 5. Gradients */
+    --gradient-primary: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+    --gradient-bg: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); /* For specific elements that need gradient */
+
+    /* 6. Focus ring */
+    --focus-ring: 0 0 0 3px rgba(236, 72, 153, 0.3);
 }
 
-body.girl-mode .breadcrumb {
-    background: var(--breadcrumb-bg);
-    border: 1.5px solid var(--border-color);
-    box-shadow: var(--breadcrumb-shadow);
-    backdrop-filter: blur(12px);
-}
-
-body.girl-mode .breadcrumb:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.2);
-    border-color: #F9A8D4;
-}
-
-body.girl-mode .breadcrumb-item {
-    color: var(--breadcrumb-text);
-    text-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
-    position: relative;
-}
-
-body.girl-mode .breadcrumb-item:hover {
-    background: var(--breadcrumb-hover);
-    color: #c4b5fd;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-}
-
-body.girl-mode .breadcrumb-item:active {
-    color: var(--breadcrumb-active);
-    transform: scale(0.98);
-}
-
-body.girl-mode .breadcrumb-separator {
-    color: var(--breadcrumb-separator);
-    opacity: 0.8;
-}
-
-body.girl-mode .card {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF1F2 100%);
-    border: 1.5px solid #FBCFE8;
-    box-shadow: 0 12px 24px rgba(244, 114, 182, 0.15);
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-    color: var(--text-primary);
-}
-
-body.girl-mode .card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(251, 207, 232, 0.15), rgba(255, 228, 230, 0.15));
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-body.girl-mode .card:hover {
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 20px 32px rgba(244, 114, 182, 0.25);
-    border-color: #F9A8D4;
-}
-
-body.girl-mode .card:hover::before {
-    opacity: 1;
-}
-
-body.girl-mode .card-icon {
-    background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-    box-shadow: 0 8px 16px rgba(236, 72, 153, 0.25);
-    border: 1.5px solid rgba(236, 72, 153, 0.35);
-}
-
-body.girl-mode .card-title {
-    color: var(--text-primary);
-    text-shadow: none;
-}
-
-body.girl-mode .card-description {
-    color: var(--text-secondary);
-}
-
-body.girl-mode .quiz-container {
-    /* Match boy mode structure: solid white, same shadow strength, pink hue */
-    background: #FFFFFF;
-    border: 1.5px solid #FBCFE8;
-    box-shadow:
-        0 4px 6px -1px rgba(236, 72, 153, 0.10),
-        0 2px 4px -1px rgba(236, 72, 153, 0.06);
-    backdrop-filter: none;
-}
-
-/* Quiz header in girl mode: bold pink gradient */
-body.girl-mode .quiz-header {
-    background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
-}
-
-body.girl-mode .question-text {
-    background: linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%);
-    border: 1.5px solid #FBCFE8;
-    color: #1F2937;
-    text-shadow: none;
-    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.12);
-    backdrop-filter: blur(4px);
-}
-
-body.girl-mode .options-container {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF1F2 100%);
-    border: 1.5px solid #FBCFE8;
-    box-shadow: inset 0 1px 2px rgba(244, 114, 182, 0.08);
-    backdrop-filter: blur(6px);
-}
-
-body.girl-mode .option {
-    background: #FFFFFF;
-    border-color: #FBCFE8;
-    color: #1F2937;
-    box-shadow: 0 2px 6px rgba(244, 114, 182, 0.12);
-    backdrop-filter: none;
-    transition: all 0.25s ease;
-}
-
-body.girl-mode .option:hover:not(.disabled):not(.correct):not(.incorrect) {
-    background: #FFE4E6 !important;
-    border-color: #F472B6 !important;
-    transform: translateX(4px) scale(1.01);
-    box-shadow: 0 6px 16px rgba(244, 114, 182, 0.25) !important;
-    color: #1F2937 !important;
-    text-shadow: none;
-}
-
-body.girl-mode #confetti-canvas {
-    filter: none;
-}
-
-/* Results Screen Girl Mode */
-body.girl-mode .theme-toggle {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: #FBCFE8;
-    box-shadow: 0 4px 12px rgba(244, 114, 182, 0.15);
-}
-
-body.girl-mode .theme-toggle:hover {
-    background: #FFFFFF;
-    border-color: #F9A8D4;
-}
-
-body.girl-mode .results-container {
-    background: linear-gradient(135deg, #FFFFFF 0%, #FFF1F2 100%);
-    border: 1px solid #FBCFE8;
-    box-shadow: 0 20px 40px rgba(244, 114, 182, 0.15),
-                0 8px 16px rgba(244, 114, 182, 0.1),
-                0 0 0 1px rgba(251, 207, 232, 0.6);
-    backdrop-filter: blur(8px);
-}
-
-body.girl-mode .results-title {
-    color: #F9FAFB;
-    background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 50%, #ec4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 2px 4px rgba(236, 72, 153, 0.25);
-    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.35));
-}
-
-body.girl-mode .score-display {
-    background: linear-gradient(135deg, rgba(251, 207, 232, 0.35), rgba(255, 228, 230, 0.35));
-    border-color: #FBCFE8;
-    box-shadow: 0 8px 16px rgba(244, 114, 182, 0.12);
-    backdrop-filter: blur(6px);
-}
-
-body.girl-mode .score-info {
-    background: #FFFFFF;
-    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.12);
-    border: 1px solid #FBCFE8;
-    backdrop-filter: blur(4px);
-}
-
-body.girl-mode .score-number {
-    background: linear-gradient(135deg, #F472B6, #EC4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-body.girl-mode .score-text,
-body.girl-mode .score-details,
-body.girl-mode .time-taken,
-body.girl-mode .results-message {
-    color: #374151; /* Slate 700 */
-}
-
-body.girl-mode .retake-quiz-btn {
-    background: linear-gradient(135deg, #f472b6, #ec4899);
-    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35),
-                0 0 0 2px rgba(236, 72, 153, 0.25);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-body.girl-mode .retake-quiz-btn:hover {
-    background: linear-gradient(135deg, #fb7185, #f472b6);
-    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.45),
-                0 0 0 3px rgba(236, 72, 153, 0.35);
-    transform: translateY(-2px);
-}
-
-body.girl-mode .back-home-btn {
-    background: #FFFFFF;
-    color: #EC4899;
-    border: 2px solid #FBCFE8;
-    backdrop-filter: none;
-    text-shadow: none;
-}
-
-body.girl-mode .back-home-btn:hover {
-    background: #FFF1F2;
-    border-color: #F9A8D4;
-    color: #BE185D; /* Rose 700 */
-    box-shadow: 0 6px 16px rgba(244, 114, 182, 0.15),
-                0 0 0 3px rgba(251, 207, 232, 0.6);
-    transform: translateY(-2px);
-}
-
-/* Enhanced Header Girl Mode Styles */
-body.girl-mode .header-container {
-    background: linear-gradient(135deg, rgba(255, 241, 242, 0.9) 0%, rgba(255, 228, 230, 0.9) 100%);
-    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.15);
-    border-bottom: 1px solid #FBCFE8;
-    backdrop-filter: blur(8px);
-}
-
-body.girl-mode .header-container::before {
-    background: linear-gradient(135deg, rgba(251, 207, 232, 0.15), rgba(255, 228, 230, 0.15));
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid #FDE2E7;
-}
-
-body.girl-mode .app-title {
-    background: linear-gradient(135deg, #FBCFE8 0%, #F9A8D4 25%, #F472B6 50%, #DB2777 75%, #FBCFE8 100%);
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 4px 8px rgba(251, 207, 232, 0.3);
-    filter: drop-shadow(0 0 12px rgba(251, 207, 232, 0.4));
-}
-
-body.girl-mode .mode-toggle {
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid #FBCFE8;
-    box-shadow: 0 4px 12px rgba(244, 114, 182, 0.15);
-    backdrop-filter: blur(6px);
-}
-
-body.girl-mode .mode-toggle:hover {
-    background: #FFFFFF;
-    border-color: #F9A8D4;
-    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.22);
-    transform: translateY(-2px) scale(1.05);
-}
-
-body.girl-mode .mode-toggle:active {
-    transform: translateY(-1px) scale(1.02);
-}
-
-body.girl-mode .mode-toggle svg {
-    color: #F9A8D4; /* Rose 300 */
-}
-
-body.girl-mode .mode-toggle:hover svg {
-    color: #FBCFE8; /* Rose 200 */
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
-/* Girl mode icon transitions */
-body.girl-mode .mode-toggle .boy-icon {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(180deg);
-}
-
-body.girl-mode .mode-toggle .girl-icon {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg);
-}
-
-/* System preference fallback */
+/* Force Light Theme consistency even if OS is Dark */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --text-primary: #F9FAFB;
-        --text-secondary: #D1D5DB;
-        --text-muted: #9CA3AF;
-        --bg-primary: #111827;
-        --bg-secondary: #1F2937;
-        --bg-tertiary: #374151;
-        --border-color: #374151;
-        --border-light: #4B5563;
+    body.girl-mode {
+        /* Re-enforce light backgrounds to avoid "Dark One" look */
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #FFF1F2;
+        --text-primary: #1F2937;
+        --text-secondary: #475569;
+        --text-muted: #94A3B8;
+        --border-color: #FBCFE8;
     }
 }

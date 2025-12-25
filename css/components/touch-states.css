@@ -31,7 +31,7 @@ button {
 .btn:active,
 button:active {
   transform: scale(0.97);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Lift effect on press release */
@@ -134,11 +134,11 @@ button:active::after {
 
 .card-pressable:active {
   transform: scale(0.96) translateY(2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .card-pressable:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ===== SELECTION FEEDBACK ===== */
@@ -228,12 +228,12 @@ button:active::after {
   left: 2px;
   transition: transform var(--duration-normal) var(--motion-spring),
               box-shadow var(--duration-instant) var(--motion-spring-tight);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .toggle:active::before {
   transform: scale(1.1);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .toggle.active {
