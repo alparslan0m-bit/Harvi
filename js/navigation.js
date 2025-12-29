@@ -382,98 +382,31 @@ class Navigation {
         const abortController = new AbortController();
         this.abortController = abortController;
         
-        // OFFLINE-FIRST: Try cache first for instant display
-        (async () => {
-            const cachedResults = [];
-            for (const lecture of subject.lectures) {
-                try {
-                    const cached = await harviDB.getLecture(lecture.id);
-                    if (cached) {
-                        cachedResults.push({ lecture, data: cached, source: 'cache', success: true });
-                    } else {
-                        cachedResults.push({ lecture, source: 'network' });
-                    }
-                } catch (error) {
-                    cachedResults.push({ lecture, source: 'network' });
-                }
-            }
-            
-            // Show cached content immediately
-            const hasCached = cachedResults.some(r => r.source === 'cache');
-            if (hasCached) {
-                this.renderWithTransition(container, () => {
-                    const fragment = document.createDocumentFragment();
-                    const groupWrapper = document.createElement('div');
-                    groupWrapper.className = 'grouped-list';
-                    
-                    cachedResults.forEach(result => {
-                        const data = result.data || result.lecture;
-                        const item = this.createListItem(
-                            '📝',
-                            result.lecture.name,
-                            `${data.questions?.length || 0} Questions`
-                        );
-                        if (result.success) {
-                            item.addEventListener('click', () => 
-                                this.app.startQuiz(result.data.questions, {
-                                    lectureId: result.lecture.id,
-                                    name: result.lecture.name
-                                })
-                            );
-                        }
-                        groupWrapper.appendChild(item);
-                    });
-                    
-                    fragment.appendChild(groupWrapper);
-                    
-                    // Apply stagger animation after a short delay to ensure DOM is ready
-                    setTimeout(() => {
-                        if (window.motionCoordinator) {
-                            const items = groupWrapper.querySelectorAll('.list-item');
-                            window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
-                        }
-                    }, 50);
-                    
-                    return fragment;
-                });
-            }
-        })();
+        // START BATCH FETCHING - Single GET request for better caching
+        // Note: Offline caching preserved via harviDB.saveLecture() in promise chain
+        const lectureIds = subject.lectures.map(lecture => lecture.id);
+        const url = `./api/lectures/batch?ids=${lectureIds.join(',')}`;
         
-        // START FETCHING IN BACKGROUND - Don't wait for rendering
-        const fetchPromises = subject.lectures.map(lecture => 
-            // WIRED: Use SafeFetch for automatic retry and error handling
-            SafeFetch.fetch(`./api/lectures/${encodeURIComponent(lecture.id)}`, {
-                signal: abortController.signal,
-                cache: 'no-cache', // Ensure fresh data
-                timeout: 10000,
-                retries: 2
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update cache with fresh data
-                if (harviDB && data.questions) {
-                    harviDB.saveLecture({
-                        id: lecture.id,
-                        ...data
-                    }).catch(e => 
-                        console.warn('Failed to cache lecture:', e)
-                    );
-                }
-                return { lecture, data, success: true };
-            })
-            .catch(error => {
-                if (error.name === 'AbortError') {
-                    throw error; // Re-throw abort errors
-                }
-                return { lecture, error, success: false };
-            })
-        );
-
+        // Check URL length to prevent 414 Request-URI Too Long errors
+        const batchFetchPromise = url.length > 2000 
+            ? // Fallback to POST if URL too long
+              SafeFetch.fetch('./api/lectures/batch', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ lectureIds }),
+                  signal: abortController.signal,
+                  cache: 'no-cache',
+                  timeout: 15000,
+                  retries: 2
+              })
+            : // Use GET for normal cases (better caching)
+              SafeFetch.fetch(url, {
+                  signal: abortController.signal,
+                  cache: 'default',
+                  timeout: 15000,
+                  retries: 2
+              });
+        
         // Render cards immediately with loading state (while fetching happens in parallel)
         const loadingCards = new Map();
         this.renderWithTransition(container, () => {
@@ -496,48 +429,83 @@ class Navigation {
             return fragment;
         });
 
-        // Process results as they arrive (progressive loading)
-        Promise.allSettled(fetchPromises).then(results => {
-            if (abortController.signal.aborted) return;
-            
-            results.forEach((result, index) => {
+        // SINGLE CONTINUOUS PROMISE CHAIN: Fetch → Process → Update Cards
+        batchFetchPromise
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(lectures => {
+                // Create a map for quick lookup
+                const lectureMap = new Map(lectures.map(lecture => [lecture.id, lecture]));
+                return subject.lectures.map(lecture => {
+                    const data = lectureMap.get(lecture.id);
+                    if (data) {
+                        // Update cache with fresh data
+                        if (harviDB && data.questions) {
+                            harviDB.saveLecture({
+                                id: lecture.id,
+                                ...data
+                            }).catch(e =>
+                                console.warn('Failed to cache lecture:', e)
+                            );
+                        }
+                        return { lecture, data, success: true };
+                    } else {
+                        return { lecture, error: new Error('Lecture not found in batch response'), success: false };
+                    }
+                });
+            })
+            .then(results => {
+                // NOW 'results' is the correctly processed array!
                 if (abortController.signal.aborted) return;
                 
-                const lecture = subject.lectures[index];
-                const currentCard = loadingCards.get(lecture.id);
-                
-                if (!currentCard || !container.contains(currentCard)) {
-                    return; // Card was removed, ignore
-                }
-                
-                if (result.status === 'rejected' || result.value.error) {
-                    // Handle error
-                    const error = result.status === 'rejected' ? result.reason : result.value.error;
-                    if (error.name !== 'AbortError') {
-                        this.updateCardError(currentCard);
+                results.forEach((result) => {
+                    if (abortController.signal.aborted) return;
+                    
+                    const lecture = result.lecture;
+                    const currentCard = loadingCards.get(lecture.id);
+                    
+                    if (!currentCard || !container.contains(currentCard)) {
+                        return; // Card was removed, ignore
                     }
-                    return;
-                }
+                    
+                    if (!result.success) {
+                        // Handle error
+                        if (result.error?.name !== 'AbortError') {
+                            this.updateCardError(currentCard);
+                        }
+                        return;
+                    }
+                    
+                    const { data } = result;
+                    lecture.questions = data.questions || [];
+                    const questions = lecture.questions;
+                    
+                    if (questions && questions.length > 0) {
+                        this.updateCardSuccess(currentCard, questions, year, module, subject, lecture);
+                    } else {
+                        this.updateCardEmpty(currentCard);
+                    }
+                });
                 
-                const { data } = result.value;
-                lecture.questions = data.questions || [];
-                const questions = lecture.questions;
+                this.abortController = null; // Clean up on success
+            })
+            .catch(error => {
+                this.abortController = null; // Clean up on error
                 
-                if (questions && questions.length > 0) {
-                    this.updateCardSuccess(currentCard, questions, year, module, subject, lecture);
-                } else {
-                    this.updateCardEmpty(currentCard);
+                if (error.name !== 'AbortError') {
+                    console.error('Error loading lectures:', error);
+                    // Show error on all remaining cards
+                    loadingCards.forEach(card => {
+                        if (container.contains(card)) {
+                            this.updateCardError(card);
+                        }
+                    });
                 }
             });
-            
-            this.abortController = null; // ← Clean up on success
-        }).catch(error => {
-            this.abortController = null;  // ← ADD: Clean up on error
-            
-            if (error.name !== 'AbortError') {
-                console.error('Error loading lectures:', error);
-            }
-        });
     }
     
     /**
@@ -551,7 +519,7 @@ class Navigation {
         const questionCount = questions.length;
         
         // Update card description
-        const descriptionEl = card.querySelector('.card-description');
+        const descriptionEl = card.querySelector('.caption-text');
         if (descriptionEl) {
             descriptionEl.textContent = `${questionCount} Question${questionCount !== 1 ? 's' : ''}`;
         }
@@ -631,7 +599,8 @@ class Navigation {
      * Update card to empty state
      */
     updateCardEmpty(card) {
-        card.querySelector('.card-description').textContent = 'No questions found';
+        const descriptionEl = card.querySelector('.caption-text');
+        if (descriptionEl) descriptionEl.textContent = 'No questions found';
         card.style.opacity = '0.6';
         card.style.cursor = 'not-allowed';
         card.style.pointerEvents = 'none';
@@ -642,7 +611,8 @@ class Navigation {
      * Update card to error state
      */
     updateCardError(card) {
-        card.querySelector('.card-description').textContent = 'Failed to load';
+        const descriptionEl = card.querySelector('.caption-text');
+        if (descriptionEl) descriptionEl.textContent = 'Failed to load';
         card.style.opacity = '0.6';
         card.style.cursor = 'not-allowed';
         card.style.pointerEvents = 'none';

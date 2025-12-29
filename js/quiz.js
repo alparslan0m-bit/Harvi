@@ -20,10 +20,34 @@ class Quiz {
         this.backClickHandler = null;
         
         this.confettiCanvas = document.getElementById('confetti-canvas');
-        this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
+        // Lazy-load confetti library
+        this.loadConfettiLibrary().then(() => {
+            this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
+        });
 
         this.setupKeyboardNavigation();
         this.setupButtonListeners(); // ← Move button listeners to separate method
+    }
+
+    /**
+     * Lazy-load confetti library to reduce initial bundle size
+     */
+    async loadConfettiLibrary() {
+        if (window.confetti) return; // Already loaded
+
+        try {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+            script.async = true;
+
+            return new Promise((resolve, reject) => {
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        } catch (error) {
+            console.warn('Failed to load confetti library:', error);
+        }
     }
 
     setupKeyboardNavigation() {

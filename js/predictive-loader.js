@@ -322,7 +322,8 @@ class PredictiveLoader {
 // Create global instance
 window.__PredictiveLoader = new PredictiveLoader();
 
-// Auto-initialize on DOM ready
+// Auto-initialize on DOM ready - DISABLED to reduce edge requests
+/*
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.__PredictiveLoader.init();
@@ -331,6 +332,7 @@ if (document.readyState === 'loading') {
     // DOM already loaded
     window.__PredictiveLoader.init();
 }
+*/
 
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {

@@ -1,21 +1,21 @@
 /* ===== APPLE-NATIVE TYPOGRAPHY SYSTEM ===== */
 /* iOS-accurate typography with SF Pro font stack and Dynamic Type scaling */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* REMOVED: Google Fonts import to reduce external requests */
 
 :root {
   /* ===== APPLE SF PRO FONT STACK ===== */
   /* Primary system font with fallbacks */
-  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", 
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
                  "Helvetica Neue", system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", 
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
                   "Helvetica Neue", system-ui, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", 
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text",
                "Helvetica Neue", system-ui, sans-serif;
-  
-  /* Fallback fonts */
-  --font-fallback-1: "Outfit", system-ui, sans-serif;
-  --font-fallback-2: "Inter", system-ui, sans-serif;
+
+  /* REMOVED: Fallback fonts that require external loading */
+  /* --font-fallback-1: "Outfit", system-ui, sans-serif; */
+  /* --font-fallback-2: "Inter", system-ui, sans-serif; */
 
   /* ===== iOS DYNAMIC TYPE SIZES ===== */
   /* Large Title: 34px (max), scales down fluidly */

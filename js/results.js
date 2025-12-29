@@ -12,6 +12,27 @@ class Results {
         this.lastTotal = 0;
     }
 
+    /**
+     * Lazy-load html2canvas library for screenshot sharing
+     */
+    async loadHtml2Canvas() {
+        if (window.html2canvas) return; // Already loaded
+
+        try {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.async = true;
+
+            return new Promise((resolve, reject) => {
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        } catch (error) {
+            console.warn('Failed to load html2canvas library:', error);
+        }
+    }
+
     bindEvents() {
         document.getElementById('retake-quiz').addEventListener('click', () => {
             // PHASE 2 FIX: Use master copy (unshuffled original) instead of session questions
@@ -172,6 +193,11 @@ class Results {
      */
     async shareWithScreenshot(title, text) {
         try {
+            // Lazy-load html2canvas if not available
+            if (!window.html2canvas) {
+                await this.loadHtml2Canvas();
+            }
+
             if (!window.html2canvas) {
                 throw new Error('html2canvas not loaded');
             }

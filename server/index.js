@@ -2,6 +2,8 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const compression = require('compression');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const { Year } = require('./models/Year');
@@ -11,8 +13,28 @@ const { Lecture } = require('./models/Lecture');
 
 const app = express();
 
+app.use(compression()); // Enable gzip/brotli compression
 app.use(cors());
 app.use(express.json());
+
+// Add Cache-Control headers for API responses
+app.use('/api', (req, res, next) => {
+    // Cache /api/years for 5 minutes
+    if (req.path === '/years') {
+        res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    }
+    // Cache lecture data for 1 hour (including batch endpoint)
+    if (req.path.match(/^\/lectures\/.+/) || req.path === '/lectures/batch') {
+        res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=7200');
+    }
+    // Admin endpoints should not be cached
+    if (req.path.startsWith('/admin')) {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+    // Set Vary header for proper cache key handling with compression
+    res.set('Vary', 'Accept-Encoding');
+    next();
+});
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mcq_app';
@@ -63,6 +85,16 @@ app.get('/api/years', async (req, res) => {
             return { ...year, modules };
         });
 
+        // Generate ETag for efficient revalidation
+        const responseData = JSON.stringify(response);
+        const etag = `"${crypto.createHash('md5').update(responseData).digest('hex')}"`;
+
+        // Check If-None-Match header for conditional requests
+        if (req.headers['if-none-match'] === etag) {
+            return res.status(304).end(); // Not Modified
+        }
+
+        res.set('ETag', etag);
         res.json(response);
     } catch (err) {
         console.error('Error fetching years:', err);
@@ -70,6 +102,59 @@ app.get('/api/years', async (req, res) => {
             error: 'Failed to fetch years',
             message: 'Database query failed. Check server logs for details.'
         });
+    }
+});
+
+app.post('/api/lectures/batch', async (req, res) => {
+    try {
+        const { lectureIds } = req.body;
+        if (!Array.isArray(lectureIds) || lectureIds.length === 0) {
+            return res.status(400).json({
+                error: 'Invalid request',
+                message: 'lectureIds must be a non-empty array'
+            });
+        }
+
+        // Rate limiting: max 50 lectures per batch
+        const MAX_BATCH_SIZE = 50;
+        if (lectureIds.length > MAX_BATCH_SIZE) {
+            return res.status(400).json({
+                error: 'Too many lectures requested',
+                message: `Maximum batch size is ${MAX_BATCH_SIZE}`
+            });
+        }
+
+        const lectures = await Lecture.find({ id: { $in: lectureIds } }).lean();
+        res.json(lectures);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch lectures', details: err.message });
+    }
+});
+
+// Alternative GET endpoint for better caching (browsers cache GET requests)
+app.get('/api/lectures/batch', async (req, res) => {
+    try {
+        const lectureIds = req.query.ids?.split(',') || [];
+        if (lectureIds.length === 0) {
+            return res.status(400).json({
+                error: 'Invalid request',
+                message: 'ids query parameter must contain comma-separated lecture IDs'
+            });
+        }
+
+        // Rate limiting: max 50 lectures per batch
+        const MAX_BATCH_SIZE = 50;
+        if (lectureIds.length > MAX_BATCH_SIZE) {
+            return res.status(400).json({
+                error: 'Too many lectures requested',
+                message: `Maximum batch size is ${MAX_BATCH_SIZE}`
+            });
+        }
+
+        const lectures = await Lecture.find({ id: { $in: lectureIds } }).lean();
+        res.json(lectures);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch lectures', details: err.message });
     }
 });
 
@@ -546,8 +631,14 @@ app.post('/api/quiz-results', async (req, res) => {
 const staticRoot = path.join(__dirname, '..');
 app.use('/', express.static(staticRoot));
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+// Only start server when running locally (not in Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
+
+// Export for Vercel serverless functions
+module.exports = app;
 
 

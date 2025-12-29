@@ -15,62 +15,70 @@ async function seed() {
         console.log('Attempting to connect to MongoDB...');
         
         await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 5000, // 5 second timeout
-            socketTimeoutMS: 45000, // 45 second timeout
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
         });
         
         console.log('Successfully connected to MongoDB');
-
         console.log('Clearing existing collections...');
         await Year.deleteMany({});
         await Module.deleteMany({});
         await Subject.deleteMany({});
         await Lecture.deleteMany({});
-
         const appDataPath = path.join(__dirname, 'seed', 'hierarchy.json');
         const appData = JSON.parse(await fs.readFile(appDataPath, 'utf8'));
-
-        console.log('Seeding database...');
-
+        console.log('Seeding database with new ID format...');
         for (const yearData of appData.years) {
-            console.log(`Creating year: ${yearData.name}`);
+            const yearId = yearData.id; // e.g., "year1"
+            console.log(`Creating year: ${yearData.name} (${yearId})`);
             
             await Year.create({
-                id: yearData.id,
+                id: yearId,
                 name: yearData.name,
                 icon: yearData.icon
             });
-
+            let moduleCounter = 1;
             for (const moduleData of (yearData.modules || [])) {
-                console.log(`Creating module: ${moduleData.name}`);
+                // Auto-generate module ID: year1_mod1, year1_mod2, etc.
+                const moduleId = moduleData.id || `${yearId}_mod${moduleCounter}`;
+                console.log(`  Creating module: ${moduleData.name} (${moduleId})`);
                 
                 await Module.create({
-                    id: moduleData.id,
+                    id: moduleId,
                     name: moduleData.name,
-                    yearId: yearData.id
+                    yearId: yearId
                 });
-
+                let subjectCounter = 1;
                 for (const subjectData of (moduleData.subjects || [])) {
-                    console.log(`Creating subject: ${subjectData.name}`);
+                    // Auto-generate subject ID: year1_mod1_sub1, etc.
+                    const subjectId = subjectData.id || `${moduleId}_sub${subjectCounter}`;
+                    console.log(`    Creating subject: ${subjectData.name} (${subjectId})`);
                     
                     await Subject.create({
-                        id: subjectData.id,
+                        id: subjectId,
                         name: subjectData.name,
-                        moduleId: moduleData.id
+                        moduleId: moduleId
                     });
-
-                    for (const lecture of (subjectData.lectures || [])) {
+                    let lectureCounter = 1;
+                    for (const lectureData of (subjectData.lectures || [])) {
+                        // Auto-generate lecture ID: year1_mod1_sub1_lec1, etc.
+                        const lectureId = lectureData.id || `${subjectId}_lec${lectureCounter}`;
+                        console.log(`      Creating lecture: ${lectureData.name} (${lectureId})`);
+                        
                         await Lecture.create({
-                            id: lecture.id,
-                            name: lecture.name,
-                            subjectId: subjectData.id,
-                            questions: []
+                            id: lectureId,
+                            name: lectureData.name,
+                            subjectId: subjectId,
+                            questions: lectureData.questions || []
                         });
+                        lectureCounter++;
                     }
+                    subjectCounter++;
                 }
+                moduleCounter++;
             }
         }
-        console.log('Seeding completed');
+        console.log('✅ Seeding completed with new ID format!');
     } catch (err) {
         console.error('Seeding failed:', err);
         process.exitCode = 1;

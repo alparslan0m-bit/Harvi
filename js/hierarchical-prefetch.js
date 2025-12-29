@@ -345,7 +345,8 @@ class HierarchicalPrefetcher {
 // Create global instance
 window.__HierarchicalPrefetcher = new HierarchicalPrefetcher();
 
-// Auto-initialize when DOM is ready
+// Auto-initialize when DOM is ready - DISABLED to reduce edge requests
+/*
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.__HierarchicalPrefetcher.init();
@@ -353,6 +354,7 @@ if (document.readyState === 'loading') {
 } else {
     window.__HierarchicalPrefetcher.init();
 }
+*/
 
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {

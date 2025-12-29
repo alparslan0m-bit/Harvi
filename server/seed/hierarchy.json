@@ -1,4 +1,5 @@
 {
+  "_idFormat": "IDs auto-generated: yearX → yearX_modN → yearX_modN_subN → yearX_modN_subN_lecN",
   "years": [
     {
       "id": "year1",
@@ -6,15 +7,29 @@
       "icon": "1️⃣",
       "modules": [
         {
-          "id": "y1m1",
           "name": "Module 1: Anatomy",
           "subjects": [
             {
-              "id": "y1m1s1",
               "name": "Human Anatomy",
               "lectures": [
-                { "id": "y1m1s1l1", "name": "Introduction to Anatomy" },
-                { "id": "y1m1s1l2", "name": "Skeletal System" }
+                { 
+                  "name": "Introduction to Anatomy",
+                  "questions": [
+                    {
+                      "id": "q1",
+                      "text": "What is the largest bone in the human body?",
+                      "options": ["Femur", "Tibia", "Humerus", "Skull"],
+                      "correctAnswer": 0
+                    },
+                    {
+                      "id": "q2", 
+                      "text": "Which system is responsible for transporting nutrients throughout the body?",
+                      "options": ["Nervous System", "Circulatory System", "Digestive System", "Respiratory System"],
+                      "correctAnswer": 1
+                    }
+                  ]
+                },
+                { "name": "Skeletal System" }
               ]
             }
           ]
@@ -27,14 +42,12 @@
       "icon": "2️⃣",
       "modules": [
         {
-          "id": "y2m1",
           "name": "Module 1: Advanced Anatomy",
           "subjects": [
             {
-              "id": "y2m1s1",
               "name": "Advanced Human Anatomy",
               "lectures": [
-                { "id": "y2m1s1l1", "name": "Advanced Human Anatomy" }
+                { "name": "Advanced Human Anatomy" }
               ]
             }
           ]
@@ -47,14 +60,12 @@
       "icon": "3️⃣",
       "modules": [
         {
-          "id": "y3m1",
           "name": "Module 1: Biochemistry",
           "subjects": [
             {
-              "id": "y3m1s1",
               "name": "Advanced Biochemistry",
               "lectures": [
-                { "id": "y3m1s1l1", "name": "Advanced Biochemistry" }
+                { "name": "Advanced Biochemistry" }
               ]
             }
           ]
@@ -66,10 +77,10 @@
       "name": "Year 4",
       "icon": "4️⃣",
       "modules": [
-        { "id": "y4m1", "name": "Module 1: Clinical Medicine", "subjects": [ { "id": "y4m1s1", "name": "Clinical Medicine I", "lectures": [] } ] },
-        { "id": "y4m2", "name": "Module 2: Surgery", "subjects": [ { "id": "y4m2s1", "name": "Basic Surgery", "lectures": [] } ] },
-        { "id": "y4m3", "name": "Module 3: Pediatrics", "subjects": [ { "id": "y4m3s1", "name": "General Pediatrics", "lectures": [] } ] },
-        { "id": "y4m4", "name": "Module 4: Obstetrics", "subjects": [ { "id": "y4m4s1", "name": "Obstetrics and Gynecology", "lectures": [] } ] }
+        { "name": "Module 1: Clinical Medicine", "subjects": [ { "name": "Clinical Medicine I", "lectures": [] } ] },
+        { "name": "Module 2: Surgery", "subjects": [ { "name": "Basic Surgery", "lectures": [] } ] },
+        { "name": "Module 3: Pediatrics", "subjects": [ { "name": "General Pediatrics", "lectures": [] } ] },
+        { "name": "Module 4: Obstetrics", "subjects": [ { "name": "Obstetrics and Gynecology", "lectures": [] } ] }
       ]
     },
     {
@@ -77,10 +88,10 @@
       "name": "Year 5",
       "icon": "5️⃣",
       "modules": [
-        { "id": "y5m1", "name": "Module 1: Advanced Clinical Medicine", "subjects": [ { "id": "y5m1s1", "name": "Clinical Medicine II", "lectures": [] } ] },
-        { "id": "y5m2", "name": "Module 2: Advanced Surgery", "subjects": [ { "id": "y5m2s1", "name": "Specialized Surgery", "lectures": [] } ] },
-        { "id": "y5m3", "name": "Module 3: Emergency Medicine", "subjects": [ { "id": "y5m3s1", "name": "Emergency Care", "lectures": [] } ] },
-        { "id": "y5m4", "name": "Module 4: Family Medicine", "subjects": [ { "id": "y5m4s1", "name": "Primary Care", "lectures": [] } ] }
+        { "name": "Module 1: Advanced Clinical Medicine", "subjects": [ { "name": "Clinical Medicine II", "lectures": [] } ] },
+        { "name": "Module 2: Advanced Surgery", "subjects": [ { "name": "Specialized Surgery", "lectures": [] } ] },
+        { "name": "Module 3: Emergency Medicine", "subjects": [ { "name": "Emergency Care", "lectures": [] } ] },
+        { "name": "Module 4: Family Medicine", "subjects": [ { "name": "Primary Care", "lectures": [] } ] }
       ]
     }
   ]

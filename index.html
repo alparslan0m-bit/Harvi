@@ -30,13 +30,13 @@
     <link rel="stylesheet" href="./css/components/profile.css">
     <link rel="stylesheet" href="./css/components/native-navigation.css">
     <link rel="stylesheet" href="./css/components/dynamic-island.css">
-    <!-- Preload fonts with font-display: swap for better performance -->
+    <!-- Preload fonts with font-display: swap for better performance - DISABLED to reduce external requests -->
+    <!--
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" as="style">
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    -->
     <script src="./js/adaptive-performance.js"></script>
     <script src="./js/haptics-engine.js"></script>
     <script src="./js/animations.js"></script>
@@ -205,20 +205,13 @@
                     
                     document.addEventListener('visibilitychange', visibilityChangeHandler);
                     
-                    // NEW: Also check when window gains focus
-                    let focusHandler = () => {
-                        console.log('🔍 App focused - checking for updates');
-                        registration.update().catch(err => {
-                            console.warn('Update check failed:', err);
-                        });
-                    };
-                    
-                    window.addEventListener('focus', focusHandler);
+                    // REMOVED: Focus handler to reduce update checks
+                    // window.addEventListener('focus', focusHandler);
                     
                     // NEW: Periodic check using requestIdleCallback for better performance
                     // Falls back to setTimeout if requestIdleCallback not supported
                     let lastUpdateCheck = Date.now();
-                    const UPDATE_CHECK_INTERVAL = 1 * 60 * 60 * 1000; // 1 hour (reduced from 6)
+                    const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours (increased from 1 hour)
                     
                     function scheduleUpdateCheck() {
                         const scheduleCallback = window.requestIdleCallback || window.setTimeout;
