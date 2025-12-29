@@ -90,7 +90,7 @@ class MCQApp {
         this.currentPath = [];
         this.navigationStack = ['navigation-screen']; // PHASE 2: Explicit stack for gestures
         this.currentQuiz = null;
-        this.isDarkMode = false;
+        this.isGirlMode = false;
         this.lastLectureId = null;
         this.lastLectureName = null; // ← Add lecture name storage
         this.resumableQuiz = null;
@@ -144,7 +144,7 @@ class MCQApp {
         this.stats = new Stats(this);
         this.profile = new Profile(this);
         
-        this.initDarkMode();
+        this.initTheme();
         this.setupBrandButton();
         this.setupBottomNavigation();
         // this.setupPullToRefresh(); // DISABLED: Pull-to-refresh feature removed
@@ -367,22 +367,13 @@ class MCQApp {
         }
     }
 
-    initDarkMode() {
+    initTheme() {
         const savedMode = localStorage.getItem('girlMode');
         if (savedMode !== null) {
-            this.isDarkMode = savedMode === 'true';
-        } else {
-            this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            this.isGirlMode = savedMode === 'true';
         }
         
-        this.applyDarkMode();
-        
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (localStorage.getItem('girlMode') === null) {
-                this.isDarkMode = e.matches;
-                this.applyDarkMode();
-            }
-        });
+        this.applyTheme();
     }
 
     /**
@@ -444,24 +435,24 @@ class MCQApp {
         }
     }
 
-    toggleDarkMode() {
+    toggleGirlMode() {
         document.body.classList.add('theme-transitioning');
-        this.isDarkMode = !this.isDarkMode;
-        localStorage.setItem('girlMode', this.isDarkMode.toString());
-        this.applyDarkMode();
+        this.isGirlMode = !this.isGirlMode;
+        localStorage.setItem('girlMode', this.isGirlMode.toString());
+        this.applyTheme();
         setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
     }
 
-    applyDarkMode() {
-        if (this.isDarkMode) {
+    applyTheme() {
+        if (this.isGirlMode) {
             document.body.classList.add('girl-mode');
         } else {
             document.body.classList.remove('girl-mode');
         }
         
         // Sync browser UI theme color with app mode
-        if (window.ThemeSyncEngine) {
-            ThemeSyncEngine.syncToMode(this.isDarkMode);
+        if (window.AdaptiveThemeColor) {
+            AdaptiveThemeColor.updateTheme();
         }
     }
 

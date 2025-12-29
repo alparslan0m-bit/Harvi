@@ -47,7 +47,6 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/css/components/bottom-nav.css',
   BASE_PATH + '/css/components/gamification.css',
   BASE_PATH + '/css/layout/grid.css',
-  BASE_PATH + '/css/themes/dark-mode.css',
   BASE_PATH + '/css/themes/girl-mode.css',
   BASE_PATH + '/css/utils/responsive.css',
   BASE_PATH + '/css/utils/mobile.css',

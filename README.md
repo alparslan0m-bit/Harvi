@@ -271,7 +271,7 @@ Access the admin panel at `http://localhost:3000/admin.html`
 - **Lectures Management**: Create and edit lectures with questions
 - **Question Search**: Search questions across all lectures by text or options
 - **Analytics**: Content distribution charts and statistics
-- **Dark Mode**: Theme toggle for comfortable viewing
+- **Girl Mode**: Pink theme toggle for comfortable viewing
 - **Responsive Design**: Works on desktop and mobile devices
 
 ### Creating a Lecture
@@ -320,7 +320,7 @@ The admin panel includes a powerful question search feature that searches across
 - iOS Safari optimizations
 - Touch-friendly interactions
 - Responsive design for all screen sizes
-- Theme toggle (dark/girl mode)
+- Theme toggle (blue/girl mode)
 
 ### State Management
 
@@ -355,7 +355,7 @@ The admin panel includes a powerful question search feature that searches across
 │   ├── base/               # Base styles (reset, variables)
 │   ├── components/         # Component styles
 │   ├── layout/             # Layout styles
-│   ├── themes/             # Theme styles (dark, girl mode)
+│   ├── themes/             # Theme styles (blue, girl mode)
 │   └── utils/              # Utility styles (responsive, mobile)
 ├── admin/                   # Admin panel
 │   ├── css/

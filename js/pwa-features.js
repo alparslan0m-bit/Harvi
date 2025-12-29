@@ -194,14 +194,6 @@ class AdaptiveThemeColor {
         // Listen for mode changes
         // Note: Header mode toggles removed, theme changes handled by profile settings
 
-        // Listen for system preference changes
-        if (window.matchMedia) {
-            const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            darkModeQuery.addEventListener('change', () => {
-                this.updateTheme();
-            });
-        }
-
         // Update on visibility change (device goes to sleep)
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -211,11 +203,11 @@ class AdaptiveThemeColor {
     }
 
     static updateTheme() {
-        const isDarkMode = document.body.classList.contains('girl-mode');
+        const isGirlMode = document.body.classList.contains('girl-mode');
         
         // Boy mode: Sky blue (#0EA5E9)
         // Girl mode: Pink (#EC4899)
-        const color = isDarkMode ? '#EC4899' : '#0EA5E9';
+        const color = isGirlMode ? '#EC4899' : '#0EA5E9';
         const metaTag = document.querySelector('meta[name="theme-color"]');
         
         if (metaTag) {

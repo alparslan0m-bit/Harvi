@@ -38,7 +38,7 @@ class Profile {
                     <h4>Appearance</h4>
                     <div class="setting-item">
                         <label class="setting-label">
-                            <span>Theme Mode</span>
+                            <span>Girl Mode</span>
                             <input type="checkbox" id="profile-theme-mode" class="setting-toggle">
                         </label>
                     </div>
@@ -94,7 +94,7 @@ class Profile {
 
         if (themeModeToggle) {
             themeModeToggle.addEventListener('change', () => {
-                this.app.toggleDarkMode();
+                this.app.toggleGirlMode();
                 // Delay update to account for theme transition (300ms)
                 setTimeout(() => this.updateToggleStates(), 350);
             });

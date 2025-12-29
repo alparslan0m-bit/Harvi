@@ -38,16 +38,3 @@ body.girl-mode {
     /* 6. Focus ring */
     --focus-ring: 0 0 0 3px rgba(236, 72, 153, 0.3);
 }
-
-/* Force Light Theme consistency even if OS is Dark */
-@media (prefers-color-scheme: dark) {
-    body.girl-mode {
-        /* Re-enforce light backgrounds to avoid "Dark One" look */
-        --bg-primary: #FFFFFF;
-        --bg-secondary: #FFF1F2;
-        --text-primary: #1F2937;
-        --text-secondary: #475569;
-        --text-muted: #94A3B8;
-        --border-color: #FBCFE8;
-    }
-}

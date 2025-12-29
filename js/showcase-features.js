@@ -481,10 +481,10 @@ class ThemeSyncEngine {
         }
     }
 
-    static syncToMode(isDarkMode) {
+    static syncToMode(isGirlMode) {
         // Boy mode: Sky blue (#0EA5E9)
         // Girl mode: Pink (#EC4899)
-        const color = isDarkMode ? '#EC4899' : '#0EA5E9';
+        const color = isGirlMode ? '#EC4899' : '#0EA5E9';
         this.updateThemeColor(color);
     }
 }
