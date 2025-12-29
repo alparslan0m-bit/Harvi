@@ -178,7 +178,10 @@ class TouchHighlightSystem {
           if (ripple.parentElement === target) {
             ripple.remove();
           }
-          this.rippleElements.delete(target);
+          // Only delete the map entry if it still points to THIS specific ripple
+          if (this.rippleElements.get(target) === ripple) {
+            this.rippleElements.delete(target);
+          }
         }, 200);
       }, 100);
     }
