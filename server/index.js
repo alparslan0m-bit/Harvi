@@ -19,6 +19,16 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mcq_ap
 
 mongoose.connect(MONGODB_URI).then(() => {
     console.log('Connected to MongoDB');
+    
+    // ADD: Verify transactions are supported
+    mongoose.connection.db.admin().serverInfo().then(info => {
+        console.log('MongoDB version:', info.version);
+        if (parseInt(info.version.split('.')[0]) < 4) {
+            console.warn('⚠️  WARNING: MongoDB version < 4.0, transactions not supported');
+        } else {
+            console.log('✓ MongoDB transactions supported');
+        }
+    });
 }).catch((err) => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
@@ -131,32 +141,76 @@ app.put('/api/admin/years/:yearId', async (req, res) => {
 });
 
 app.delete('/api/admin/years/:yearId', async (req, res) => {
+    // Start a session for the transaction
+    const session = await mongoose.startSession();
+    
     try {
+        // Start transaction
+        session.startTransaction();
+        console.log(`🗑️  Starting transactional delete for year: ${req.params.yearId}`);
+        
         const { yearId } = req.params;
-        const year = await Year.findOne({ id: yearId });
+        
+        // All operations use the session
+        const year = await Year.findOne({ id: yearId }).session(session);
         if (!year) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ error: 'Year not found' });
         }
         
-        // Cascade delete all related data
-        const modules = await Module.find({ yearId: yearId });
-        for (let module of modules) {
-            const subjects = await Subject.find({ moduleId: module.id });
-            for (let subject of subjects) {
-                await Lecture.deleteMany({ subjectId: subject.id });
-            }
-            await Subject.deleteMany({ moduleId: module.id });
-        }
-        await Module.deleteMany({ yearId: yearId });
-        await Year.deleteOne({ id: yearId });
+        // Collect statistics for logging
+        let deletedCounts = {
+            lectures: 0,
+            subjects: 0,
+            modules: 0
+        };
         
-        res.json({ ok: true, message: 'Year and all related data deleted successfully' });
+        // Cascade delete - ALL within the same transaction
+        const modules = await Module.find({ yearId: yearId }).session(session);
+        console.log(`  Found ${modules.length} modules to delete`);
+        
+        for (let module of modules) {
+            const subjects = await Subject.find({ moduleId: module.id }).session(session);
+            console.log(`  Found ${subjects.length} subjects in module ${module.id}`);
+            
+            for (let subject of subjects) {
+                const result = await Lecture.deleteMany({ subjectId: subject.id }).session(session);
+                deletedCounts.lectures += result.deletedCount;
+            }
+            
+            const subjectResult = await Subject.deleteMany({ moduleId: module.id }).session(session);
+            deletedCounts.subjects += subjectResult.deletedCount;
+        }
+        
+        const moduleResult = await Module.deleteMany({ yearId: yearId }).session(session);
+        deletedCounts.modules += moduleResult.deletedCount;
+        
+        await Year.deleteOne({ id: yearId }).session(session);
+        
+        // If we got here, everything succeeded - commit the transaction
+        await session.commitTransaction();
+        console.log(`✓ Transaction committed. Deleted: ${deletedCounts.modules} modules, ${deletedCounts.subjects} subjects, ${deletedCounts.lectures} lectures`);
+        
+        res.json({ 
+            ok: true, 
+            message: 'Year and all related data deleted successfully',
+            deleted: deletedCounts
+        });
+        
     } catch (err) {
-        console.error('Year deletion error:', err);
+        // Something failed - rollback ALL changes
+        await session.abortTransaction();
+        console.error('❌ Transaction aborted due to error:', err);
+        
         res.status(500).json({ 
             error: 'Failed to delete year', 
-            details: err.message
+            details: err.message,
+            hint: 'All changes have been rolled back'
         });
+    } finally {
+        // Always end the session
+        session.endSession();
     }
 });
 
@@ -194,28 +248,57 @@ app.put('/api/admin/modules/:moduleId', async (req, res) => {
 });
 
 app.delete('/api/admin/modules/:moduleId', async (req, res) => {
+    const session = await mongoose.startSession();
+    
     try {
+        session.startTransaction();
+        console.log(`🗑️  Starting transactional delete for module: ${req.params.moduleId}`);
+        
         const { moduleId } = req.params;
-        const module = await Module.findOne({ id: moduleId });
+        const module = await Module.findOne({ id: moduleId }).session(session);
+        
         if (!module) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ error: 'Module not found' });
         }
         
-        // Cascade delete all related data
-        const subjects = await Subject.find({ moduleId: moduleId });
-        for (let subject of subjects) {
-            await Lecture.deleteMany({ subjectId: subject.id });
-        }
-        await Subject.deleteMany({ moduleId: moduleId });
-        await Module.deleteOne({ id: moduleId });
+        let deletedCounts = { lectures: 0, subjects: 0 };
         
-        res.json({ ok: true, message: 'Module and all related data deleted successfully' });
+        // Cascade delete within transaction
+        const subjects = await Subject.find({ moduleId: moduleId }).session(session);
+        console.log(`  Found ${subjects.length} subjects to delete`);
+        
+        for (let subject of subjects) {
+            const result = await Lecture.deleteMany({ subjectId: subject.id }).session(session);
+            deletedCounts.lectures += result.deletedCount;
+        }
+        
+        const subjectResult = await Subject.deleteMany({ moduleId: moduleId }).session(session);
+        deletedCounts.subjects += subjectResult.deletedCount;
+        
+        await Module.deleteOne({ id: moduleId }).session(session);
+        
+        await session.commitTransaction();
+        console.log(`✓ Module deletion committed. Deleted: ${deletedCounts.subjects} subjects, ${deletedCounts.lectures} lectures`);
+        
+        res.json({ 
+            ok: true, 
+            message: 'Module and all related data deleted successfully',
+            deleted: deletedCounts
+        });
+        
     } catch (err) {
-        console.error('Module deletion error:', err);
+        await session.abortTransaction();
+        console.error('❌ Module deletion transaction aborted:', err);
+        
         res.status(500).json({ 
             error: 'Failed to delete module', 
-            details: err.message
+            details: err.message,
+            hint: 'All changes have been rolled back'
         });
+    } finally {
+        session.endSession();
     }
 });
 
@@ -253,24 +336,47 @@ app.put('/api/admin/subjects/:subjectId', async (req, res) => {
 });
 
 app.delete('/api/admin/subjects/:subjectId', async (req, res) => {
+    const session = await mongoose.startSession();
+    
     try {
+        session.startTransaction();
+        console.log(`🗑️  Starting transactional delete for subject: ${req.params.subjectId}`);
+        
         const { subjectId } = req.params;
-        const subject = await Subject.findOne({ id: subjectId });
+        const subject = await Subject.findOne({ id: subjectId }).session(session);
+        
         if (!subject) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ error: 'Subject not found' });
         }
         
-        // Cascade delete all related lectures
-        await Lecture.deleteMany({ subjectId: subjectId });
-        await Subject.deleteOne({ id: subjectId });
+        // Delete all lectures within transaction
+        const result = await Lecture.deleteMany({ subjectId: subjectId }).session(session);
+        console.log(`  Deleted ${result.deletedCount} lectures`);
         
-        res.json({ ok: true, message: 'Subject and all related data deleted successfully' });
+        await Subject.deleteOne({ id: subjectId }).session(session);
+        
+        await session.commitTransaction();
+        console.log(`✓ Subject deletion committed`);
+        
+        res.json({ 
+            ok: true, 
+            message: 'Subject and all related data deleted successfully',
+            deleted: { lectures: result.deletedCount }
+        });
+        
     } catch (err) {
-        console.error('Subject deletion error:', err);
+        await session.abortTransaction();
+        console.error('❌ Subject deletion transaction aborted:', err);
+        
         res.status(500).json({ 
             error: 'Failed to delete subject', 
-            details: err.message
+            details: err.message,
+            hint: 'All changes have been rolled back'
         });
+    } finally {
+        session.endSession();
     }
 });
 

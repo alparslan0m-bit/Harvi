@@ -122,8 +122,9 @@ class CustomA2HSPrompt {
     }
 
     showIOSInstallPrompt() {
-        // Check if already installed (Safari fullscreen mode)
-        const isRunningStandalone = window.navigator.standalone === true;
+        // Check if already installed (Safari fullscreen mode or PWA standalone)
+        const isRunningStandalone = window.navigator.standalone === true || 
+            window.matchMedia('(display-mode: standalone)').matches;
         if (isRunningStandalone) {
             return;
         }

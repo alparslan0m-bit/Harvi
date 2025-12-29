@@ -51,12 +51,47 @@ class Navigation {
     }
 
     /**
+     * Clean up navigation resources to prevent memory leaks
+     */
+    cleanup() {
+        console.log('🧹 Cleaning up navigation resources...');
+        
+        // 1. Abort and clean up any pending requests
+        if (this.abortController) {
+            try {
+                this.abortController.abort();
+                console.log('✓ Aborted pending requests');
+            } catch (e) {
+                console.warn('AbortController abort failed:', e);
+            }
+            this.abortController = null;  // ← KEY: null the reference
+        }
+        
+        // 2. Remove scroll listener
+        if (this.scrollListener) {
+            const cardsContainer = document.getElementById('cards-container');
+            if (cardsContainer) {
+                cardsContainer.removeEventListener('scroll', this.scrollListener, { passive: true });
+                console.log('✓ Scroll listener removed');
+            }
+            this.scrollListener = null;
+        }
+        
+        // 3. Clear cached data if needed (optional - depends on requirements)
+        // this.remoteYears = null;
+        // this.cacheTimestamp = null;
+        
+        console.log('✓ Navigation cleanup complete');
+    }
+
+    /**
      * Smart years loading with caching and smooth transitions
      */
     async showYears() {
-        // Cancel any pending requests
+        // Properly clean up before starting new navigation
         if (this.abortController) {
             this.abortController.abort();
+            this.abortController = null;  // ← ADD THIS
         }
         
         this.app.showScreen('navigation-screen');
@@ -78,6 +113,7 @@ class Navigation {
         // Always fetch fresh data in background (unless cache is very fresh)
         if (!isCacheValid || !this.remoteYears) {
             try {
+                // Create NEW controller
                 this.abortController = new AbortController();
                 // WIRED: Use SafeFetch for automatic retry and error handling
                 const res = await SafeFetch.fetch('./api/years', {
@@ -103,8 +139,10 @@ class Navigation {
                 // Render with smooth transition
                 this.renderYears(container, years, !isCacheValid);
             } catch (e) {
+                this.abortController = null;  // ← ADD: Clean up on error
+                
                 if (e.name === 'AbortError') {
-                    return; // Request was cancelled, ignore
+                    return;
                 }
                 console.error('Failed to load years:', e);
                 this.showErrorState(container, 'Failed to load years. Please check server connection.');
@@ -324,9 +362,21 @@ class Navigation {
             return;
         }
 
+        // CLEANUP: Remove old event listeners before clearing container
+        const oldCards = container.querySelectorAll('.list-item[data-lecture-id]');
+        oldCards.forEach(card => {
+            if (card._clickHandler) {
+                card.removeEventListener('click', card._clickHandler);
+                delete card._clickHandler;
+                delete card._clickHandlerAdded;
+            }
+        });
+        console.log(`🧹 Cleaned up ${oldCards.length} old lecture cards`);
+        
         // Cancel any previous requests immediately
         if (this.abortController) {
             this.abortController.abort();
+            this.abortController = null;  // ← ADD THIS LINE
         }
         
         const abortController = new AbortController();
@@ -479,7 +529,11 @@ class Navigation {
                     this.updateCardEmpty(currentCard);
                 }
             });
+            
+            this.abortController = null; // ← Clean up on success
         }).catch(error => {
+            this.abortController = null;  // ← ADD: Clean up on error
+            
             if (error.name !== 'AbortError') {
                 console.error('Error loading lectures:', error);
             }
@@ -489,18 +543,24 @@ class Navigation {
     /**
      * Update card to success state with questions
      */
+    /**
+     * Update card to success state with questions
+     * FIXED: No longer uses cloneNode - properly manages event listeners
+     */
     updateCardSuccess(card, questions, year, module, subject, lecture) {
         const questionCount = questions.length;
+        
+        // Update card description
         const descriptionEl = card.querySelector('.card-description');
         if (descriptionEl) {
             descriptionEl.textContent = `${questionCount} Question${questionCount !== 1 ? 's' : ''}`;
         }
         
-        // Smooth transition to active state
+        // Update card styling
         card.style.cursor = 'pointer';
         card.style.pointerEvents = 'auto';
         card.style.transition = 'opacity 0.3s ease';
-        card.classList.remove('loading');
+        card.classList.remove('loading', 'skeleton-loader');
         card.classList.add('active');
         
         // Animate opacity change
@@ -508,19 +568,63 @@ class Navigation {
             card.style.opacity = '1';
         });
         
-        // Clone to remove old listeners and add new one
-        const newCard = card.cloneNode(true);
-        card.parentNode.replaceChild(newCard, card);
-        
-        newCard.addEventListener('click', () => {
-            this.app.startQuiz(questions, {
-                year: year.name,
-                module: module.name,
-                subject: subject.name,
-                lecture: lecture.name,
-                lectureId: lecture.id
-            });
-        });
+        // CRITICAL FIX: Instead of cloning, use a single-use flag
+        // This prevents duplicate event listeners without cloning
+        if (!card._clickHandlerAdded) {
+            // Create the click handler
+            const clickHandler = () => {
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(8);
+                }
+                
+                this.app.startQuiz(questions, {
+                    year: year.name,
+                    module: module.name,
+                    subject: subject.name,
+                    lecture: lecture.name,
+                    lectureId: lecture.id
+                });
+            };
+            
+            // Store handler reference for potential cleanup
+            card._clickHandler = clickHandler;
+            
+            // Add the listener
+            card.addEventListener('click', clickHandler);
+            
+            // Mark as handled
+            card._clickHandlerAdded = true;
+            
+            console.log(`✓ Click handler added for lecture: ${lecture.name}`);
+        } else {
+            // Handler already exists - just update the closure data
+            // This handles the case where cached data is different from fetched data
+            console.log(`⚠️  Click handler already exists for: ${lecture.name} - updating data`);
+            
+            // Remove old listener
+            if (card._clickHandler) {
+                card.removeEventListener('click', card._clickHandler);
+            }
+            
+            // Add new listener with updated data
+            const clickHandler = () => {
+                if (navigator.vibrate) {
+                    navigator.vibrate(8);
+                }
+                
+                this.app.startQuiz(questions, {
+                    year: year.name,
+                    module: module.name,
+                    subject: subject.name,
+                    lecture: lecture.name,
+                    lectureId: lecture.id
+                });
+            };
+            
+            card._clickHandler = clickHandler;
+            card.addEventListener('click', clickHandler);
+        }
     }
     
     /**
@@ -696,7 +800,7 @@ class Navigation {
 
         // Remove existing listeners to avoid duplicates
         if (this.scrollListener) {
-            cardsContainer.removeEventListener('scroll', this.scrollListener);
+            cardsContainer.removeEventListener('scroll', this.scrollListener, { passive: true });
         }
 
         this.scrollListener = () => {
@@ -710,6 +814,6 @@ class Navigation {
             }
         };
 
-        cardsContainer.addEventListener('scroll', this.scrollListener, false);
+        cardsContainer.addEventListener('scroll', this.scrollListener, { passive: true });
     }
 }

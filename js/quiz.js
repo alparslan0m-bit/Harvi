@@ -13,33 +13,31 @@ class Quiz {
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
         this.lastCorrectAnswer = false;
-
-        const continueBtn = document.getElementById('continue-btn');
-        if (continueBtn) {
-            continueBtn.addEventListener('click', () => this.nextQuestion());
-        }
-
-        const backToNavBtn = document.getElementById('back-to-nav');
-        if (backToNavBtn) {
-            backToNavBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to exit the quiz?')) {
-                    this.app.resetApp();
-                }
-            });
-        }
+        
+        // ADD THESE to store listener references
+        this.keyboardHandler = null;  // ← Store reference
+        this.continueClickHandler = null;
+        this.backClickHandler = null;
         
         this.confettiCanvas = document.getElementById('confetti-canvas');
         this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
 
         this.setupKeyboardNavigation();
+        this.setupButtonListeners(); // ← Move button listeners to separate method
     }
 
     setupKeyboardNavigation() {
-        document.addEventListener('keydown', (e) => {
-            if (!document.getElementById('quiz-screen').classList.contains('active')) {
+        // Only setup if not already set up
+        if (this.keyboardHandler) {
+            return; // Already set up
+        }
+        
+        // Create a NAMED function that we can remove later
+        this.keyboardHandler = (e) => {
+            // Only handle if quiz screen is active
+            if (!document.getElementById('quiz-screen')?.classList.contains('active')) {
                 return;
             }
-
             switch (e.key) {
                 case 'ArrowUp':
                     e.preventDefault();
@@ -80,7 +78,37 @@ class Quiz {
                     }
                     break;
             }
-        });
+        };
+        
+        // Add the listener
+        document.addEventListener('keydown', this.keyboardHandler);
+        console.log('🎹 Keyboard navigation enabled');
+    }
+
+    setupButtonListeners() {
+        // Create and store button click handlers if not already created
+        if (!this.continueClickHandler) {
+            this.continueClickHandler = () => this.nextQuestion();
+        }
+        if (!this.backClickHandler) {
+            this.backClickHandler = () => {
+                if (confirm('Are you sure you want to exit the quiz?')) {
+                    this.app.resetApp();
+                }
+            };
+        }
+        
+        // Add listeners with stored references
+        const continueBtn = document.getElementById('continue-btn');
+        if (continueBtn && this.continueClickHandler) {
+            continueBtn.addEventListener('click', this.continueClickHandler);
+        }
+        const backToNavBtn = document.getElementById('back-to-nav');
+        if (backToNavBtn && this.backClickHandler) {
+            backToNavBtn.addEventListener('click', this.backClickHandler);
+        }
+        
+        console.log('🔘 Button listeners enabled');
     }
 
     navigateOptions(direction) {
@@ -105,16 +133,16 @@ class Quiz {
         }
     }
 
-    selectOptionWithKeyboard() {
+    async selectOptionWithKeyboard() {
         if (this.hasAnswered || this.selectedOptionIndex < 0) return;
 
         const options = this.optionsContainer?.querySelectorAll('.option');
         if (!options || !options[this.selectedOptionIndex]) return;
 
-        this.selectAnswer(options[this.selectedOptionIndex], this.selectedOptionIndex);
+        await this.selectAnswer(options[this.selectedOptionIndex], this.selectedOptionIndex);
     }
 
-    selectOptionByKey(key) {
+    async selectOptionByKey(key) {
         if (this.hasAnswered) return;
 
         const options = this.optionsContainer?.querySelectorAll('.option');
@@ -129,7 +157,7 @@ class Quiz {
         }
 
         if (index >= 0 && index < options.length) {
-            this.selectAnswer(options[index], index);
+            await this.selectAnswer(options[index], index);
         }
     }
 
@@ -142,49 +170,61 @@ class Quiz {
     }
 
     start(questions, metadata) {
-        // Initialize confetti only once to avoid memory leaks
+        // ADD THIS CHECK at the very beginning
+        const isResuming = metadata?.fromSavedProgress === true;
+        
+        // Re-setup event listeners if they were cleaned up
+        if (!this.continueClickHandler || !this.backClickHandler) {
+            this.setupButtonListeners();
+        }
+        
+        // Initialize confetti (existing code)
         if (!this.confetti && !this.confettiCanvas) {
             this.confettiCanvas = document.getElementById('confetti-canvas');
             this.confetti = this.confettiCanvas ? confetti.create(this.confettiCanvas, { resize: true }) : null;
         }
         
-        // Deep clone questions to avoid mutating the original data
-        // This is critical for retake functionality
-        const clonedQuestions = questions.map(q => ({
-            ...q,
-            options: Array.isArray(q.options) ? [...q.options] : q.options
-        }));
+        // CONDITIONAL SHUFFLING based on resume state
+        if (isResuming) {
+            // DON'T shuffle - questions are ALREADY shuffled and saved with correct indices
+            console.log('📋 Resuming quiz - using pre-shuffled questions');
+            this.questions = questions; // Use as-is, NO cloning, NO shuffling
+        } else {
+            // NEW quiz - perform full shuffle
+            console.log('🎲 Starting new quiz - shuffling questions and options');
+            
+            // Deep clone questions to avoid mutating the original data
+            const clonedQuestions = questions.map(q => ({
+                ...q,
+                options: Array.isArray(q.options) ? [...q.options] : q.options
+            }));
+            
+            // Shuffle question order
+            this.questions = this.shuffleArray(clonedQuestions);
+            
+            // Shuffle options for EACH question and update correctAnswer indices
+            this.questions.forEach(question => {
+                if (question && question.options && question.options.length > 0) {
+                    const optionsWithIndices = question.options.map((text, index) => ({
+                        text,
+                        originalIndex: index
+                    }));
+                    
+                    const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
+                    question.options = shuffledOptions.map(opt => opt.text);
+                    
+                    const correctOptionObject = shuffledOptions.find(opt => 
+                        opt.originalIndex === question.correctAnswer
+                    );
+                    question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
+                }
+            });
+        }
         
-        // PHASE 1 FIX: Shuffle question order (this is OK)
-        this.questions = this.shuffleArray(clonedQuestions);
-        
-        // PHASE 1 FIX: Shuffle options for EACH question once and permanently update correctAnswer index
-        // This ensures UI rendering and answer validation use the SAME map
-        this.questions.forEach(question => {
-            if (question && question.options && question.options.length > 0) {
-                // Create array of options with their original indices
-                const optionsWithIndices = question.options.map((text, index) => ({
-                    text,
-                    originalIndex: index
-                }));
-                
-                // Shuffle the options
-                const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
-                
-                // Update the question's options to the shuffled order
-                question.options = shuffledOptions.map(opt => opt.text);
-                
-                // Find where the correct answer ended up after shuffling
-                const correctOptionObject = shuffledOptions.find(opt => opt.originalIndex === question.correctAnswer);
-                
-                // Permanently update the correctAnswer index to the new shuffled position
-                question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
-            }
-        });
-        
+        // Rest of initialization (existing code)
         this.metadata = metadata;
-        this.currentIndex = 0;
-        this.score = 0;
+        this.currentIndex = isResuming ? (metadata.currentIndex || 0) : 0;
+        this.score = isResuming ? (metadata.score || 0) : 0;
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
         
@@ -314,7 +354,7 @@ class Quiz {
             touchMoved = true;
             option.classList.remove('touch-active');
         }, { passive: true });
-        option.addEventListener('touchend', (e) => {
+        option.addEventListener('touchend', async (e) => {
             const touchDuration = Date.now() - touchStartTime;
             
             option.classList.remove('touch-active');
@@ -322,21 +362,21 @@ class Quiz {
             if (!touchMoved && touchDuration < 500 && !this.hasAnswered) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.selectAnswer(option, index);
+                await this.selectAnswer(option, index);
             }
         }, { passive: false });
         
-        option.addEventListener('click', (e) => {
+        option.addEventListener('click', async (e) => {
             if (!this.hasAnswered && !touchMoved) {
-                this.selectAnswer(option, index);
+                await this.selectAnswer(option, index);
             }
         });
 
-        option.addEventListener('keydown', (e) => {
+        option.addEventListener('keydown', async (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 if (!this.hasAnswered) {
-                    this.selectAnswer(option, index);
+                    await this.selectAnswer(option, index);
                 }
             }
         });
@@ -360,7 +400,7 @@ class Quiz {
         return option;
     }
     
-    selectAnswer(selectedOption, selectedIndex) {
+    async selectAnswer(selectedOption, selectedIndex) {
         this.hasAnswered = true;
         const currentQuestion = this.questions[this.currentIndex];
         const correctAnswerIndex = currentQuestion.correctAnswer;
@@ -384,7 +424,7 @@ class Quiz {
             
             // Audio feedback for correct answer
             if (window.audioToolkit) {
-                audioToolkit.play('ding');
+                await audioToolkit.play('ding');
             }
             
             // Haptic feedback for correct answer using HapticsEngine
@@ -400,7 +440,7 @@ class Quiz {
             
             // Audio feedback for incorrect answer
             if (window.audioToolkit) {
-                audioToolkit.play('thud');
+                await audioToolkit.play('thud');
             }
             
             // Haptic feedback for incorrect answer using HapticsEngine
@@ -454,12 +494,32 @@ class Quiz {
     }
     
     cleanup() {
-        // Clean up confetti canvas and instance
+        console.log('🧹 Cleaning up quiz resources...');
+        
+        // 1. Remove keyboard event listener
+        if (this.keyboardHandler) {
+            document.removeEventListener('keydown', this.keyboardHandler);
+            this.keyboardHandler = null;
+            console.log('✓ Keyboard listener removed');
+        }
+        
+        // 2. Remove button click listeners
+        const continueBtn = document.getElementById('continue-btn');
+        if (continueBtn && this.continueClickHandler) {
+            continueBtn.removeEventListener('click', this.continueClickHandler);
+            this.continueClickHandler = null;
+        }
+        
+        const backToNavBtn = document.getElementById('back-to-nav');
+        if (backToNavBtn && this.backClickHandler) {
+            backToNavBtn.removeEventListener('click', this.backClickHandler);
+            this.backClickHandler = null;
+        }
+        
+        // 3. Clean up confetti canvas (existing code)
         if (this.confettiCanvas) {
-            // Clear any ongoing animations
             if (this.confetti) {
                 try {
-                    // Reset canvas if confetti library supports it
                     const ctx = this.confettiCanvas.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, this.confettiCanvas.width, this.confettiCanvas.height);
@@ -468,11 +528,19 @@ class Quiz {
                     // Ignore errors during cleanup
                 }
             }
-            // Hide canvas
             this.confettiCanvas.style.display = 'none';
         }
-        // Reset confetti instance reference
+        
+        // 4. Reset confetti instance reference
         this.confetti = null;
+        
+        // 5. Clear any timers/intervals if they exist
+        if (this.progressSaveTimer) {
+            clearTimeout(this.progressSaveTimer);
+            this.progressSaveTimer = null;
+        }
+        
+        console.log('✓ Quiz cleanup complete');
     }
     
     updateProgress() {

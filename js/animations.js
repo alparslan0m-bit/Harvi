@@ -81,7 +81,7 @@ function celebrateCorrectAnswer(element) {
             origin: { y: 0.8 },
             colors: ['#4ADE80', '#34D399'],
             ticks: ticks,
-            disableForReducedMotion: false,
+            disableForReducedMotion: true,
             scalar: isIOS ? 0.7 : (isMobile ? 0.8 : 1),
             useWorker: true
         });

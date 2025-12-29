@@ -2,8 +2,11 @@
  * PHASE 2: SafeFetch Utility
  * Handles timeout, retry, and error states for all API calls
  * Prevents "infinite loading spinners" on network issues
+ * FIXED: Returns synthetic Response instead of throwing to prevent unhandled rejections
  */
 class SafeFetch {
+    static _lastErrorShown = 0; // ← Track last error notification time
+    
     static async fetch(url, options = {}) {
         const timeout = options.timeout || 10000; // 10s default timeout
         const retries = options.retries || 1;
@@ -37,10 +40,29 @@ class SafeFetch {
             }
         }
 
-        throw lastError;
+        // CRITICAL FIX: Instead of throwing, return synthetic Response
+        // This prevents unhandled promise rejections while still indicating error
+        console.error(`SafeFetch failed after ${retries} attempts:`, lastError);
+        return new Response(JSON.stringify({
+            error: 'Network request failed',
+            message: lastError?.message || 'Unknown error',
+            url: url,
+            attempts: retries
+        }), {
+            status: 0, // 0 indicates network error (not HTTP error)
+            statusText: 'Network Error',
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     static showRetryUI(url, error) {
+        // Only show if not recently shown (debounce for 3 seconds)
+        const now = Date.now();
+        if (now - this._lastErrorShown < 3000) {
+            return; // Skip if error shown within 3 seconds
+        }
+        this._lastErrorShown = now;
+        
         // Use Dynamic Island for retry notification
         if (window.dynamicIsland) {
             window.dynamicIsland.show({
@@ -70,6 +92,7 @@ class MCQApp {
         this.currentQuiz = null;
         this.isDarkMode = false;
         this.lastLectureId = null;
+        this.lastLectureName = null; // ← Add lecture name storage
         this.resumableQuiz = null;
         this.previousScreen = 'navigation-screen';
         // PHASE 2 FIX: Master copy of lecture questions for protecting against shuffle corruption
@@ -85,18 +108,34 @@ class MCQApp {
         // Initialize IndexedDB
         try {
             await harviDB.init();
+            
             // Use Dynamic Island for initialization feedback
             if (window.dynamicIsland) {
                 window.dynamicIsland.show({
                     title: '✓ Ready to Learn',
+                    subtitle: 'Offline mode enabled',
                     type: 'success',
                     duration: 1500
                 });
-            } else {
-                console.log('✓ Database initialized');
             }
         } catch (error) {
-            console.warn('Database initialization warning:', error);
+            console.error('⚠️  Database initialization failed:', error);
+            
+            // Show warning to user but don't block app
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '⚠️ Limited Functionality',
+                    subtitle: 'Offline features disabled. Quiz progress won\'t be saved.',
+                    type: 'warning',
+                    duration: 5000
+                });
+            } else {
+                console.warn('Running in degraded mode - no offline storage available');
+            }
+            
+            // App continues to work, but without offline features
+            // Set a flag to disable offline-dependent features
+            this.offlineDisabled = true;
         }
 
         this.navigation = new Navigation(this);
@@ -180,7 +219,16 @@ class MCQApp {
                 duration: 0, // Don't auto-dismiss
                 onTap: () => {
                     window.dynamicIsland.hide();
-                    this.startQuiz(progress.questions, progress.metadata);
+                    
+                    // ADD THIS FLAG to indicate this is a resume operation
+                    const resumeMetadata = {
+                        ...progress.metadata,
+                        fromSavedProgress: true,  // ← KEY FLAG
+                        currentIndex: progress.currentIndex,
+                        score: progress.score
+                    };
+                    
+                    this.startQuiz(progress.questions, resumeMetadata);
                 },
                 onClose: () => {
                     // User dismissed it
@@ -216,7 +264,14 @@ class MCQApp {
                 if (e.target.classList.contains('resume-close')) {
                     prompt.remove();
                 } else {
-                    this.startQuiz(progress.questions, progress.metadata);
+                    // ADD FLAG HERE TOO
+                    const resumeMetadata = {
+                        ...progress.metadata,
+                        fromSavedProgress: true,  // ← KEY FLAG
+                        currentIndex: progress.currentIndex,
+                        score: progress.score
+                    };
+                    this.startQuiz(progress.questions, resumeMetadata);
                 }
             });
             
@@ -528,6 +583,7 @@ class MCQApp {
         // Save lecture ID for resumable quiz
         if (pathInfo && pathInfo.lectureId) {
             this.lastLectureId = pathInfo.lectureId;
+            this.lastLectureName = pathInfo.name; // ← Store lecture name
             await harviDB.setSetting('lastActiveLectureId', pathInfo.lectureId);
         }
 
@@ -543,13 +599,14 @@ class MCQApp {
                 const timeSpent = Date.now() - (this.currentQuiz.startTime || Date.now());
                 const result = { score, total, timeSpent };
                 
-                await harviDB.saveQuizResult(this.lastLectureId, result);
+                await harviDB.saveQuizResult(this.lastLectureId, result, this.lastLectureName);
                 await harviDB.setSetting('lastActiveLectureId', null);
                 
                 // Queue for sync if offline
                 if (!navigator.onLine) {
                     await harviDB.queueSync('saveQuizResult', {
                         lectureId: this.lastLectureId,
+                        lectureName: this.lastLectureName,
                         ...result
                     });
                 }
@@ -562,8 +619,14 @@ class MCQApp {
     async resetApp() {
         // Cleanup quiz resources before resetting
         if (this.quiz && typeof this.quiz.cleanup === 'function') {
-            this.quiz.cleanup();
+            this.quiz.cleanup();  // ← This line already exists, good!
         }
+        
+        // Also cleanup navigation resources
+        if (this.navigation && typeof this.navigation.cleanup === 'function') {
+            this.navigation.cleanup();  // ← ADD THIS
+        }
+        
         this.currentPath = [];
         this.currentQuiz = null;
         this.resumableQuiz = null;

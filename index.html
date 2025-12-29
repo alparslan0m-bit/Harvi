@@ -181,26 +181,114 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { scope: '/' })
-                    .then(registration => {
-                        console.log('✓ Service Worker registered:', registration);
-
-                        // Check for updates periodically (every 6 hours)
-                        setInterval(() => {
-                            registration.update();
-                        }, 6 * 60 * 60 * 1000);
-
-                        // Handle service worker updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New service worker available - notify user
-                                    console.log('New app version available');
-                                    document.dispatchEvent(new CustomEvent('sw-update-available'));
-                                }
+                navigator.serviceWorker.register('./sw.js', { 
+                    scope: './',
+                    updateViaCache: 'none'  // ← ADD: Always check for updates
+                })
+                .then(registration => {
+                    console.log('✓ Service Worker registered:', registration);
+                    // CRITICAL FIX: Check for updates IMMEDIATELY on load
+                    console.log('🔄 Checking for service worker updates...');
+                    registration.update().catch(err => {
+                        console.warn('Update check failed:', err);
+                    });
+                    // NEW: Use Page Visibility API instead of setInterval
+                    // This works reliably even when page is backgrounded
+                    let visibilityChangeHandler = () => {
+                        if (!document.hidden) {
+                            console.log('📱 App became visible - checking for updates');
+                            registration.update().catch(err => {
+                                console.warn('Update check failed:', err);
                             });
+                        }
+                    };
+                    
+                    document.addEventListener('visibilitychange', visibilityChangeHandler);
+                    
+                    // NEW: Also check when window gains focus
+                    let focusHandler = () => {
+                        console.log('🔍 App focused - checking for updates');
+                        registration.update().catch(err => {
+                            console.warn('Update check failed:', err);
                         });
+                    };
+                    
+                    window.addEventListener('focus', focusHandler);
+                    
+                    // NEW: Periodic check using requestIdleCallback for better performance
+                    // Falls back to setTimeout if requestIdleCallback not supported
+                    let lastUpdateCheck = Date.now();
+                    const UPDATE_CHECK_INTERVAL = 1 * 60 * 60 * 1000; // 1 hour (reduced from 6)
+                    
+                    function scheduleUpdateCheck() {
+                        const scheduleCallback = window.requestIdleCallback || window.setTimeout;
+                        const timeoutDuration = window.requestIdleCallback ? undefined : UPDATE_CHECK_INTERVAL;
+                        
+                        scheduleCallback(() => {
+                            const now = Date.now();
+                            if (now - lastUpdateCheck >= UPDATE_CHECK_INTERVAL) {
+                                console.log('⏰ Periodic update check');
+                                registration.update().catch(err => {
+                                    console.warn('Periodic update check failed:', err);
+                                });
+                                lastUpdateCheck = now;
+                            }
+                            
+                            // Schedule next check
+                            scheduleUpdateCheck();
+                        }, timeoutDuration);
+                    }
+                    
+                    scheduleUpdateCheck();
+
+                    // Handle service worker updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        
+                        if (!newWorker) {
+                            console.warn('Update found but no installing worker');
+                            return;
+                        }
+                        
+                        console.log('📦 New service worker installing...');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            console.log('Service worker state:', newWorker.state);
+                            
+                            if (newWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    // New service worker installed, but old one still active
+                                    console.log('🆕 New version available!');
+                                    
+                                    // Dispatch custom event for app to handle
+                                    document.dispatchEvent(new CustomEvent('sw-update-available', {
+                                        detail: {
+                                            registration: registration,
+                                            newWorker: newWorker
+                                        }
+                                    }));
+                                } else {
+                                    // First install
+                                    console.log('✓ Service worker installed for first time');
+                                }
+                            }
+                            
+                            if (newWorker.state === 'activated') {
+                                console.log('✓ New service worker activated');
+                            }
+                        });
+                    });
+                    
+                    // NEW: Handle controller change (update activated)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('🔄 New service worker activated - reloading app');
+                        // Only reload if we're not in the middle of something important
+                        if (!document.querySelector('.quiz-screen.active')) {
+                            window.location.reload();
+                        } else {
+                            console.log('Quiz in progress - deferring reload');
+                        }
+                    });
                     })
                     .catch(error => {
                         console.log('✗ Service Worker registration failed:', error);

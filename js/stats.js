@@ -71,7 +71,7 @@ class Stats {
                     ${recentResults.map(result => `
                         <div class="recent-item">
                             <div class="recent-info">
-                                <div class="recent-title">${result.lectureTitle || `Lecture ${result.lectureId}`}</div>
+                                <div class="recent-title">${result.lectureName || `Lecture ${result.lectureId}`}</div>
                                 <div class="recent-date">${new Date(result.date).toLocaleDateString()}</div>
                             </div>
                             <div class="recent-score">${result.percentage || 0}%</div>

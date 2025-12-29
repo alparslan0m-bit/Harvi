@@ -8,71 +8,134 @@ class HarviDatabase {
         this.version = 1;
         this.db = null;
         this.initialized = false;
-        this.initPromise = null; // Track initialization promise to prevent race conditions
+        this.initPromise = null;
+        
+        // ADD THESE to track failures
+        this.initAttempts = 0;           // ← Count attempts
+        this.maxAttempts = 3;             // ← Maximum retries
+        this.permanentlyFailed = false;   // ← Flag for unrecoverable errors
+        this.lastError = null;            // ← Store last error for debugging
     }
 
     /**
      * Initialize IndexedDB with object stores
      */
     async init() {
-        // Return existing initialization promise if one is in progress
+        // Check for permanent failure state
+        if (this.permanentlyFailed) {
+            throw new Error(`IndexedDB permanently failed: ${this.lastError?.message || 'Unknown error'}. The app cannot store data offline.`);
+        }
+        
+        // Return existing promise if initialization in progress
         if (this.initPromise) {
             return this.initPromise;
         }
-
+        // Return existing DB if already initialized
         if (this.initialized && this.db) {
+            console.log('✓ Using existing IndexedDB connection');
             return this.db;
         }
-
+        
+        // Check if we've exceeded retry limit
+        if (this.initAttempts >= this.maxAttempts) {
+            this.permanentlyFailed = true;
+            throw new Error(`IndexedDB initialization failed after ${this.maxAttempts} attempts. Last error: ${this.lastError?.message}`);
+        }
+        
+        // Increment attempt counter
+        this.initAttempts++;
+        console.log(`🔄 IndexedDB initialization attempt ${this.initAttempts}/${this.maxAttempts}`);
         // Create and store the initialization promise
         this.initPromise = new Promise((resolve, reject) => {
+            // Check if IndexedDB is supported
+            if (!window.indexedDB) {
+                const error = new Error('IndexedDB is not supported in this browser');
+                this.lastError = error;
+                this.permanentlyFailed = true; // No point retrying
+                reject(error);
+                return;
+            }
+            
             const request = indexedDB.open(this.dbName, this.version);
-
             request.onerror = () => {
-                console.error('IndexedDB initialization failed:', request.error);
-                this.initPromise = null; // Reset on error so retry is possible
-                reject(request.error);
+                const error = request.error || new Error('Unknown IndexedDB error');
+                console.error(`❌ IndexedDB initialization failed (attempt ${this.initAttempts}):`, error);
+                
+                // Store error for debugging
+                this.lastError = error;
+                
+                // Check if this is a permanent error (user blocked, private mode, etc.)
+                if (error.name === 'SecurityError' || 
+                    error.name === 'InvalidStateError' ||
+                    error.message?.includes('private browsing')) {
+                    console.error('⚠️  Permanent error detected - IndexedDB unavailable');
+                    this.permanentlyFailed = true;
+                }
+                
+                // DON'T reset initPromise immediately - let it reject naturally
+                // Reset will happen in the next init() call
+                reject(error);
             };
-
             request.onsuccess = () => {
                 this.db = request.result;
                 this.initialized = true;
-                console.log('✓ IndexedDB initialized');
+                this.initAttempts = 0; // Reset counter on success
+                console.log('✓ IndexedDB initialized successfully');
                 resolve(this.db);
+                
+                // Handle unexpected DB close
+                this.db.onclose = () => {
+                    console.warn('⚠️  IndexedDB connection closed unexpectedly');
+                    this.initialized = false;
+                    this.db = null;
+                };
+                
+                // Handle version change from another tab
+                this.db.onversionchange = () => {
+                    console.warn('⚠️  IndexedDB version changed in another tab');
+                    this.db.close();
+                    this.initialized = false;
+                    this.db = null;
+                };
             };
-
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-
                 // Create object stores if they don't exist
                 if (!db.objectStoreNames.contains('lectures')) {
                     db.createObjectStore('lectures', { keyPath: 'id' });
                 }
-
                 if (!db.objectStoreNames.contains('quizProgress')) {
-                    const progressStore = db.createObjectStore('quizProgress', { keyPath: 'id', autoIncrement: true });
+                    const progressStore = db.createObjectStore('quizProgress', { 
+                        keyPath: 'id', 
+                        autoIncrement: true 
+                    });
                     progressStore.createIndex('lectureId', 'lectureId', { unique: false });
                     progressStore.createIndex('timestamp', 'timestamp', { unique: false });
                 }
-
                 if (!db.objectStoreNames.contains('quizResults')) {
-                    const resultsStore = db.createObjectStore('quizResults', { keyPath: 'id', autoIncrement: true });
+                    const resultsStore = db.createObjectStore('quizResults', { 
+                        keyPath: 'id', 
+                        autoIncrement: true 
+                    });
                     resultsStore.createIndex('lectureId', 'lectureId', { unique: false });
                     resultsStore.createIndex('date', 'date', { unique: false });
                 }
-
                 if (!db.objectStoreNames.contains('settings')) {
                     db.createObjectStore('settings', { keyPath: 'key' });
                 }
-
                 if (!db.objectStoreNames.contains('syncQueue')) {
-                    db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
+                    db.createObjectStore('syncQueue', { 
+                        keyPath: 'id', 
+                        autoIncrement: true 
+                    });
                 }
-
-                console.log('✓ Object stores created');
+                console.log('✓ Object stores created/verified');
             };
+        }).catch(error => {
+            // Reset promise on error so next call can retry
+            this.initPromise = null;
+            throw error; // Re-throw to propagate to caller
         });
-
         return this.initPromise;
     }
 
@@ -233,7 +296,7 @@ class HarviDatabase {
     /**
      * Save quiz results for history/statistics
      */
-    async saveQuizResult(lectureId, result) {
+    async saveQuizResult(lectureId, result, lectureName) {
         try {
             await this.init();
             const tx = this.db.transaction(['quizResults'], 'readwrite');
@@ -241,6 +304,7 @@ class HarviDatabase {
 
             const resultData = {
                 lectureId,
+                lectureName, // ← Add lecture name
                 score: result.score,
                 total: result.total,
                 percentage: result.total > 0 ? Math.round((result.score / result.total) * 100) : 0,

@@ -20,11 +20,46 @@ class AudioToolkit {
     async init() {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Add user interaction listener to resume audio context
+            this.setupAudioResumeListener();
+            
             await this.generateSounds();
             this.startTime = Date.now();
         } catch (e) {
             console.warn('Audio context initialization failed:', e);
             this.isEnabled = false;
+        }
+    }
+
+    setupAudioResumeListener() {
+        const resumeAudio = async () => {
+            if (this.audioContext && this.audioContext.state === 'suspended') {
+                try {
+                    await this.audioContext.resume();
+                    console.log('✓ Audio context resumed');
+                } catch (e) {
+                    console.warn('Failed to resume audio context:', e);
+                }
+            }
+            // Remove listener after first interaction
+            document.removeEventListener('click', resumeAudio);
+            document.removeEventListener('touchstart', resumeAudio);
+            document.removeEventListener('keydown', resumeAudio);
+        };
+        
+        document.addEventListener('click', resumeAudio, { once: true });
+        document.addEventListener('touchstart', resumeAudio, { once: true });
+        document.addEventListener('keydown', resumeAudio, { once: true });
+    }
+
+    async resumeIfSuspended() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            try {
+                await this.audioContext.resume();
+            } catch (e) {
+                console.warn('Failed to resume audio context:', e);
+            }
         }
     }
 
@@ -154,9 +189,10 @@ class AudioToolkit {
         };
     }
 
-    play(soundName) {
+    async play(soundName) {
         if (!this.isEnabled || !this.sounds[soundName]) return;
         try {
+            await this.resumeIfSuspended();
             this.sounds[soundName]();
         } catch (e) {
             console.warn(`Failed to play ${soundName}:`, e);
@@ -190,12 +226,28 @@ class GestureHandler {
         this.touchEndY = 0;
         this.minSwipeDistance = 50;
         this.maxSwipeDistance = 150;
+        this.touchStartHandler = null;
+        this.touchEndHandler = null;
         this.init();
     }
 
     init() {
-        document.addEventListener('touchstart', (e) => this.handleTouchStart(e), false);
-        document.addEventListener('touchend', (e) => this.handleTouchEnd(e), false);
+        this.touchStartHandler = (e) => this.handleTouchStart(e);
+        this.touchEndHandler = (e) => this.handleTouchEnd(e);
+        
+        document.addEventListener('touchstart', this.touchStartHandler, false);
+        document.addEventListener('touchend', this.touchEndHandler, false);
+    }
+
+    destroy() {
+        if (this.touchStartHandler) {
+            document.removeEventListener('touchstart', this.touchStartHandler, false);
+            this.touchStartHandler = null;
+        }
+        if (this.touchEndHandler) {
+            document.removeEventListener('touchend', this.touchEndHandler, false);
+            this.touchEndHandler = null;
+        }
     }
 
     handleTouchStart(e) {

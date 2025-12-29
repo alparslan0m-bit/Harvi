@@ -6,6 +6,7 @@ class Profile {
     constructor(app) {
         this.app = app;
         this.container = document.getElementById('profile-content');
+        this.listenersAttached = false; // ← Track if listeners are attached
     }
 
     /**
@@ -57,7 +58,7 @@ class Profile {
                     <h4>About</h4>
                     <div class="about-info">
                         <p><strong>Harvi</strong> - Medical MCQ Learning Platform</p>
-                        <p>Version 1.0.0</p>
+                        <p>Version 2.1.0</p>
                         <p>Built with ❤️ for medical students</p>
                     </div>
                 </div>
@@ -83,13 +84,19 @@ class Profile {
      * Setup event listeners for profile interactions
      */
     setupEventListeners() {
+        // Only setup listeners once
+        if (this.listenersAttached) {
+            return;
+        }
+        
         const themeModeToggle = document.getElementById('profile-theme-mode');
         const clearDataBtn = document.getElementById('clear-data-btn');
 
         if (themeModeToggle) {
             themeModeToggle.addEventListener('change', () => {
                 this.app.toggleDarkMode();
-                this.updateToggleStates();
+                // Delay update to account for theme transition (300ms)
+                setTimeout(() => this.updateToggleStates(), 350);
             });
         }
 
@@ -98,6 +105,8 @@ class Profile {
                 this.confirmClearData();
             });
         }
+        
+        this.listenersAttached = true; // ← Mark as attached
     }
 
     /**

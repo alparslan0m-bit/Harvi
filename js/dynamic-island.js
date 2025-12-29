@@ -47,7 +47,7 @@ class DynamicIsland {
         this.notifications.push(notification);
 
         if (!this.activeNotification) {
-            this.display(notification);
+            this.display(this.notifications.shift()); // ← Remove from queue when displaying
         }
     }
 
@@ -178,7 +178,7 @@ class DynamicIsland {
 
                 // Show next notification if queued
                 if (this.notifications.length > 0) {
-                    this.display(this.notifications[0]);
+                    this.display(this.notifications.shift()); // ← Remove from queue when displaying
                 }
             }, 300);
         }
