@@ -6,7 +6,6 @@ class Profile {
     constructor(app) {
         this.app = app;
         this.container = document.getElementById('profile-content');
-        this.listenersAttached = false; // ← Track if listeners are attached
     }
 
     /**
@@ -84,11 +83,6 @@ class Profile {
      * Setup event listeners for profile interactions
      */
     setupEventListeners() {
-        // Only setup listeners once
-        if (this.listenersAttached) {
-            return;
-        }
-        
         const themeModeToggle = document.getElementById('profile-theme-mode');
         const clearDataBtn = document.getElementById('clear-data-btn');
 
@@ -105,8 +99,6 @@ class Profile {
                 this.confirmClearData();
             });
         }
-        
-        this.listenersAttached = true; // ← Mark as attached
     }
 
     /**
