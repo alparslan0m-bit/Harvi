@@ -73,21 +73,6 @@ app.get('/api/years', async (req, res) => {
     }
 });
 
-app.get('/api/lectures/:lectureId', async (req, res) => {
-    try {
-        const lecture = await Lecture.findOne({ id: req.params.lectureId }).lean();
-        if (!lecture) {
-            return res.status(404).json({
-                error: 'Lecture not found',
-                message: 'The requested lecture does not exist in the database'
-            });
-        }
-        res.json(lecture);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch lecture', details: err.message });
-    }
-});
-
 app.post('/api/lectures/batch', async (req, res) => {
     try {
         const { lectureIds } = req.body;
@@ -127,6 +112,21 @@ app.get('/api/lectures/batch', async (req, res) => {
         res.json(lectures);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch lectures', details: err.message });
+    }
+});
+
+app.get('/api/lectures/:lectureId', async (req, res) => {
+    try {
+        const lecture = await Lecture.findOne({ id: req.params.lectureId }).lean();
+        if (!lecture) {
+            return res.status(404).json({
+                error: 'Lecture not found',
+                message: 'The requested lecture does not exist in the database'
+            });
+        }
+        res.json(lecture);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch lecture', details: err.message });
     }
 });
 
