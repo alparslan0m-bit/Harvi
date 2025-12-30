@@ -15,53 +15,57 @@ class Profile {
 
     renderProfile() {
         this.container.innerHTML = `
-            <!-- Mini Branding -->
-            <div class="brand-header-mini">
-                <div class="brand-icon-mini">H</div>
-                <div class="brand-meta-mini">
-                    <h2>Harvi Platform <span class="pro-badge">Official</span></h2>
-                    <p>Medicine. Mastery. Memory.</p>
-                </div>
-            </div>
-
-            <!-- Visual Cards Gallery -->
-            <div class="action-gallery">
-                <div class="gallery-card card-share" id="share-card">
-                    <div class="gallery-card-icon">🚀</div>
-                    <h3 class="gallery-card-title">Share Harvi</h3>
-                </div>
-                <div class="gallery-card card-sponsor" id="sponsor-card">
-                    <div class="gallery-card-icon">💎</div>
-                    <h3 class="gallery-card-title">Sponsorship</h3>
-                </div>
-            </div>
-
-            <!-- Identification Vision Square -->
-            <div class="vision-square">
-                <p class="vision-phrase">
-                    Harvi is a <span>Smart Medical Assistant</span>, meticulously crafted to transform complex medical knowledge into mastered skills through <span>Offline Excellence</span>.
-                </p>
-            </div>
-
-            <!-- Settings -->
-            <div class="ios-list-group">
-                <div class="theme-selector-group">
-                    <div class="row-label">Aesthetic Tone</div>
-                    <div class="segmented-control" id="theme-selector">
-                        <div class="segment-pill"></div>
-                        <div class="segment" data-theme="azure">Azure</div>
-                        <div class="segment" data-theme="blush">Blush</div>
+            <div class="profile-column-left">
+                <!-- Mini Branding -->
+                <div class="brand-header-mini">
+                    <div class="brand-icon-mini">H</div>
+                    <div class="brand-meta-mini">
+                        <h2>Harvi Platform <span class="pro-badge">Official</span></h2>
+                        <p>Medicine. Mastery. Memory.</p>
                     </div>
                 </div>
+
+                <!-- Identification Vision Square -->
+                <div class="vision-square">
+                    <p class="vision-phrase">
+                        Harvi is a <span>Smart Medical Assistant</span>, meticulously crafted to transform complex medical knowledge into mastered skills through <span>Offline Excellence</span>.
+                    </p>
+                </div>
             </div>
 
-            <!-- Danger Zone -->
-            <button class="reset-button" id="clear-data-btn">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Clear Platform Progress
-            </button>
+            <div class="profile-column-right">
+                <!-- Visual Cards Gallery -->
+                <div class="action-gallery">
+                    <div class="gallery-card card-share" id="share-card">
+                        <div class="gallery-card-icon">🚀</div>
+                        <h3 class="gallery-card-title">Share Harvi</h3>
+                    </div>
+                    <div class="gallery-card card-sponsor" id="sponsor-card">
+                        <div class="gallery-card-icon">💎</div>
+                        <h3 class="gallery-card-title">Sponsorship</h3>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="ios-list-group">
+                    <div class="theme-selector-group">
+                        <div class="row-label">Aesthetic Tone</div>
+                        <div class="segmented-control" id="theme-selector">
+                            <div class="segment-pill"></div>
+                            <div class="segment" data-theme="azure">Azure</div>
+                            <div class="segment" data-theme="blush">Blush</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <button class="reset-button" id="clear-data-btn">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Clear Platform Progress
+                </button>
+            </div>
 
             <p style="text-align: center; color: #8E8E93; font-size: 13px; margin-top: 40px; font-weight: 500;">
                 Version 2.1.0 • Built with ❤️

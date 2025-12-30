@@ -147,10 +147,65 @@ body.girl-mode .bottom-nav {
     }
 }
 
-/* Responsive - hide on desktop */
+/* Responsive - Transform to Sidebar on Desktop */
 @media (min-width: 768px) {
     .bottom-nav-container {
-        display: none !important;
+        display: flex !important;
+        bottom: auto;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 80px;
+        height: auto;
+        padding-bottom: 0;
+    }
+
+    .bottom-nav {
+        flex-direction: column;
+        height: auto;
+        padding: 24px 0;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        gap: 12px;
+    }
+
+    .bottom-nav-item {
+        width: 100%;
+        padding: 16px 0;
+        gap: 8px;
+    }
+
+    .bottom-nav-item:hover {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    body.dark-mode .bottom-nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .bottom-nav-item svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .bottom-nav-item-label {
+        font-size: 10px;
+        opacity: 0.7;
+    }
+
+    .bottom-nav-item.active::after {
+        left: 0;
+        bottom: auto;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 24px;
+        border-radius: 0 4px 4px 0;
+    }
+
+    /* Shift content to the right on desktop, only when sidebar is active and not in quiz/results */
+    body:not(.quiz-mode-active) #app .screen:not(.results-screen) .container {
+        padding-left: 100px;
     }
 }
 

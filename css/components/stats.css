@@ -6,6 +6,9 @@
 #stats-content {
     padding: 16px;
     margin-bottom: 100px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
     animation: dashboardReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -225,6 +228,33 @@
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 1024px) {
+    .ios-list-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    .ios-list-item {
+        background: rgba(255, 255, 255, 0.8);
+        margin: 8px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    body.dark-mode .ios-list-item {
+        background: rgba(28, 28, 30, 0.8);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .ios-list-item:not(:last-child)::after {
+        display: none;
+    }
 }
 
 .ios-list-item {

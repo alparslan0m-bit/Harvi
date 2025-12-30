@@ -535,8 +535,10 @@ class MCQApp {
         if (bottomNav) {
             if (screenId === 'quiz-screen') {
                 bottomNav.classList.remove('active');
+                document.body.classList.add('quiz-mode-active');
             } else {
                 bottomNav.classList.add('active');
+                document.body.classList.remove('quiz-mode-active');
             }
         }
     }
