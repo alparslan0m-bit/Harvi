@@ -23,7 +23,7 @@ class Navigation {
         this.currentHeaderTitle = titleText;
         const brandContainer = document.getElementById('brand-container');
         const navTitleArea = document.getElementById('navigation-title-area');
-        
+
         if (!brandContainer || !navTitleArea) return;
 
         // If at the root level (Years), show the master brand
@@ -34,14 +34,14 @@ class Navigation {
             // Otherwise show the Navigation Large Title
             brandContainer.style.display = 'none';
             navTitleArea.style.display = 'block';
-            
+
             navTitleArea.innerHTML = `
                 <div class="scrollable-header">
                     <h1 class="large-title">${titleText}</h1>
                     <div class="inline-title">${titleText}</div>
                 </div>
             `;
-            
+
             // Reset scroll state
             const scrollableHeader = navTitleArea.querySelector('.scrollable-header');
             if (scrollableHeader) {
@@ -55,7 +55,7 @@ class Navigation {
      */
     cleanup() {
         console.log('🧹 Cleaning up navigation resources...');
-        
+
         // 1. Abort and clean up any pending requests
         if (this.abortController) {
             try {
@@ -66,7 +66,7 @@ class Navigation {
             }
             this.abortController = null;  // ← KEY: null the reference
         }
-        
+
         // 2. Remove scroll listener
         if (this.scrollListener) {
             const cardsContainer = document.getElementById('cards-container');
@@ -76,11 +76,11 @@ class Navigation {
             }
             this.scrollListener = null;
         }
-        
+
         // 3. Clear cached data if needed (optional - depends on requirements)
         // this.remoteYears = null;
         // this.cacheTimestamp = null;
-        
+
         console.log('✓ Navigation cleanup complete');
     }
 
@@ -93,23 +93,66 @@ class Navigation {
             this.abortController.abort();
             this.abortController = null;  // ← ADD THIS
         }
-        
+
         this.app.showScreen('navigation-screen');
         this.currentPath = [];
         this.updateBreadcrumb();
         this.updateHeader('Years');
-        
+
         const container = document.getElementById('cards-container');
+        if (!container) return;
+
+        // Create the Home Hub Container
+        const hubContainer = document.createElement('div');
+        hubContainer.className = 'home-hub-container';
+        container.innerHTML = '';
+        container.appendChild(hubContainer);
+
+        // 1. Add Hero "Continue Mastery" Card if data exists
+        if (this.app.lastLectureId && this.app.lastLectureName) {
+            const hero = document.createElement('div');
+            hero.className = 'hero-continue-card';
+            hero.innerHTML = `
+                <div class="hero-badge">High Yield</div>
+                <div>
+                    <h3 class="hero-title">${this.app.lastLectureName}</h3>
+                    <p class="hero-subtitle">Ready to master this topic?</p>
+                </div>
+                <div class="hero-footer">
+                    <div class="resume-btn">Continue Quiz</div>
+                </div>
+            `;
+            hero.onclick = () => {
+                // Logic to reload this specific lecture
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: '📚 Loading Topic',
+                        subtitle: this.app.lastLectureName,
+                        type: 'success'
+                    });
+                }
+                // Simulate navigation into that subject or start quiz
+                // (Depends on app logic, but here we show intent)
+                console.log('Resume lecture:', this.app.lastLectureId);
+            };
+            hubContainer.appendChild(hero);
+        }
+
+        // Create a dedicated area for dynamic content (Bento Grid)
+        const hubContent = document.createElement('div');
+        hubContent.id = 'hub-content-area';
+        hubContainer.appendChild(hubContent);
+
         const isCacheValid = this.isCacheValid();
-        
+
         // Show cached data immediately if available and valid
         if (isCacheValid && this.remoteYears && this.remoteYears.length > 0) {
-            this.renderYears(container, this.remoteYears, false);
+            this.renderYears(hubContent, this.remoteYears, false);
         } else {
             // Show loading state
-            this.showLoadingState(container, 'Loading years...');
+            this.showLoadingState(hubContent);
         }
-        
+
         // Always fetch fresh data in background (unless cache is very fresh)
         if (!isCacheValid || !this.remoteYears) {
             try {
@@ -121,26 +164,26 @@ class Navigation {
                     timeout: 10000,
                     retries: 2
                 });
-                
+
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const years = await res.json();
-                
+
                 // Sort years
                 years.sort((a, b) => {
                     const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
                     const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
                     return aNum - bNum;
                 });
-                
-                // Update cache
-                this.remoteYears = years;
-                this.cacheTimestamp = Date.now();
-                
-                // Render with smooth transition
-                this.renderYears(container, years, !isCacheValid);
+
+                if (years && Array.isArray(years)) {
+                    this.remoteYears = years;
+                    this.cacheTimestamp = Date.now();
+                    const targetContentArea = document.getElementById('hub-content-area') || hubContainer;
+                    this.renderYears(targetContentArea, years, true);
+                }
             } catch (e) {
                 this.abortController = null;  // ← ADD: Clean up on error
-                
+
                 if (e.name === 'AbortError') {
                     return;
                 }
@@ -149,7 +192,7 @@ class Navigation {
             }
         }
     }
-    
+
     /**
      * Check if cache is still valid
      */
@@ -157,84 +200,72 @@ class Navigation {
         if (!this.cacheTimestamp || !this.remoteYears) return false;
         return (Date.now() - this.cacheTimestamp) < this.cacheTimeout;
     }
-    
+
     /**
      * Render years with smooth transition
      */
     renderYears(container, years, animate = true) {
-        if (animate) {
-            container.style.opacity = '0';
-            container.style.transition = 'opacity 0.3s ease';
-        }
-        
+        // Clear previous content (skeletons or old grid)
         container.innerHTML = '';
-        const fragment = document.createDocumentFragment();
 
-        // Create inset grouped list wrapper
-        const groupWrapper = document.createElement('div');
-        groupWrapper.className = 'grouped-list';
-        
+        // Create Bento Grid
+        const bentoGrid = document.createElement('div');
+        bentoGrid.className = 'bento-grid';
+
         years.forEach((year, index) => {
-            const item = this.createListItem(
-                year.icon || '📘', 
-                year.name, 
-                `${year.modules?.length || 0} Modules`
-            );
-            
-            item.addEventListener('click', () => this.showModules(year));
-            groupWrapper.appendChild(item);
+            const card = document.createElement('div');
+
+            // Cycle through premium variants
+            const variants = ['azure', 'emerald', 'amber', 'amethyst'];
+            const variant = variants[index % variants.length];
+            card.className = `bento-year-card variant-${variant}`;
+
+            // Map icons based on year if standard
+            const icon = year.icon || (index === 0 ? '🩺' : index === 1 ? '🧬' : '🧠');
+            const modulesCount = year.modules?.length || 0;
+
+            card.innerHTML = `
+                <div>
+                    <div class="year-icon-box">${icon}</div>
+                    <h3 class="year-name">${year.name}</h3>
+                    <span class="year-stats">${modulesCount} Modules</span>
+                </div>
+                <div class="float-symbol">${icon}</div>
+            `;
+
+            card.addEventListener('click', () => this.showModules(year));
+            bentoGrid.appendChild(card);
         });
-        
-        fragment.appendChild(groupWrapper);
-        container.appendChild(fragment);
-        
-        // Apply stagger animation to list items
+
+        container.appendChild(bentoGrid);
+
+        // Apply stagger animation
         if (window.motionCoordinator) {
-            const items = groupWrapper.querySelectorAll('.list-item');
+            const items = bentoGrid.querySelectorAll('.bento-year-card');
             window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
         }
-        
-        if (animate) {
-            requestAnimationFrame(() => {
-                container.style.opacity = '1';
-            });
-        }
     }
-    
+
     /**
      * Show loading state using SkeletonLoader
      */
-    showLoadingState(container, message = 'Loading...') {
+    showLoadingState(container) {
         container.innerHTML = '';
-        container.style.opacity = '1';
 
-        // Create skeleton list items that match the iOS list style
-        const groupWrapper = document.createElement('div');
-        groupWrapper.className = 'grouped-list';
-
-        // Generate 5-6 skeleton list items
-        for (let i = 0; i < 6; i++) {
-            const skeletonItem = document.createElement('div');
-            skeletonItem.className = 'list-item skeleton-loader';
-            skeletonItem.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                    <div style="width: 28px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 6px; animation: pulse 1.5s ease-in-out infinite;"></div>
-                    <div style="flex: 1;">
-                        <div style="height: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.1s;"></div>
-                        <div style="height: 12px; background: rgba(255,255,255,0.08); border-radius: 3px; width: 60%; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.2s;"></div>
-                    </div>
-                </div>
-                <div style="width: 12px; height: 12px; background: rgba(255,255,255,0.05); border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; animation-delay: 0.3s;"></div>
-            `;
-            groupWrapper.appendChild(skeletonItem);
+        const bentoGrid = document.createElement('div');
+        bentoGrid.className = 'bento-grid';
+        for (let i = 0; i < 4; i++) {
+            const card = document.createElement('div');
+            card.className = 'bento-year-card skeleton-loader';
+            card.style.opacity = '0.5';
+            bentoGrid.appendChild(card);
         }
-
-        container.appendChild(groupWrapper);
+        container.appendChild(bentoGrid);
     }
     showErrorState(container, message) {
         container.innerHTML = '';
         container.style.opacity = '1';
-        
+
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = `
             color: white; 
@@ -246,11 +277,11 @@ class Navigation {
             align-items: center;
             gap: 1rem;
         `;
-        
+
         const errorText = document.createElement('p');
         errorText.textContent = message;
         errorText.style.cssText = 'margin: 0; font-size: 1.1rem;';
-        
+
         const retryButton = document.createElement('button');
         retryButton.textContent = 'Retry';
         retryButton.style.cssText = `
@@ -263,7 +294,7 @@ class Navigation {
             cursor: pointer;
             transition: all 0.2s ease;
         `;
-        
+
         retryButton.addEventListener('mouseenter', () => {
             retryButton.style.background = 'rgba(255,255,255,0.3)';
         });
@@ -274,7 +305,7 @@ class Navigation {
             this.cacheTimestamp = null; // Force refresh
             this.showYears();
         });
-        
+
         errorDiv.appendChild(errorText);
         errorDiv.appendChild(retryButton);
         container.appendChild(errorDiv);
@@ -284,65 +315,81 @@ class Navigation {
         this.currentPath = [year];
         this.updateBreadcrumb();
         this.updateHeader(year.name);
-        
+
         const container = document.getElementById('cards-container');
-        container.innerHTML = '';
-        
-        if (!year.modules || year.modules.length === 0) {
-            container.innerHTML = '<p style="color: var(--label-secondary); text-align: center; width: 100%; padding: 2rem;">No modules available yet.</p>';
-            return;
-        }
-        
-        const groupWrapper = document.createElement('div');
-        groupWrapper.className = 'grouped-list';
-        
-        year.modules.forEach(module => {
-            const item = this.createListItem('📚', module.name, `${module.subjects?.length || 0} Subjects`);
-            item.addEventListener('click', () => this.showSubjects(year, module));
-            groupWrapper.appendChild(item);
+        if (!container) return;
+
+        this.renderWithTransition(container, () => {
+            if (!year.modules || year.modules.length === 0) {
+                return this.createEmptyState('No modules available yet.');
+            }
+
+            const listWrapper = document.createElement('div');
+            listWrapper.className = 'home-hub-container'; // Reuse hub spacing
+
+            const bentoGrid = document.createElement('div');
+            bentoGrid.className = 'bento-grid';
+
+            year.modules.forEach((module, index) => {
+                const card = document.createElement('div');
+                card.className = 'bento-year-card'; // Reuse bento style
+
+                const icon = '📚';
+                const subjectsCount = module.subjects?.length || 0;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="year-icon-box">${icon}</div>
+                        <h3 class="year-name">${module.name}</h3>
+                        <span class="year-stats">${subjectsCount} Subjects</span>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => this.showSubjects(year, module));
+                bentoGrid.appendChild(card);
+            });
+
+            listWrapper.appendChild(bentoGrid);
+            return listWrapper;
         });
-        
-        container.appendChild(groupWrapper);
-        
-        // Apply stagger animation to list items
-        if (window.motionCoordinator) {
-            const items = groupWrapper.querySelectorAll('.list-item');
-            window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
-        }
     }
 
     showSubjects(year, module) {
         this.currentPath = [year, module];
         this.updateBreadcrumb();
         this.updateHeader(module.name);
-        
+
         const container = document.getElementById('cards-container');
+        if (!container) return;
+
         this.renderWithTransition(container, () => {
             if (!module.subjects || module.subjects.length === 0) {
                 return this.createEmptyState('No subjects available yet.');
             }
-            
-            const fragment = document.createDocumentFragment();
-            const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'grouped-list';
-            
+
+            const listWrapper = document.createElement('div');
+            listWrapper.className = 'home-hub-container';
+
+            const gridWrapper = document.createElement('div');
+            gridWrapper.className = 'lecture-grid';
+            listWrapper.appendChild(gridWrapper);
+
             module.subjects.forEach(subject => {
-                const item = this.createListItem('📖', subject.name, `${subject.lectures?.length || 0} Lectures`);
+                const item = document.createElement('div');
+                item.className = 'lecture-card-masterpiece active';
+
+                const lectureCount = subject.lectures ? subject.lectures.length : 0;
+
+                item.innerHTML = `
+                    <div class="lecture-name">${subject.name}</div>
+                    <div class="lecture-meta">${lectureCount} Lectures • Explore Curriculum</div>
+                `;
+
                 item.addEventListener('click', () => this.showLectures(year, module, subject));
-                groupWrapper.appendChild(item);
+                gridWrapper.appendChild(item);
             });
-            
-            fragment.appendChild(groupWrapper);
-            
-            // Apply stagger animation after a short delay to ensure DOM is ready
-            setTimeout(() => {
-                if (window.motionCoordinator) {
-                    const items = groupWrapper.querySelectorAll('.list-item');
-                    window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
-                }
-            }, 50);
-            
-            return fragment;
+
+            return listWrapper;
         });
     }
 
@@ -354,9 +401,9 @@ class Navigation {
         this.currentPath = [year, module, subject];
         this.updateBreadcrumb();
         this.updateHeader(subject.name);
-        
+
         const container = document.getElementById('cards-container');
-        
+
         if (!subject.lectures || subject.lectures.length === 0) {
             this.renderWithTransition(container, () => this.createEmptyState('No lectures available yet.'));
             return;
@@ -372,59 +419,60 @@ class Navigation {
             }
         });
         console.log(`🧹 Cleaned up ${oldCards.length} old lecture cards`);
-        
+
         // Cancel any previous requests immediately
         if (this.abortController) {
             this.abortController.abort();
             this.abortController = null;  // ← ADD THIS LINE
         }
-        
+
         const abortController = new AbortController();
         this.abortController = abortController;
-        
+
         // START BATCH FETCHING - Single GET request for better caching
         // Note: Offline caching preserved via harviDB.saveLecture() in promise chain
         const lectureIds = subject.lectures.map(lecture => lecture.id);
         const url = `./api/lectures/batch?ids=${lectureIds.join(',')}`;
-        
+
         // Check URL length to prevent 414 Request-URI Too Long errors
-        const batchFetchPromise = url.length > 2000 
+        const batchFetchPromise = url.length > 2000
             ? // Fallback to POST if URL too long
-              SafeFetch.fetch('./api/lectures/batch', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ lectureIds }),
-                  signal: abortController.signal,
-                  cache: 'no-cache',
-                  timeout: 15000,
-                  retries: 2
-              })
+            SafeFetch.fetch('./api/lectures/batch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lectureIds }),
+                signal: abortController.signal,
+                cache: 'no-cache',
+                timeout: 15000,
+                retries: 2
+            })
             : // Use GET for normal cases (better caching)
-              SafeFetch.fetch(url, {
-                  signal: abortController.signal,
-                  cache: 'default',
-                  timeout: 15000,
-                  retries: 2
-              });
-        
+            SafeFetch.fetch(url, {
+                signal: abortController.signal,
+                cache: 'default',
+                timeout: 15000,
+                retries: 2
+            });
+
         // Render cards immediately with loading state (while fetching happens in parallel)
         const loadingCards = new Map();
         this.renderWithTransition(container, () => {
             const fragment = document.createDocumentFragment();
             const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'grouped-list';
-            
+            groupWrapper.className = 'lecture-grid';
+
             subject.lectures.forEach(lecture => {
-                const item = this.createListItem('📝', lecture.name, 'Loading...');
-                item.style.pointerEvents = 'none';
-                item.style.opacity = '0.7';
-                item.classList.add('loading');
-                item.classList.add('skeleton-loader');
+                const item = document.createElement('div');
+                item.className = 'lecture-card-masterpiece loading skeleton-loader';
+                item.innerHTML = `
+                    <div class="lecture-name">${lecture.name}</div>
+                    <div class="lecture-meta">Loading high-yield topics...</div>
+                `;
                 item.dataset.lectureId = lecture.id;
                 loadingCards.set(lecture.id, item);
                 groupWrapper.appendChild(item);
             });
-            
+
             fragment.appendChild(groupWrapper);
             return fragment;
         });
@@ -461,17 +509,17 @@ class Navigation {
             .then(results => {
                 // NOW 'results' is the correctly processed array!
                 if (abortController.signal.aborted) return;
-                
+
                 results.forEach((result) => {
                     if (abortController.signal.aborted) return;
-                    
+
                     const lecture = result.lecture;
                     const currentCard = loadingCards.get(lecture.id);
-                    
+
                     if (!currentCard || !container.contains(currentCard)) {
                         return; // Card was removed, ignore
                     }
-                    
+
                     if (!result.success) {
                         // Handle error
                         if (result.error?.name !== 'AbortError') {
@@ -479,23 +527,23 @@ class Navigation {
                         }
                         return;
                     }
-                    
+
                     const { data } = result;
                     lecture.questions = data.questions || [];
                     const questions = lecture.questions;
-                    
+
                     if (questions && questions.length > 0) {
                         this.updateCardSuccess(currentCard, questions, year, module, subject, lecture);
                     } else {
                         this.updateCardEmpty(currentCard);
                     }
                 });
-                
+
                 this.abortController = null; // Clean up on success
             })
             .catch(error => {
                 this.abortController = null; // Clean up on error
-                
+
                 if (error.name !== 'AbortError') {
                     console.error('Error loading lectures:', error);
                     // Show error on all remaining cards
@@ -507,7 +555,7 @@ class Navigation {
                 }
             });
     }
-    
+
     /**
      * Update card to success state with questions
      */
@@ -517,35 +565,23 @@ class Navigation {
      */
     updateCardSuccess(card, questions, year, module, subject, lecture) {
         const questionCount = questions.length;
-        
-        // Update card description
-        const descriptionEl = card.querySelector('.caption-text');
-        if (descriptionEl) {
-            descriptionEl.textContent = `${questionCount} Question${questionCount !== 1 ? 's' : ''}`;
+
+        // Update card description (Masterpiece style)
+        const metaEl = card.querySelector('.lecture-meta');
+        if (metaEl) {
+            metaEl.textContent = `${questionCount} Questions • Mastery Recommended`;
         }
-        
+
         // Update card styling
-        card.style.cursor = 'pointer';
-        card.style.pointerEvents = 'auto';
-        card.style.transition = 'opacity 0.3s ease';
         card.classList.remove('loading', 'skeleton-loader');
         card.classList.add('active');
-        
-        // Animate opacity change
-        requestAnimationFrame(() => {
-            card.style.opacity = '1';
-        });
-        
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+
         // CRITICAL FIX: Instead of cloning, use a single-use flag
-        // This prevents duplicate event listeners without cloning
         if (!card._clickHandlerAdded) {
-            // Create the click handler
             const clickHandler = () => {
-                // Haptic feedback
-                if (navigator.vibrate) {
-                    navigator.vibrate(8);
-                }
-                
+                if (navigator.vibrate) navigator.vibrate(8);
                 this.app.startQuiz(questions, {
                     year: year.name,
                     module: module.name,
@@ -554,33 +590,14 @@ class Navigation {
                     lectureId: lecture.id
                 });
             };
-            
-            // Store handler reference for potential cleanup
             card._clickHandler = clickHandler;
-            
-            // Add the listener
             card.addEventListener('click', clickHandler);
-            
-            // Mark as handled
             card._clickHandlerAdded = true;
-            
-            console.log(`✓ Click handler added for lecture: ${lecture.name}`);
         } else {
-            // Handler already exists - just update the closure data
-            // This handles the case where cached data is different from fetched data
-            console.log(`⚠️  Click handler already exists for: ${lecture.name} - updating data`);
-            
-            // Remove old listener
-            if (card._clickHandler) {
-                card.removeEventListener('click', card._clickHandler);
-            }
-            
-            // Add new listener with updated data
+            // Update closure with potential new data
+            if (card._clickHandler) card.removeEventListener('click', card._clickHandler);
             const clickHandler = () => {
-                if (navigator.vibrate) {
-                    navigator.vibrate(8);
-                }
-                
+                if (navigator.vibrate) navigator.vibrate(8);
                 this.app.startQuiz(questions, {
                     year: year.name,
                     module: module.name,
@@ -589,59 +606,60 @@ class Navigation {
                     lectureId: lecture.id
                 });
             };
-            
             card._clickHandler = clickHandler;
             card.addEventListener('click', clickHandler);
         }
     }
-    
+
     /**
      * Update card to empty state
      */
     updateCardEmpty(card) {
-        const descriptionEl = card.querySelector('.caption-text');
-        if (descriptionEl) descriptionEl.textContent = 'No questions found';
+        const metaEl = card.querySelector('.lecture-meta');
+        if (metaEl) metaEl.textContent = 'No questions found in this topic';
         card.style.opacity = '0.6';
         card.style.cursor = 'not-allowed';
         card.style.pointerEvents = 'none';
-        card.classList.remove('loading');
+        card.classList.remove('loading', 'skeleton-loader');
     }
-    
+
     /**
      * Update card to error state
      */
     updateCardError(card) {
-        const descriptionEl = card.querySelector('.caption-text');
-        if (descriptionEl) descriptionEl.textContent = 'Failed to load';
+        const metaEl = card.querySelector('.lecture-meta');
+        if (metaEl) metaEl.textContent = 'Failed to load high-yield content';
         card.style.opacity = '0.6';
         card.style.cursor = 'not-allowed';
         card.style.pointerEvents = 'none';
-        card.classList.remove('loading');
+        card.classList.remove('loading', 'skeleton-loader');
     }
-    
+
     /**
      * Render content with smooth fade transition
      */
     renderWithTransition(container, contentFactory) {
         container.style.opacity = '0';
-        container.style.transition = 'opacity 0.2s ease';
-        
+        container.style.transform = 'translateY(10px)';
+        container.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+
         requestAnimationFrame(() => {
             container.innerHTML = '';
             const content = contentFactory();
-            
+
             if (content instanceof DocumentFragment) {
                 container.appendChild(content);
             } else {
                 container.appendChild(content);
             }
-            
+
             requestAnimationFrame(() => {
                 container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
             });
         });
     }
-    
+
     /**
      * Create empty state message
      */
@@ -652,56 +670,28 @@ class Navigation {
         return emptyDiv;
     }
 
-    createCard(icon, title, description) {
-        const card = document.createElement('div');
-        card.className = 'card card-pressable stagger-item';
-        card.innerHTML = `
-            <div class="card-icon">${icon}</div>
-            <h3 class="card-title">${title}</h3>
-            <p class="card-description">${description}</p>
-        `;
-        return card;
-    }
-
     /**
-     * Create native iOS list item for inset grouped lists
-     * Matches iOS Settings/Notes aesthetic
+     * Update navigation breadcrumb for hierarchical context
      */
-    createListItem(icon, title, secondary) {
-        const item = document.createElement('div');
-        item.className = 'list-item pressable stagger-item';
-        item.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                <span style="font-size: 20px; min-width: 28px;">${icon}</span>
-                <div style="flex: 1;">
-                    <div class="body-text" style="font-weight: 500; color: var(--label-primary);">${title}</div>
-                    ${secondary ? `<div class="caption-text" style="color: var(--label-secondary); margin-top: 2px;">${secondary}</div>` : ''}
-                </div>
-            </div>
-            <div style="color: var(--label-tertiary); font-size: 18px;">›</div>
-        `;
-        return item;
-    }
-
     updateBreadcrumb() {
         const breadcrumb = document.getElementById('breadcrumb');
         if (!breadcrumb) return;
 
         breadcrumb.innerHTML = '';
-        
+
         const homeItem = document.createElement('span');
         homeItem.className = 'breadcrumb-item';
         homeItem.innerHTML = '🏠 Home';
         homeItem.style.cursor = 'pointer';
         homeItem.addEventListener('click', () => this.app.navigation.showYears());
         breadcrumb.appendChild(homeItem);
-        
+
         this.currentPath.forEach((item, index) => {
             const separator = document.createElement('span');
             separator.className = 'breadcrumb-separator';
             separator.textContent = ' > ';
             breadcrumb.appendChild(separator);
-            
+
             const pathItem = document.createElement('span');
             pathItem.className = 'breadcrumb-item';
             if (index === this.currentPath.length - 1) {
@@ -709,16 +699,16 @@ class Navigation {
             }
             pathItem.textContent = item.name;
             pathItem.style.cursor = 'pointer';
-            
+
             // Use path-based navigation instead of hardcoded index checks
             pathItem.addEventListener('click', () => {
                 this.navigateToPath(index);
             });
-            
+
             breadcrumb.appendChild(pathItem);
         });
     }
-    
+
     /**
      * Navigate to a specific path level using path-based routing
      * This replaces hardcoded index checks with a flexible navigation system
@@ -730,10 +720,10 @@ class Navigation {
             this.showYears();
             return;
         }
-        
+
         // Build path up to target index
         const targetPath = this.currentPath.slice(0, targetIndex + 1);
-        
+
         // Navigate based on path length
         switch (targetPath.length) {
             case 1:

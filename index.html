@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="./css/components/apple-material-system.css">
     <link rel="stylesheet" href="./css/components/stats.css">
     <link rel="stylesheet" href="./css/components/profile.css">
+    <link rel="stylesheet" href="./css/components/home-hub.css">
     <link rel="stylesheet" href="./css/components/native-navigation.css">
     <link rel="stylesheet" href="./css/components/modals.css">
     <link rel="stylesheet" href="./css/components/dynamic-island.css">
@@ -108,30 +109,32 @@
         <div id="results-screen" class="screen results-screen">
             <div class="results-container" id="results-container">
                 <div class="results-icon">
-                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
                         <path
-                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                            fill="#FFD700" stroke="#FFD700" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
+                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                     </svg>
                 </div>
-                <h1 class="results-title">Quiz Complete!</h1>
+                <h1 class="results-title">Great Work!</h1>
+                <p class="results-message" id="results-message">You've successfully mastered this high-yield topic.
+                    Knowledge is power.</p>
+
                 <div class="score-display">
-                    <div class="score-info">
-                        <div class="score-number" id="score-number">0</div>
-                        <div class="score-text">
-                            <span class="score-label">Score</span>
-                            out of <span id="total-score">2</span> questions
-                        </div>
-                    </div>
-                    <div class="score-percentage" id="score-percentage">0%</div>
+                    <div class="score-number" id="score-number">0</div>
+                    <div class="score-percentage" id="score-percentage">0% Mastery</div>
+                    <div class="score-text">Score: <span id="current-score-val">0</span> / <span
+                            id="total-score">0</span></div>
                 </div>
-                <div class="results-message" id="results-message">Keep studying! You can do better next time!</div>
+
                 <div class="results-actions">
-                    <button class="share-results-btn" id="share-results" title="Share your score">📤 Share
-                        Results</button>
-                    <button class="retake-quiz-btn" id="retake-quiz">Retake Quiz</button>
-                    <button class="back-home-btn" id="back-to-home">Back to Home</button>
+                    <button class="action-btn-pwa btn-primary-victory" id="back-to-home">
+                        <span>Done for Now</span>
+                    </button>
+                    <button class="action-btn-pwa btn-secondary-victory" id="retake-quiz">
+                        <span>Revisit Topic</span>
+                    </button>
+                    <button class="share-results-btn" id="share-results">
+                        Share Achievement
+                    </button>
                 </div>
             </div>
         </div>

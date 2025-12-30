@@ -1,169 +1,114 @@
 /**
- * Stats Screen - Premium "Bento" Dashboard
- * Inspired by Apple Health & iOS Control Center
+ * Masterpiece Stats Dashboard
+ * Premium analytical visualization.
  */
 
 #stats-content {
-    padding: 20px;
-    max-width: 800px;
-    /* Increased for grid layout */
-    margin: 0 auto 100px;
-    /* Bottom padding for nav */
+    padding: 16px;
+    margin-bottom: 100px;
+    animation: dashboardReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes dashboardReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==================== BENTO GRID ==================== */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    /* Default 2 columns */
     gap: 16px;
     margin-bottom: 24px;
 }
 
-/* Widget Card Base */
 .bento-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border-radius: 28px;
     padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.03),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     position: relative;
     overflow: hidden;
-    box-shadow:
-        0 4px 24px rgba(0, 0, 0, 0.04),
-        inset 0 1px 1px rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-
-    /* Reveal Animation */
-    opacity: 0;
-    transform: translateY(20px) scale(0.96);
-    animation: simpleReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-@keyframes simpleReveal {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Stagger delay for up to 6 cards */
-.bento-card:nth-child(1) {
-    animation-delay: 0ms;
-}
-
-.bento-card:nth-child(2) {
-    animation-delay: 100ms;
-}
-
-.bento-card:nth-child(3) {
-    animation-delay: 200ms;
-}
-
-.bento-card:nth-child(4) {
-    animation-delay: 300ms;
-}
-
-.bento-card:nth-child(5) {
-    animation-delay: 400ms;
-}
-
-/* Spans */
 .col-span-2 {
     grid-column: span 2;
 }
 
-/* ==================== CARD CONTENT STYLES ==================== */
-
-/* Headers */
+/* ==================== WIDGET ELEMENTS ==================== */
 .card-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-    color: #8E8E93;
-    /* Apple Gray */
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #8e8e93;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.card-icon {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-}
-
-/* Big Numbers */
 .metric-value {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: -1px;
-    color: #1a1a1a;
-    line-height: 1.1;
+    font-size: 38px;
+    font-weight: 850;
+    color: #1d1d1f;
+    letter-spacing: -1.5px;
+    line-height: 1;
 }
 
 .metric-unit {
     font-size: 16px;
-    color: #8E8E93;
-    font-weight: 500;
-    margin-left: 2px;
+    font-weight: 600;
+    color: #8e8e93;
 }
 
-/* Subtitles/Context */
 .metric-context {
     font-size: 14px;
-    color: #8E8E93;
-    margin-top: 4px;
-    font-weight: 500;
+    font-weight: 600;
+    margin-top: 6px;
+    opacity: 0.8;
 }
 
-/* Theme Colors for Text */
-.text-orange {
-    color: #FF9500;
-}
-
-.text-blue {
-    color: #007AFF;
-}
-
-.text-green {
-    color: #34C759;
-}
-
-.text-pink {
-    color: #FF2D55;
-}
-
-.text-purple {
-    color: #AF52DE;
-}
-
-/* ==================== SPECIAL WIDGETS ==================== */
-
-/* 1. Accuracy Ring Widget */
+/* Accuracy Ring Visualizer */
 .accuracy-widget {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    position: relative;
-    padding-top: 24px;
 }
 
 .ring-container {
     position: relative;
-    width: 100px;
-    height: 100px;
-    margin-bottom: 12px;
+    width: 90px;
+    height: 90px;
+    margin-bottom: 8px;
+}
+
+.ring-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px;
+    font-weight: 850;
+    color: #1d1d1f;
 }
 
 .ring-svg {
     transform: rotate(-90deg);
-    width: 100%;
-    height: 100%;
 }
 
 .ring-bg {
@@ -176,54 +121,23 @@
     fill: none;
     stroke-width: 8;
     stroke-linecap: round;
-    stroke-dasharray: 251;
-    /* 2 * PI * 40 */
-    stroke-dashoffset: 251;
-    /* Start empty */
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 251.2;
     transition: stroke-dashoffset 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.ring-center-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.ring-percent {
-    font-size: 24px;
-    font-weight: 750;
-    color: #1a1a1a;
-    line-height: 1;
-}
-
-.ring-label {
-    font-size: 11px;
-    color: #8E8E93;
-    font-weight: 600;
-    margin-top: 2px;
-}
-
-/* 2. Streak/Flame Widget */
+/* Streak Widget */
 .streak-widget {
-    background: linear-gradient(135deg, #FF9500 0%, #FF3B30 100%);
+    background: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
     color: white;
     border: none;
+    box-shadow: 0 12px 25px rgba(14, 165, 233, 0.25);
 }
 
-.streak-widget .card-header {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.streak-widget .metric-value {
-    color: white;
-}
-
+.streak-widget .card-header,
+.streak-widget .metric-value,
 .streak-widget .metric-context {
-    color: rgba(255, 255, 255, 0.9);
+    color: white;
 }
 
 .flame-container {
@@ -231,268 +145,178 @@
     right: -10px;
     bottom: -10px;
     font-size: 80px;
-    opacity: 0.2;
-    transform: rotate(-15deg);
-    filter: blur(1px);
+    opacity: 0.15;
+    rotate: -15deg;
 }
 
-/* 3. Activity Bar Chart Widget */
+/* Charts */
 .chart-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    height: 80px;
-    /* Reduced specific height */
-    padding-top: 16px;
-    gap: 8px;
+    height: 100px;
+    padding: 12px 0 4px;
 }
 
 .bar-column {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex: 1;
 }
 
 .bar-bg {
-    width: 8px;
-    height: 100%;
+    width: 10px;
+    height: 80px;
     background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+    border-radius: 100px;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: flex-end;
 }
 
-/* Active Bar Fill */
 .bar-fill {
     width: 100%;
-    border-radius: 4px;
-    background: #007AFF;
-    height: 0%;
-    /* Animates to target height */
-    transition: height 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-    min-height: 4px;
-    /* Always show a tiny dot */
-}
-
-/* Highlight "Today" bar */
-.bar-column.today .bar-fill {
-    background: #5856D6;
-}
-
-.bar-column.today .bar-label {
-    color: #5856D6;
-    font-weight: 700;
+    background: #0EA5E9;
+    border-radius: 100px;
+    height: 0;
+    transition: height 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .bar-label {
-    font-size: 10px;
-    color: #8E8E93;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8e8e93;
 }
 
-/* ==================== RECENT LIST (iOS Grouped Style) ==================== */
+.bar-column.today .bar-label {
+    color: #0EA5E9;
+}
+
+/* ==================== RECENT HISTORY (IOS LIST) ==================== */
 .list-section-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 32px 4px 12px;
-    color: #1a1a1a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 22px;
+    font-weight: 850;
+    color: #1d1d1f;
+    margin: 32px 8px 16px;
+    letter-spacing: -0.5px;
 }
 
 .ios-list-group {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(24px);
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(30px);
+    border-radius: 24px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .ios-list-item {
     display: flex;
     align-items: center;
-    padding: 16px;
+    padding: 16px 20px;
     position: relative;
-    background: transparent;
     transition: background 0.2s;
 }
 
 .ios-list-item:active {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.05);
 }
 
-/* Hairline divider */
 .ios-list-item:not(:last-child)::after {
     content: '';
     position: absolute;
     bottom: 0;
     right: 0;
-    left: 60px;
-    /* Indented separator */
-    height: 1px;
-    background: rgba(0, 0, 0, 0.08);
+    left: 72px;
+    height: 0.5px;
+    background: rgba(0, 0, 0, 0.1);
 }
 
-/* Icon Box */
 .item-icon-box {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: #007AFF;
-    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-weight: 700;
+    justify-content: center;
+    font-weight: 800;
     font-size: 14px;
-    margin-right: 14px;
+    color: white;
+    margin-right: 16px;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-}
-
-/* Colors based on index/random */
-.color-0 {
-    background-color: #007AFF;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-}
-
-.color-1 {
-    background-color: #5856D6;
-    box-shadow: 0 2px 8px rgba(88, 86, 214, 0.25);
-}
-
-.color-2 {
-    background-color: #FF2D55;
-    box-shadow: 0 2px 8px rgba(255, 45, 85, 0.25);
-}
-
-.color-3 {
-    background-color: #FF9500;
-    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.25);
-}
-
-.color-4 {
-    background-color: #34C759;
-    box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25);
-}
-
-.item-content {
-    flex: 1;
-    min-width: 0;
 }
 
 .item-title {
-    font-size: 15px;
-    font-weight: 500;
-    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1d1d1f;
     margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .item-subtitle {
-    font-size: 12px;
-    color: #8E8E93;
-}
-
-.item-trailing {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8e8e93;
 }
 
 .score-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 6px 12px;
+    border-radius: 100px;
     font-size: 13px;
-    font-weight: 600;
-    color: #1a1a1a;
-    background: rgba(0, 0, 0, 0.05);
+    font-weight: 750;
 }
 
 .score-high {
-    color: #34C759;
     background: rgba(52, 199, 89, 0.1);
+    color: #34C759;
 }
 
 .score-med {
-    color: #FF9500;
-    background: rgba(255, 149, 0, 0.1);
+    background: rgba(255, 159, 10, 0.1);
+    color: #FF9F0A;
 }
 
 .score-low {
-    color: #FF3B30;
     background: rgba(255, 59, 48, 0.1);
-}
-
-/* Chevron */
-.item-chevron {
-    width: 6px;
-    height: 10px;
-    border-right: 2px solid #C7C7CC;
-    border-bottom: 2px solid #C7C7CC;
-    transform: rotate(-45deg);
-    opacity: 0.6;
+    color: #FF3B30;
 }
 
 /* ==================== DARK MODE ==================== */
-body.dark-mode .bento-card {
-    background: rgba(28, 28, 30, 0.85);
-    /* Apple Dark Gray */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+body.dark-mode .bento-card,
+body.dark-mode .ios-list-group {
+    background: rgba(28, 28, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 body.dark-mode .metric-value,
-body.dark-mode .item-title,
 body.dark-mode .ring-percent,
-body.dark-mode .list-section-title {
-    color: #FFFFFF;
+body.dark-mode .list-section-title,
+body.dark-mode .item-title,
+body.dark-mode .ring-center-text {
+    color: white;
 }
 
+body.dark-mode .bar-bg,
 body.dark-mode .ring-bg {
-    stroke: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .bar-bg {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .ios-list-group {
-    background: rgba(28, 28, 30, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .ios-list-item:active {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 body.dark-mode .ios-list-item:not(:last-child)::after {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
 }
 
-/* ==================== GIRL MODE ==================== */
+/* Girl Mode Variants */
 body.girl-mode .streak-widget {
-    background: linear-gradient(135deg, #FF2D55 0%, #FF3B30 100%);
-    box-shadow: 0 4px 20px rgba(255, 45, 85, 0.4);
+    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
 }
 
 body.girl-mode .bar-fill {
     background: #FF2D55;
 }
 
-body.girl-mode .bar-column.today .bar-fill {
-    background: #BF5AF2;
-}
-
-body.girl-mode .accuracy-widget .ring-progress {
-    stroke: #FF2D55;
-    /* Pink default */
+body.girl-mode .bar-column.today .bar-label {
+    color: #FF2D55;
 }

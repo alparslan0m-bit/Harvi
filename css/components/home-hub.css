@@ -1,0 +1,267 @@
+/**
+ * Home Hub Masterpiece Styles
+ * Inspired by App Store Today & Apple Music
+ */
+
+.home-hub-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: hubReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes hubReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==================== HERO SECTION: CONTINUE MASTERY ==================== */
+.hero-continue-card {
+    position: relative;
+    width: 100%;
+    min-height: 160px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(2, 132, 199, 0.9) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow:
+        0 12px 30px rgba(14, 165, 233, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-continue-card:active {
+    transform: scale(0.97);
+}
+
+.hero-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+}
+
+.hero-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+    max-width: 80%;
+}
+
+.hero-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.hero-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.resume-btn {
+    background: white;
+    color: #0EA5E9;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== BENTO YEARS GRID ==================== */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    margin-bottom: 4px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 750;
+    color: #1d1d1f;
+    letter-spacing: -0.4px;
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.bento-year-card {
+    aspect-ratio: 1 / 1.1;
+    border-radius: 24px;
+    padding: 20px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bento-year-card:active {
+    transform: scale(0.95);
+    background: #F2F2F7;
+}
+
+.year-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 12px;
+    background: rgba(14, 165, 233, 0.1);
+}
+
+
+
+/* Bento Variants */
+.bento-year-card.variant-azure .year-icon-box {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+}
+
+.bento-year-card.variant-emerald .year-icon-box {
+    background: rgba(52, 199, 89, 0.1);
+    color: #34C759;
+}
+
+.bento-year-card.variant-amber .year-icon-box {
+    background: rgba(255, 159, 10, 0.1);
+    color: #FF9F0A;
+}
+
+.bento-year-card.variant-amethyst .year-icon-box {
+    background: rgba(175, 82, 222, 0.1);
+    color: #AF52DE;
+}
+
+body.girl-mode .bento-year-card.variant-azure .year-icon-box {
+    background: rgba(255, 45, 85, 0.1);
+    color: #FF2D55;
+}
+
+
+
+
+/* ==================== LECTURE CARDS (MASTERPIECE) ==================== */
+.lecture-grid {
+    display: grid;
+    gap: 16px;
+    padding: 16px;
+}
+
+.lecture-card-masterpiece {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.03),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.lecture-card-masterpiece:active {
+    transform: scale(0.97);
+}
+
+.lecture-card-masterpiece.active {
+    background: white;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.lecture-card-masterpiece .lecture-name {
+    font-weight: 750;
+    color: #1d1d1f;
+    font-size: 18px;
+    letter-spacing: -0.4px;
+    margin-bottom: 4px;
+}
+
+.lecture-card-masterpiece .lecture-meta {
+    font-size: 13px;
+    color: #8e8e93;
+    font-weight: 500;
+}
+
+/* ==================== DARK MODE ==================== */
+body.dark-mode .bento-year-card,
+body.dark-mode .lecture-card-masterpiece {
+    background: rgba(28, 28, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .year-name,
+body.dark-mode .section-title,
+body.dark-mode .subject-title,
+body.dark-mode .lecture-name {
+    color: white;
+}
+
+body.dark-mode .subject-item {
+    background: rgba(28, 28, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Girl Mode Accents */
+body.girl-mode .hero-continue-card {
+    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
+    box-shadow: 0 12px 30px rgba(255, 45, 85, 0.3);
+}
+
+body.girl-mode .resume-btn {
+    color: #FF2D55;
+}
+
+body.girl-mode .year-icon-box {
+    background: rgba(255, 45, 85, 0.1);
+}
+
+body.girl-mode .lecture-card-masterpiece.active {
+    border-color: rgba(255, 45, 85, 0.3);
+}

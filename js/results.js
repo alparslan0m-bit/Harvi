@@ -58,24 +58,27 @@ class Results {
 
     show(score, total, metadata = {}) {
         this.app.showScreen('results-screen');
-        
+
         this.lastQuizMetadata = metadata && typeof metadata === 'object' ? metadata : {};
         this.lastQuizQuestions = this.app.currentQuiz.questions;
         this.lastScore = score;
         this.lastTotal = total;
 
         const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
-        
+
         document.getElementById('score-number').textContent = score;
+        const currentScoreVal = document.getElementById('current-score-val');
+        if (currentScoreVal) currentScoreVal.textContent = score;
+
         document.getElementById('total-score').textContent = total;
-        document.getElementById('score-percentage').textContent = `${percentage}%`;
-        
+        document.getElementById('score-percentage').textContent = `${percentage}% Mastery`;
+
         const messageElement = document.getElementById('results-message');
         let message = '';
         let color = '';
         let notificationIcon = '';
         let notificationType = '';
-        
+
         if (percentage >= 90) {
             message = 'Outstanding! You have excellent knowledge!';
             color = '#10B981';
@@ -97,10 +100,10 @@ class Results {
             notificationIcon = '💪';
             notificationType = 'info';
         }
-        
+
         messageElement.textContent = message;
         document.getElementById('score-percentage').style.color = color;
-        
+
         // Show Dynamic Island notification for quiz completion
         if (window.dynamicIsland) {
             window.dynamicIsland.show({
@@ -114,7 +117,7 @@ class Results {
                 }
             });
         }
-        
+
         // Show share button if Web Share API is available
         if (navigator.share) {
             const shareBtn = document.getElementById('share-results');
@@ -122,7 +125,7 @@ class Results {
                 shareBtn.style.display = 'inline-block';
             }
         }
-        
+
         this.animateScore(score);
         celebrateQuizCompletion(score, total);
     }
@@ -137,7 +140,10 @@ class Results {
                 currentScore = targetScore;
                 clearInterval(timer);
             }
-            scoreElement.textContent = Math.floor(currentScore);
+            const val = Math.floor(currentScore);
+            scoreElement.textContent = val;
+            const currentScoreVal = document.getElementById('current-score-val');
+            if (currentScoreVal) currentScoreVal.textContent = val;
         }, 30);
     }
 
@@ -145,7 +151,7 @@ class Results {
         const percentage = Math.round((this.lastScore / this.lastTotal) * 100);
         const shareTitle = 'My Quiz Results - Harvi';
         const shareText = `I scored ${this.lastScore}/${this.lastTotal} (${percentage}%) on the Harvi medical quiz! Can you beat my score?`;
-        
+
         // Haptic feedback
         if (navigator.vibrate) {
             navigator.vibrate([5, 10, 5]);
@@ -228,7 +234,7 @@ class Results {
                             return;
                         }
                     }
-                    
+
                     // Fallback to text sharing
                     if (navigator.share) {
                         await navigator.share({
