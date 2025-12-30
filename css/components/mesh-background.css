@@ -1,0 +1,83 @@
+/* ===== LIVING MESH BACKGROUND ===== */
+/* Organic, breathing background gradient animation */
+
+.mesh-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    /* Behind everything */
+    overflow: hidden;
+    background-color: var(--system-background, #ffffff);
+}
+
+.mesh-gradient {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image:
+        radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 50%);
+    filter: blur(60px);
+    opacity: 0.8;
+    animation: meshBreath 20s ease-in-out infinite alternate;
+    transform-origin: center center;
+}
+
+/* Dark Mode Mesh adjustments */
+@media (prefers-color-scheme: dark) {
+    .mesh-background {
+        background-color: #050505;
+        /* Blacker background for OLED */
+    }
+
+    .mesh-gradient {
+        background-image:
+            radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.2) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.2) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
+            radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.15) 0px, transparent 50%);
+        opacity: 0.6;
+        /* Slightly subtler in dark mode to avoid glare */
+    }
+}
+
+/* Keyframes for the breathing effect */
+@keyframes meshBreath {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        filter: blur(60px);
+    }
+
+    33% {
+        transform: translate(-2%, 2%) scale(1.1) rotate(2deg);
+        filter: blur(80px);
+    }
+
+    66% {
+        transform: translate(2%, -2%) scale(1.05) rotate(-2deg);
+        filter: blur(70px);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        filter: blur(60px);
+    }
+}
+
+/* Specific mode overrides using body classes */
+body.girl-mode .mesh-gradient {
+    background-image:
+        radial-gradient(at 0% 0%, rgba(236, 72, 153, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(244, 114, 182, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(251, 113, 133, 0.2) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+}

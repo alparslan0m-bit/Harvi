@@ -13,7 +13,7 @@
     margin: 0;
     width: 100%;
     min-height: 100px;
-    
+
     background: transparent;
     transition: all 0.3s ease;
     position: relative;
@@ -46,20 +46,20 @@
     font-family: 'Poppins', sans-serif;
     letter-spacing: 0.05em;
     margin: 0;
-    
+
     background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 25%, #14B8A6 50%, #0EA5E9 75%, #22D3EE 100%);
     background-size: 300% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    
+
     text-shadow: 0 4px 8px rgba(14, 165, 233, 0.2);
     filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.28));
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    animation: 
-        titleFloat 6s cubic-bezier(0.37, 0, 0.63, 1) infinite, 
+
+    animation:
+        titleFloat 6s cubic-bezier(0.37, 0, 0.63, 1) infinite,
         titleShimmer 12s cubic-bezier(0.37, 0, 0.63, 1) infinite,
         titleGlow 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
@@ -85,17 +85,17 @@
     letter-spacing: 0.025em;
     margin: 0;
     padding-left: 0.75rem;
-    
+
     background: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 50%, #14B8A6 100%);
     background-size: 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    
+
     text-shadow: 0 2px 4px rgba(14, 165, 233, 0.15);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     animation: descriptionShimmer 6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
@@ -110,14 +110,19 @@
    ANIMATIONS
    ======================================== */
 @keyframes titleFloat {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0) rotate(-1deg);
         text-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
     }
-    25%, 75% {
+
+    25%,
+    75% {
         transform: translateY(-6px) rotate(0deg);
         text-shadow: 0 12px 20px rgba(99, 102, 241, 0.3);
     }
+
     50% {
         transform: translateY(0) rotate(1deg);
         text-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
@@ -129,10 +134,12 @@
         background-position: 300% 50%;
         letter-spacing: 0.05em;
     }
+
     50% {
         background-position: 0% 50%;
         letter-spacing: 0.1em;
     }
+
     100% {
         background-position: 300% 50%;
         letter-spacing: 0.05em;
@@ -140,9 +147,12 @@
 }
 
 @keyframes titleGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
     }
+
     50% {
         filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.5));
     }
@@ -152,6 +162,7 @@
     0% {
         background-position: 200% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -188,12 +199,12 @@ body.girl-mode .brand-description {
         gap: 1rem;
         padding-left: 0.5rem;
     }
-    
+
     .app-title {
         font-size: 2.25rem;
         letter-spacing: 0.025em;
     }
-    
+
     .brand-description {
         font-size: 1rem;
         padding-left: 0.5rem;
@@ -204,7 +215,7 @@ body.girl-mode .brand-description {
     .app-title {
         font-size: 1.875rem;
     }
-    
+
     .brand-description {
         font-size: 0.9rem;
         padding-left: 0.5rem;
@@ -215,16 +226,77 @@ body.girl-mode .brand-description {
    ACCESSIBILITY
    ======================================== */
 @media (prefers-reduced-motion: reduce) {
+
     .app-title,
     .brand-description {
         animation: none;
     }
-    
+
     .app-title:hover {
         transform: scale(1.02);
     }
-    
-    .brand-description:hover {
-        transform: translateY(-1px) scale(1.02);
+
+    /* ========================================
+   SCROLL-DRIVEN ANIMATIONS (Masterclass Feature)
+   ======================================== */
+
+    /* If supported, use native scroll timeline */
+    @supports (animation-timeline: scroll()) {
+        .header-container {
+            /* Define a named scroll timeline on the container, 
+           but since 'container' scrolls inside 'screen', 
+           we need to bind to the scrollable area. */
+            animation-timeline: scroll(nearest);
+            animation-name: headerScrollEffect;
+            animation-range: 0px 100px;
+        }
+
+        .app-title {
+            animation-timeline: scroll(nearest);
+            animation-name: titleScrollEffect;
+            animation-range: 0px 100px;
+        }
+
+        .brand-description {
+            animation-timeline: scroll(nearest);
+            animation-name: fadeOutScroll;
+            animation-range: 0px 50px;
+        }
     }
-}
+
+    @keyframes headerScrollEffect {
+        to {
+            padding: 0.75rem 2rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    @keyframes titleScrollEffect {
+        to {
+            font-size: 1.5rem;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeOutScroll {
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Dark mode overrides for scroll effect */
+    @media (prefers-color-scheme: dark) {
+        @keyframes headerScrollEffect {
+            to {
+                padding: 0.75rem 2rem;
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            }
+        }
+    }
