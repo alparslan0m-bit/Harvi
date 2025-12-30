@@ -156,12 +156,12 @@ class Stats {
         this.container.innerHTML = `
             <div class="stats-empty">
                 <div class="stats-empty-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 3v18h18M7 16v-8m4 8V8m4 8v-4m4 4V6"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20V10M18 20V4M6 20v-4"/>
                     </svg>
                 </div>
                 <h3>No Data Yet</h3>
-                <p>Start a quiz to track your progress!</p>
+                <p>Complete your first quiz to see your performance metrics here.</p>
             </div>
         `;
     }
@@ -170,13 +170,14 @@ class Stats {
         this.container.innerHTML = `
             <div class="stats-error">
                 <div class="stats-error-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
-                        <path d="m15 9-6 6m0-6 6 6"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
                     </svg>
                 </div>
                 <h3>Unable to Load Statistics</h3>
-                <p>Please try again later.</p>
+                <p>We couldn't retrieve your progress data. Please try again later.</p>
             </div>
        `;
     }
