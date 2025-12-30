@@ -1,132 +1,498 @@
 /**
- * Stats Screen Styles
+ * Stats Screen - Premium "Bento" Dashboard
+ * Inspired by Apple Health & iOS Control Center
  */
 
 #stats-content {
     padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 800px;
+    /* Increased for grid layout */
+    margin: 0 auto 100px;
+    /* Bottom padding for nav */
 }
 
-.stats-overview {
+/* ==================== BENTO GRID ==================== */
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    /* Default 2 columns */
     gap: 16px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
-.stats-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
+/* Widget Card Base */
+.bento-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
     padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.04),
+        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+
+    /* Reveal Animation */
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+    animation: simpleReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-body.girl-mode .stats-card {
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+@keyframes simpleReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-.stats-number {
-    font-size: 32px;
+/* Stagger delay for up to 6 cards */
+.bento-card:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.bento-card:nth-child(2) {
+    animation-delay: 100ms;
+}
+
+.bento-card:nth-child(3) {
+    animation-delay: 200ms;
+}
+
+.bento-card:nth-child(4) {
+    animation-delay: 300ms;
+}
+
+.bento-card:nth-child(5) {
+    animation-delay: 400ms;
+}
+
+/* Spans */
+.col-span-2 {
+    grid-column: span 2;
+}
+
+/* ==================== CARD CONTENT STYLES ==================== */
+
+/* Headers */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    color: #8E8E93;
+    /* Apple Gray */
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* Big Numbers */
+.metric-value {
+    font-size: 34px;
     font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 4px;
+    letter-spacing: -1px;
+    color: #1a1a1a;
+    line-height: 1.1;
 }
 
-.stats-label {
+.metric-unit {
+    font-size: 16px;
+    color: #8E8E93;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+/* Subtitles/Context */
+.metric-context {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #8E8E93;
+    margin-top: 4px;
     font-weight: 500;
 }
 
-.stats-recent h3 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: var(--text-primary);
+/* Theme Colors for Text */
+.text-orange {
+    color: #FF9500;
 }
 
-.recent-list {
+.text-blue {
+    color: #007AFF;
+}
+
+.text-green {
+    color: #34C759;
+}
+
+.text-pink {
+    color: #FF2D55;
+}
+
+.text-purple {
+    color: #AF52DE;
+}
+
+/* ==================== SPECIAL WIDGETS ==================== */
+
+/* 1. Accuracy Ring Widget */
+.accuracy-widget {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    padding-top: 24px;
 }
 
-.recent-item {
+.ring-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+}
+
+.ring-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.ring-bg {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.05);
+    stroke-width: 8;
+}
+
+.ring-progress {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 251;
+    /* 2 * PI * 40 */
+    stroke-dashoffset: 251;
+    /* Start empty */
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ring-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ring-percent {
+    font-size: 24px;
+    font-weight: 750;
+    color: #1a1a1a;
+    line-height: 1;
+}
+
+.ring-label {
+    font-size: 11px;
+    color: #8E8E93;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* 2. Streak/Flame Widget */
+.streak-widget {
+    background: linear-gradient(135deg, #FF9500 0%, #FF3B30 100%);
+    color: white;
+    border: none;
+}
+
+.streak-widget .card-header {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.streak-widget .metric-value {
+    color: white;
+}
+
+.streak-widget .metric-context {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.flame-container {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 80px;
+    opacity: 0.2;
+    transform: rotate(-15deg);
+    filter: blur(1px);
+}
+
+/* 3. Activity Bar Chart Widget */
+.chart-container {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
+    height: 80px;
+    /* Reduced specific height */
+    padding-top: 16px;
+    gap: 8px;
+}
+
+.bar-column {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-body.girl-mode .recent-item {
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(251, 207, 232, 0.5);
-}
-
-.recent-info {
+    gap: 6px;
     flex: 1;
 }
 
-.recent-title {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 2px;
+.bar-bg {
+    width: 8px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
 }
 
-.recent-date {
-    font-size: 12px;
-    color: var(--text-secondary);
+/* Active Bar Fill */
+.bar-fill {
+    width: 100%;
+    border-radius: 4px;
+    background: #007AFF;
+    height: 0%;
+    /* Animates to target height */
+    transition: height 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    min-height: 4px;
+    /* Always show a tiny dot */
 }
 
-.recent-score {
-    font-size: 18px;
+/* Highlight "Today" bar */
+.bar-column.today .bar-fill {
+    background: #5856D6;
+}
+
+.bar-column.today .bar-label {
+    color: #5856D6;
     font-weight: 700;
-    color: var(--primary-color);
 }
 
-.stats-empty,
-.stats-error {
-    text-align: center;
-    padding: 60px 20px;
+.bar-label {
+    font-size: 10px;
+    color: #8E8E93;
+    font-weight: 600;
 }
 
-.stats-empty-icon,
-.stats-error-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 20px;
+/* ==================== RECENT LIST (iOS Grouped Style) ==================== */
+.list-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 32px 4px 12px;
+    color: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ios-list-group {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.ios-list-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    position: relative;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.ios-list-item:active {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Hairline divider */
+.ios-list-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 60px;
+    /* Indented separator */
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Icon Box */
+.item-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #007AFF;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+}
+
+/* Colors based on index/random */
+.color-0 {
+    background-color: #007AFF;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+}
+
+.color-1 {
+    background-color: #5856D6;
+    box-shadow: 0 2px 8px rgba(88, 86, 214, 0.25);
+}
+
+.color-2 {
+    background-color: #FF2D55;
+    box-shadow: 0 2px 8px rgba(255, 45, 85, 0.25);
+}
+
+.color-3 {
+    background-color: #FF9500;
+    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.25);
+}
+
+.color-4 {
+    background-color: #34C759;
+    box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25);
+}
+
+.item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.item-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-subtitle {
+    font-size: 12px;
+    color: #8E8E93;
+}
+
+.item-trailing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.score-high {
+    color: #34C759;
+    background: rgba(52, 199, 89, 0.1);
+}
+
+.score-med {
+    color: #FF9500;
+    background: rgba(255, 149, 0, 0.1);
+}
+
+.score-low {
+    color: #FF3B30;
+    background: rgba(255, 59, 48, 0.1);
+}
+
+/* Chevron */
+.item-chevron {
+    width: 6px;
+    height: 10px;
+    border-right: 2px solid #C7C7CC;
+    border-bottom: 2px solid #C7C7CC;
+    transform: rotate(-45deg);
     opacity: 0.6;
 }
 
-.stats-empty-icon svg,
-.stats-error-icon svg {
-    width: 100%;
-    height: 100%;
-    stroke: var(--text-secondary);
-    fill: none;
-    stroke-width: 1.5;
+/* ==================== DARK MODE ==================== */
+body.dark-mode .bento-card {
+    background: rgba(28, 28, 30, 0.85);
+    /* Apple Dark Gray */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
-.stats-empty h3,
-.stats-error h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
+body.dark-mode .metric-value,
+body.dark-mode .item-title,
+body.dark-mode .ring-percent,
+body.dark-mode .list-section-title {
+    color: #FFFFFF;
 }
 
-.stats-empty p,
-.stats-error p {
-    color: var(--text-secondary);
-    line-height: 1.5;
+body.dark-mode .ring-bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .bar-bg {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .ios-list-group {
+    background: rgba(28, 28, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .ios-list-item:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .ios-list-item:not(:last-child)::after {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ==================== GIRL MODE ==================== */
+body.girl-mode .streak-widget {
+    background: linear-gradient(135deg, #FF2D55 0%, #FF3B30 100%);
+    box-shadow: 0 4px 20px rgba(255, 45, 85, 0.4);
+}
+
+body.girl-mode .bar-fill {
+    background: #FF2D55;
+}
+
+body.girl-mode .bar-column.today .bar-fill {
+    background: #BF5AF2;
+}
+
+body.girl-mode .accuracy-widget .ring-progress {
+    stroke: #FF2D55;
+    /* Pink default */
 }
