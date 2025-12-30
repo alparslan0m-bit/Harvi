@@ -44,6 +44,19 @@
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@media (min-width: 768px) {
+    .hero-continue-card {
+        max-width: 800px;
+        margin: 0 auto;
+        min-height: 180px;
+        padding: 32px;
+    }
+
+    .hero-title {
+        font-size: 28px;
+    }
+}
+
 .hero-continue-card:active {
     transform: scale(0.97);
 }
@@ -116,6 +129,21 @@
     gap: 16px;
 }
 
+/* Tablet & Desktop Optimizations */
+@media (min-width: 600px) {
+    .bento-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+    }
+}
+
 .bento-year-card {
     aspect-ratio: 1 / 1.1;
     border-radius: 24px;
@@ -180,11 +208,26 @@ body.girl-mode .bento-year-card.variant-azure .year-icon-box {
 
 
 
-/* ==================== LECTURE CARDS (MASTERPIECE) ==================== */
+/* ==================== LECTURE & SUBJECT GRIDS (MASTERPIECE) ==================== */
 .lecture-grid {
     display: grid;
     gap: 16px;
-    padding: 16px;
+    grid-template-columns: 1fr;
+    /* Default mobile list */
+}
+
+@media (min-width: 768px) {
+    .lecture-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .lecture-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
 }
 
 .lecture-card-masterpiece {

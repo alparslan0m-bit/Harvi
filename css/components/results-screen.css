@@ -16,7 +16,7 @@
 }
 
 .results-screen.active {
-    display: flex;
+    display: flex !important;
 }
 
 /* ==================== CONTENT CONTAINER ==================== */
@@ -34,6 +34,13 @@
         0 20px 40px rgba(0, 0, 0, 0.08),
         inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     animation: victoryEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+    .results-container {
+        max-width: 640px;
+        padding: 56px 48px;
+    }
 }
 
 @keyframes victoryEntrance {
@@ -130,6 +137,19 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .results-actions {
+        flex-direction: row;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .action-btn-pwa {
+        flex: 1;
+        max-width: 240px;
+    }
 }
 
 .action-btn-pwa {

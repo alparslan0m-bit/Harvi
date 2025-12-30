@@ -90,7 +90,7 @@ class Stats {
                         <span>Completed</span>
                     </div>
                     <div class="metric-value">${stats.totalQuizzes}</div>
-                    <div class="metric-context text-blue">Quizzes</div>
+                    <div class="metric-context" style="color: #3B82F6;">Quizzes</div>
                 </div>
 
                 <!-- 5. Best Score -->
@@ -99,7 +99,7 @@ class Stats {
                         <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                         <span>Best Run</span>
                     </div>
-                    <div class="metric-value text-green">${stats.bestScore}%</div>
+                    <div class="metric-value" style="color: #34C759;">${stats.bestScore}%</div>
                     <div class="metric-context">High Score</div>
                 </div>
             </div>
@@ -126,12 +126,7 @@ class Stats {
                 else ring.style.stroke = '#FF3B30'; // Red
             }
 
-            // Animate Bars
-            const bars = this.container.querySelectorAll('.bar-fill');
-            bars.forEach((bar, index) => {
-                // Initial height is already set in style attribute, but we can trigger it
-                // The CSS transition will handle the animation from 0% if the element is freshly created
-            });
+
         });
     }
 

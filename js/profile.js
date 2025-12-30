@@ -150,14 +150,15 @@ class Profile {
             modal.className = 'glass-modal';
             modal.innerHTML = `
                 <div class="glass-modal-header">
+                    <div class="glass-modal-icon">⚠️</div>
                     <div>
-                        <h2 class="glass-modal-title">Reset Content?</h2>
-                        <p class="glass-modal-description">This will clear your local quiz history.</p>
+                        <h2 class="glass-modal-title">Reset Platform?</h2>
+                        <p class="glass-modal-description">This will permanently clear your local mastery progress and history. This action cannot be undone.</p>
                     </div>
                 </div>
                 <div class="glass-modal-actions">
-                    <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel">Cancel</button>
-                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">Reset</button>
+                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">Reset Everything</button>
+                    <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel">Keep My Progress</button>
                 </div>
             `;
             document.body.appendChild(backdrop);

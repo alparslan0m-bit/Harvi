@@ -6,7 +6,7 @@
  */
 class SafeFetch {
     static _lastErrorShown = 0; // ← Track last error notification time
-    
+
     static async fetch(url, options = {}) {
         const timeout = options.timeout || 10000; // 10s default timeout
         const retries = options.retries || 1;
@@ -27,12 +27,12 @@ class SafeFetch {
             } catch (error) {
                 lastError = error;
                 console.warn(`Fetch attempt ${attempt + 1} failed:`, error);
-                
+
                 // Show retry UI if this was the last attempt
                 if (attempt === retries - 1) {
                     SafeFetch.showRetryUI(url, error);
                 }
-                
+
                 // Wait before retry
                 if (attempt < retries - 1) {
                     await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
@@ -62,7 +62,7 @@ class SafeFetch {
             return; // Skip if error shown within 3 seconds
         }
         this._lastErrorShown = now;
-        
+
         // Use Dynamic Island for retry notification
         if (window.dynamicIsland) {
             window.dynamicIsland.show({
@@ -104,11 +104,11 @@ class MCQApp {
         // Expose premium features to window for cross-script access
         window.SkeletonLoader = SkeletonLoader;
         window.audioToolkit = new AudioToolkit();
-        
+
         // Initialize IndexedDB
         try {
             await harviDB.init();
-            
+
             // Use Dynamic Island for initialization feedback
             if (window.dynamicIsland) {
                 window.dynamicIsland.show({
@@ -120,7 +120,7 @@ class MCQApp {
             }
         } catch (error) {
             console.error('⚠️  Database initialization failed:', error);
-            
+
             // Show warning to user but don't block app
             if (window.dynamicIsland) {
                 window.dynamicIsland.show({
@@ -132,7 +132,7 @@ class MCQApp {
             } else {
                 console.warn('Running in degraded mode - no offline storage available');
             }
-            
+
             // App continues to work, but without offline features
             // Set a flag to disable offline-dependent features
             this.offlineDisabled = true;
@@ -143,11 +143,10 @@ class MCQApp {
         this.results = new Results(this);
         this.stats = new Stats(this);
         this.profile = new Profile(this);
-        
+
         this.initTheme();
         this.setupBrandButton();
         this.setupBottomNavigation();
-        // this.setupPullToRefresh(); // DISABLED: Pull-to-refresh feature removed
         await this.checkResumableQuiz();
         this.setupOnlineStatusHandling();
         this.setupServiceWorkerUpdateListener();
@@ -194,7 +193,7 @@ class MCQApp {
                     this.resumableQuiz = progress;
                     this.lastLectureId = lastLectureId;
                     console.log('✓ Resumable quiz found:', lastLectureId);
-                    
+
                     // Show floating resume prompt
                     this.showResumePrompt(lastLectureId, progress);
                 }
@@ -203,7 +202,7 @@ class MCQApp {
             console.warn('Could not check resumable quiz:', error);
         }
     }
-    
+
     /**
      * Show floating pill prompting user to resume their quiz
      */
@@ -211,7 +210,7 @@ class MCQApp {
         // Use Dynamic Island notification system instead of custom prompt
         if (window.dynamicIsland) {
             const progressText = `${progress.metadata?.name || 'Quiz'} (${progress.currentIndex}/${progress.questions.length})`;
-            
+
             window.dynamicIsland.show({
                 title: '▶️ Resume Quiz',
                 subtitle: progressText,
@@ -219,7 +218,7 @@ class MCQApp {
                 duration: 0, // Don't auto-dismiss
                 onTap: () => {
                     window.dynamicIsland.hide();
-                    
+
                     // ADD THIS FLAG to indicate this is a resume operation
                     const resumeMetadata = {
                         ...progress.metadata,
@@ -227,7 +226,7 @@ class MCQApp {
                         currentIndex: progress.currentIndex,
                         score: progress.score
                     };
-                    
+
                     this.startQuiz(progress.questions, resumeMetadata);
                 },
                 onClose: () => {
@@ -245,7 +244,7 @@ class MCQApp {
         setTimeout(() => {
             const container = document.getElementById('cards-container');
             if (!container) return;
-            
+
             const prompt = document.createElement('div');
             prompt.className = 'resume-prompt';
             prompt.innerHTML = `
@@ -258,7 +257,7 @@ class MCQApp {
                     <button class="resume-close" aria-label="Dismiss">✕</button>
                 </div>
             `;
-            
+
             // Resume button click handler
             prompt.addEventListener('click', (e) => {
                 if (e.target.classList.contains('resume-close')) {
@@ -274,14 +273,14 @@ class MCQApp {
                     this.startQuiz(progress.questions, resumeMetadata);
                 }
             });
-            
+
             // Close button specifically
             prompt.querySelector('.resume-close').addEventListener('click', (e) => {
                 e.stopPropagation();
                 prompt.classList.add('fade-out');
                 setTimeout(() => prompt.remove(), 300);
             });
-            
+
             container.parentElement.insertBefore(prompt, container);
         }, 100);
     }
@@ -292,7 +291,7 @@ class MCQApp {
     setupOnlineStatusHandling() {
         window.addEventListener('online', () => {
             document.body.classList.remove('offline-mode');
-            
+
             // Notify via Dynamic Island
             if (window.dynamicIsland) {
                 window.dynamicIsland.show({
@@ -301,13 +300,13 @@ class MCQApp {
                     duration: 2000
                 });
             }
-            
+
             this.syncPendingData();
         });
 
         window.addEventListener('offline', () => {
             document.body.classList.add('offline-mode');
-            
+
             // Notify via Dynamic Island
             if (window.dynamicIsland) {
                 window.dynamicIsland.show({
@@ -347,7 +346,7 @@ class MCQApp {
                             timeout: 15000,
                             retries: 3
                         });
-                        
+
                         // Only mark as synced if server accepted the data
                         if (response.ok) {
                             await harviDB.markSynced(item.id);
@@ -372,7 +371,7 @@ class MCQApp {
         if (savedMode !== null) {
             this.isGirlMode = savedMode === 'true';
         }
-        
+
         this.applyTheme();
     }
 
@@ -415,7 +414,7 @@ class MCQApp {
                 if (screenId) {
                     // Show the requested screen (active state handled by showScreen)
                     this.showScreen(screenId);
-                    
+
                     // Haptic feedback
                     if (navigator.vibrate) {
                         navigator.vibrate(8);
@@ -449,7 +448,7 @@ class MCQApp {
         } else {
             document.body.classList.remove('girl-mode');
         }
-        
+
         // Sync browser UI theme color with app mode
         if (window.AdaptiveThemeColor) {
             AdaptiveThemeColor.updateTheme();
@@ -479,31 +478,31 @@ class MCQApp {
             });
             const screen = document.getElementById(screenId);
             screen.classList.add('active');
-            
+
             // Setup scroll listener for Large Title transition
             if (this.navigation) {
                 this.navigation.setupScrollListener();
             }
-            
+
             // Initialize screen-specific content
             if (screenId === 'stats-screen' && this.stats) {
                 this.stats.init();
             } else if (screenId === 'profile-screen' && this.profile) {
                 this.profile.init();
             }
-            
+
             // Update bottom navigation active state
             this.updateBottomNavActiveState(screenId);
-            
+
             // Hide bottom nav during quiz for better focus
             this.toggleBottomNavVisibility(screenId);
-            
+
             // Subtle haptic tick on screen transition (PHASE 3: iOS-style short pulse)
             if (navigator.vibrate) {
                 navigator.vibrate(5);
             }
         };
-        
+
         // Use View Transitions API if available (modern browsers)
         if (document.startViewTransition) {
             document.startViewTransition(transition);
@@ -557,11 +556,11 @@ class MCQApp {
         // PHASE 2 FIX: Store master copy of unshuffled questions
         // This prevents shuffling from one session from affecting retakes
         this.masterCopyQuestions = structuredClone(questions);
-        
+
         // Create a deep clone for the quiz session
         // The quiz will shuffle this clone; the master copy stays pristine for retakes
         const quizSessionQuestions = structuredClone(questions);
-        
+
         this.currentQuiz = {
             questions: quizSessionQuestions,
             pathInfo: pathInfo,
@@ -570,7 +569,7 @@ class MCQApp {
             score: 0,
             startTime: Date.now()
         };
-        
+
         // Save lecture ID for resumable quiz
         if (pathInfo && pathInfo.lectureId) {
             this.lastLectureId = pathInfo.lectureId;
@@ -583,16 +582,16 @@ class MCQApp {
 
     async showResults(score, total, metadata) {
         this.results.show(score, total, metadata);
-        
+
         // Save quiz result and clear resumable state
         if (this.currentQuiz && this.lastLectureId) {
             try {
                 const timeSpent = Date.now() - (this.currentQuiz.startTime || Date.now());
                 const result = { score, total, timeSpent };
-                
+
                 await harviDB.saveQuizResult(this.lastLectureId, result, this.lastLectureName);
                 await harviDB.setSetting('lastActiveLectureId', null);
-                
+
                 // Queue for sync if offline
                 if (!navigator.onLine) {
                     await harviDB.queueSync('saveQuizResult', {
@@ -612,12 +611,12 @@ class MCQApp {
         if (this.quiz && typeof this.quiz.cleanup === 'function') {
             this.quiz.cleanup();  // ← This line already exists, good!
         }
-        
+
         // Also cleanup navigation resources
         if (this.navigation && typeof this.navigation.cleanup === 'function') {
             this.navigation.cleanup();  // ← ADD THIS
         }
-        
+
         this.currentPath = [];
         this.currentQuiz = null;
         this.resumableQuiz = null;
@@ -642,15 +641,15 @@ class MCQApp {
 function initializeMobileOptimizations() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
+
     if (isMobile) {
         document.body.classList.add('mobile-device');
     }
-    
+
     if (isIOS) {
         document.body.classList.add('ios-device');
     }
-    
+
     if (isMobile) {
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
@@ -661,7 +660,7 @@ function initializeMobileOptimizations() {
             lastTouchEnd = now;
         }, false);
     }
-    
+
     const interactiveElements = document.querySelectorAll('.option, .btn-primary, .continue-btn, .back-btn');
     interactiveElements.forEach(element => {
         element.classList.add('touch-feedback', 'mobile-touch-fix');
