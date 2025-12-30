@@ -102,19 +102,165 @@ class Profile {
     }
 
     /**
-     * Confirm and clear all user data
+     * Show danger modal and clear all user data on confirmation
      */
     async confirmClearData() {
-        if (confirm('Are you sure you want to clear all quiz data and settings? This action cannot be undone.')) {
+        // Create and show the danger modal - returns 'controller' object to handle closing manually
+        const modalController = await this.showDangerModal();
+
+        if (modalController.confirmed) {
             try {
+                // 1. Trigger haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([30, 50, 30]);
+                }
+
+                // 2. Show loading state on the button (Modal is still open)
+                if (modalController.deleteBtn) {
+                    modalController.deleteBtn.classList.add('loading');
+                    modalController.deleteBtn.disabled = true;
+                }
+
+                // 3. Perform the actual data clearing
+                // Added a small artificial delay (500ms) so the user actually sees the processing state
+                await new Promise(r => setTimeout(r, 800));
                 await harviDB.clearAll();
-                alert('All data has been cleared.');
-                // Reset app to initial state
+
+                // 4. Close the modal properly now that we are done
+                modalController.close();
+
+                // 5. Show success notification via Dynamic Island
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: '✓ All Data Cleared',
+                        subtitle: 'Your quiz history and settings have been removed.',
+                        icon: '🗑️',
+                        type: 'success',
+                        duration: 4000
+                    });
+                }
+
+                // 6. Reset app to initial state
                 this.app.resetApp();
             } catch (error) {
                 console.error('Failed to clear data:', error);
-                alert('Failed to clear data. Please try again.');
+
+                // Show error
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: '✕ Failed to Clear Data',
+                        subtitle: 'Please try again.',
+                        icon: '⚠️',
+                        type: 'error',
+                        duration: 4000
+                    });
+                }
+
+                // Reset button state if we failed
+                if (modalController.deleteBtn) {
+                    modalController.deleteBtn.classList.remove('loading');
+                    modalController.deleteBtn.disabled = false;
+                }
             }
         }
+    }
+
+    /**
+     * Display danger modal with glassmorphic design
+     * Returns Promise that resolves to an object: { confirmed: boolean, close: function, deleteBtn: element }
+     */
+    showDangerModal() {
+        return new Promise((resolve) => {
+            // Create backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop';
+
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'glass-modal';
+            modal.innerHTML = `
+                <div class="glass-modal-header">
+                    <div class="glass-modal-icon">
+                        <svg viewBox="0 0 24 24" fill="none" class="modal-trash-icon" style="stroke: #FF3B30; stroke-width: 2;">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="10" y1="11" x2="10" y2="17" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="14" y1="11" x2="14" y2="17" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="glass-modal-title">Delete All Data?</h2>
+                        <p class="glass-modal-description">This will permanently remove your quiz history, saved lectures, and settings. You cannot undo this action.</p>
+                    </div>
+                </div>
+                <div class="glass-modal-actions">
+                    <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel">Cancel</button>
+                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">
+                        <span class="btn-text">Delete Forever</span>
+                    </button>
+                </div>
+            `;
+
+            // Append to DOM
+            document.body.appendChild(backdrop);
+            document.body.appendChild(modal);
+
+            // Trigger haptic feedback: heavy "thud" on modal open
+            if (navigator.vibrate) {
+                navigator.vibrate([50]);
+            }
+
+            // Elements
+            const cancelBtn = modal.querySelector('#modal-cancel');
+            const deleteBtn = modal.querySelector('#modal-delete');
+
+            // Cleanup function (Internal UI removal)
+            const cleanup = () => {
+                backdrop.removeEventListener('click', handleBackdropClick);
+
+                // Fade out animation
+                backdrop.style.animation = 'backdropFadeIn 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse forwards';
+                modal.style.animation = 'modalSpringPopIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) reverse forwards';
+
+                setTimeout(() => {
+                    backdrop.remove();
+                    modal.remove();
+                }, 300);
+            };
+
+            const handleCancel = () => {
+                cleanup();
+                resolve({ confirmed: false });
+            };
+
+            const handleDelete = () => {
+                // DO NOT cleanup here. We return the control to the caller.
+                resolve({
+                    confirmed: true,
+                    close: cleanup,
+                    deleteBtn: deleteBtn
+                });
+            };
+
+            // Shake effect if user tries to click backdrop
+            const handleBackdropClick = (e) => {
+                if (e.target === backdrop) {
+                    modal.classList.add('shake');
+                    setTimeout(() => modal.classList.remove('shake'), 400);
+                }
+            };
+
+            // Attach event listeners
+            backdrop.addEventListener('click', handleBackdropClick);
+            cancelBtn.addEventListener('click', handleCancel);
+            deleteBtn.addEventListener('click', handleDelete);
+
+            // Keyboard navigation
+            modal.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') handleCancel();
+            });
+
+            // Focus cancel button initially for safety
+            setTimeout(() => cancelBtn.focus(), 100);
+        });
     }
 }
