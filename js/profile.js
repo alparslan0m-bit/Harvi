@@ -1,6 +1,5 @@
 /**
- * Profile Screen Manager
- * Manages user settings and preferences
+ * Profile Screen Manager - Vision Gallery Edition
  */
 class Profile {
     constructor(app) {
@@ -8,259 +7,171 @@ class Profile {
         this.container = document.getElementById('profile-content');
     }
 
-    /**
-     * Initialize and display profile content
-     */
     async init() {
         if (!this.container) return;
-
         this.renderProfile();
         this.setupEventListeners();
     }
 
-    /**
-     * Render profile content
-     */
     renderProfile() {
         this.container.innerHTML = `
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
-                    </svg>
-                </div>
-                <h3>Profile Settings</h3>
-            </div>
-
-            <div class="profile-settings">
-                <div class="setting-group">
-                    <h4>Appearance</h4>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <span>Girl Mode</span>
-                            <input type="checkbox" id="profile-theme-mode" class="setting-toggle">
-                        </label>
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <h4>Data Management</h4>
-                    <button class="btn-secondary" id="clear-data-btn">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                        </svg>
-                        Clear All Data
-                    </button>
-                </div>
-
-                <div class="setting-group">
-                    <h4>About</h4>
-                    <div class="about-info">
-                        <p><strong>Harvi</strong> - Medical MCQ Learning Platform</p>
-                        <p>Version 2.1.0</p>
-                        <p>Built with ❤️ for medical students</p>
-                    </div>
+            <!-- Mini Branding -->
+            <div class="brand-header-mini">
+                <div class="brand-icon-mini">H</div>
+                <div class="brand-meta-mini">
+                    <h2>Harvi Platform <span class="pro-badge">Official</span></h2>
+                    <p>Medicine. Mastery. Memory.</p>
                 </div>
             </div>
+
+            <!-- Visual Cards Gallery -->
+            <div class="action-gallery">
+                <div class="gallery-card card-share" id="share-card">
+                    <div class="gallery-card-icon">🚀</div>
+                    <h3 class="gallery-card-title">Share Harvi</h3>
+                </div>
+                <div class="gallery-card card-sponsor" id="sponsor-card">
+                    <div class="gallery-card-icon">💎</div>
+                    <h3 class="gallery-card-title">Sponsorship</h3>
+                </div>
+            </div>
+
+            <!-- Identification Vision Square -->
+            <div class="vision-square">
+                <p class="vision-phrase">
+                    Harvi is a <span>Smart Medical Assistant</span>, meticulously crafted to transform complex medical knowledge into mastered skills through <span>Offline Excellence</span>.
+                </p>
+            </div>
+
+            <!-- Settings -->
+            <div class="ios-list-group">
+                <div class="theme-selector-group">
+                    <div class="row-label">Aesthetic Tone</div>
+                    <div class="segmented-control" id="theme-selector">
+                        <div class="segment-pill"></div>
+                        <div class="segment" data-theme="azure">Azure</div>
+                        <div class="segment" data-theme="blush">Blush</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <button class="reset-button" id="clear-data-btn">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Clear Platform Progress
+            </button>
+
+            <p style="text-align: center; color: #8E8E93; font-size: 13px; margin-top: 40px; font-weight: 500;">
+                Version 2.1.0 • Built with ❤️
+            </p>
         `;
 
-        // Set initial toggle states
         this.updateToggleStates();
     }
 
-    /**
-     * Update toggle states based on current settings
-     */
     updateToggleStates() {
-        const themeModeToggle = document.getElementById('profile-theme-mode');
+        const isPink = document.body.classList.contains('girl-mode');
+        const segments = this.container.querySelectorAll('.segment');
 
-        if (themeModeToggle) {
-            themeModeToggle.checked = document.body.classList.contains('girl-mode');
-        }
+        segments.forEach(seg => {
+            const isRosa = seg.dataset.theme === 'blush';
+            seg.classList.toggle('active', isRosa === isPink);
+        });
     }
 
-    /**
-     * Setup event listeners for profile interactions
-     */
     setupEventListeners() {
-        const themeModeToggle = document.getElementById('profile-theme-mode');
+        const themeSelector = document.getElementById('theme-selector');
         const clearDataBtn = document.getElementById('clear-data-btn');
+        const shareCard = document.getElementById('share-card');
 
-        if (themeModeToggle) {
-            themeModeToggle.addEventListener('change', () => {
-                this.app.toggleGirlMode();
-                // Delay update to account for theme transition (300ms)
-                setTimeout(() => this.updateToggleStates(), 350);
+        if (themeSelector) {
+            themeSelector.addEventListener('click', (e) => {
+                const segment = e.target.closest('.segment');
+                if (!segment) return;
+
+                const isPink = document.body.classList.contains('girl-mode');
+                const targetPink = segment.dataset.theme === 'blush';
+
+                if (isPink !== targetPink) {
+                    this.app.toggleGirlMode();
+                    setTimeout(() => this.updateToggleStates(), 350);
+                }
             });
         }
 
         if (clearDataBtn) {
-            clearDataBtn.addEventListener('click', () => {
-                this.confirmClearData();
+            clearDataBtn.addEventListener('click', () => this.confirmClearData());
+        }
+
+        if (shareCard && navigator.share) {
+            shareCard.addEventListener('click', () => {
+                navigator.share({
+                    title: 'Harvi - Medical MCQs',
+                    text: 'Master medical exams with Harvi!',
+                    url: window.location.href
+                }).catch(() => { });
             });
         }
     }
 
-    /**
-     * Show danger modal and clear all user data on confirmation
-     */
     async confirmClearData() {
-        // Create and show the danger modal - returns 'controller' object to handle closing manually
         const modalController = await this.showDangerModal();
-
         if (modalController.confirmed) {
             try {
-                // 1. Trigger haptic feedback
-                if (navigator.vibrate) {
-                    navigator.vibrate([30, 50, 30]);
-                }
-
-                // 2. Show loading state on the button (Modal is still open)
+                if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
                 if (modalController.deleteBtn) {
                     modalController.deleteBtn.classList.add('loading');
                     modalController.deleteBtn.disabled = true;
                 }
-
-                // 3. Perform the actual data clearing
-                // Added a small artificial delay (500ms) so the user actually sees the processing state
                 await new Promise(r => setTimeout(r, 800));
                 await harviDB.clearAll();
-
-                // 4. Close the modal properly now that we are done
                 modalController.close();
-
-                // 5. Show success notification via Dynamic Island
                 if (window.dynamicIsland) {
                     window.dynamicIsland.show({
-                        title: '✓ All Data Cleared',
-                        subtitle: 'Your quiz history and settings have been removed.',
-                        icon: '🗑️',
-                        type: 'success',
-                        duration: 4000
+                        title: '✓ Platform Reset',
+                        subtitle: 'Local progress cleared.',
+                        type: 'success'
                     });
                 }
-
-                // 6. Reset app to initial state
                 this.app.resetApp();
             } catch (error) {
                 console.error('Failed to clear data:', error);
-
-                // Show error
-                if (window.dynamicIsland) {
-                    window.dynamicIsland.show({
-                        title: '✕ Failed to Clear Data',
-                        subtitle: 'Please try again.',
-                        icon: '⚠️',
-                        type: 'error',
-                        duration: 4000
-                    });
-                }
-
-                // Reset button state if we failed
-                if (modalController.deleteBtn) {
-                    modalController.deleteBtn.classList.remove('loading');
-                    modalController.deleteBtn.disabled = false;
-                }
             }
         }
     }
 
-    /**
-     * Display danger modal with glassmorphic design
-     * Returns Promise that resolves to an object: { confirmed: boolean, close: function, deleteBtn: element }
-     */
     showDangerModal() {
         return new Promise((resolve) => {
-            // Create backdrop
             const backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop';
-
-            // Create modal
             const modal = document.createElement('div');
             modal.className = 'glass-modal';
             modal.innerHTML = `
                 <div class="glass-modal-header">
-                    <div class="glass-modal-icon">
-                        <svg viewBox="0 0 24 24" fill="none" class="modal-trash-icon" style="stroke: #FF3B30; stroke-width: 2;">
-                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="10" y1="11" x2="10" y2="17" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="14" y1="11" x2="14" y2="17" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
                     <div>
-                        <h2 class="glass-modal-title">Delete All Data?</h2>
-                        <p class="glass-modal-description">This will permanently remove your quiz history, saved lectures, and settings. You cannot undo this action.</p>
+                        <h2 class="glass-modal-title">Reset Content?</h2>
+                        <p class="glass-modal-description">This will clear your local quiz history.</p>
                     </div>
                 </div>
                 <div class="glass-modal-actions">
                     <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel">Cancel</button>
-                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">
-                        <span class="btn-text">Delete Forever</span>
-                    </button>
+                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">Reset</button>
                 </div>
             `;
-
-            // Append to DOM
             document.body.appendChild(backdrop);
             document.body.appendChild(modal);
-
-            // Trigger haptic feedback: heavy "thud" on modal open
-            if (navigator.vibrate) {
-                navigator.vibrate([50]);
-            }
-
-            // Elements
             const cancelBtn = modal.querySelector('#modal-cancel');
             const deleteBtn = modal.querySelector('#modal-delete');
-
-            // Cleanup function (Internal UI removal)
             const cleanup = () => {
-                backdrop.removeEventListener('click', handleBackdropClick);
-
-                // Fade out animation
-                backdrop.style.animation = 'backdropFadeIn 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse forwards';
-                modal.style.animation = 'modalSpringPopIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) reverse forwards';
-
-                setTimeout(() => {
-                    backdrop.remove();
-                    modal.remove();
-                }, 300);
+                backdrop.style.animation = 'backdropFadeIn 300ms reverse forwards';
+                modal.style.animation = 'modalSpringPopIn 300ms reverse forwards';
+                setTimeout(() => { backdrop.remove(); modal.remove(); }, 300);
             };
-
-            const handleCancel = () => {
-                cleanup();
-                resolve({ confirmed: false });
-            };
-
-            const handleDelete = () => {
-                // DO NOT cleanup here. We return the control to the caller.
-                resolve({
-                    confirmed: true,
-                    close: cleanup,
-                    deleteBtn: deleteBtn
-                });
-            };
-
-            // Shake effect if user tries to click backdrop
-            const handleBackdropClick = (e) => {
-                if (e.target === backdrop) {
-                    modal.classList.add('shake');
-                    setTimeout(() => modal.classList.remove('shake'), 400);
-                }
-            };
-
-            // Attach event listeners
-            backdrop.addEventListener('click', handleBackdropClick);
-            cancelBtn.addEventListener('click', handleCancel);
-            deleteBtn.addEventListener('click', handleDelete);
-
-            // Keyboard navigation
-            modal.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') handleCancel();
-            });
-
-            // Focus cancel button initially for safety
-            setTimeout(() => cancelBtn.focus(), 100);
+            cancelBtn.onclick = () => { cleanup(); resolve({ confirmed: false }); };
+            deleteBtn.onclick = () => { resolve({ confirmed: true, close: cleanup, deleteBtn }); };
+            backdrop.onclick = (e) => { if (e.target === backdrop) { modal.classList.add('shake'); setTimeout(() => modal.classList.remove('shake'), 400); } };
         });
     }
 }

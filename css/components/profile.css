@@ -1,183 +1,373 @@
 /**
- * Profile Screen Styles
+ * Profile/Settings Screen - "Vision Gallery" Edition
+ * High-impact visual cards and a dedicated identification square.
  */
 
 #profile-content {
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
+    padding: 24px 16px;
+    max-width: 540px;
+    margin: 0 auto 100px;
 }
 
-.profile-header {
-    text-align: center;
+/* ==================== CRAFTED BRANDING HEADER ==================== */
+.brand-header-mini {
+    display: flex;
+    align-items: center;
+    gap: 20px;
     margin-bottom: 32px;
+    padding: 0 8px;
+    animation: brandingReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.profile-avatar {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 16px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    border-radius: 50%;
+@keyframes brandingReveal {
+    from {
+        opacity: 0;
+        transform: translateX(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.brand-icon-mini {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0EA5E9 0%, #007AFF 100%);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    font-size: 32px;
+    font-weight: 900;
+    color: white;
+    box-shadow:
+        0 10px 20px rgba(14, 165, 233, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
 }
 
-body.girl-mode .profile-avatar {
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+/* Glass Shine for the Icon */
+.brand-icon-mini::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+    animation: iconSweep 5s infinite linear;
 }
 
-.profile-avatar svg {
-    width: 40px;
-    height: 40px;
-    stroke: var(--primary-color);
-    fill: none;
-    stroke-width: 1.5;
+@keyframes iconSweep {
+    from {
+        transform: translateX(-30%) translateY(-30%);
+    }
+
+    to {
+        transform: translateX(30%) translateY(30%);
+    }
 }
 
-.profile-header h3 {
+.brand-meta-mini {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-meta-mini h2 {
     font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+    color: #1c1c1e;
+    letter-spacing: -0.8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Premium Badge */
+.pro-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: rgba(14, 165, 233, 0.1);
+    color: #0EA5E9;
+    border-radius: 6px;
     font-weight: 700;
-    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(14, 165, 233, 0.2);
 }
 
-.setting-group {
+.brand-meta-mini p {
+    font-size: 14px;
+    color: #8E8E93;
+    margin: 4px 0 0;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    line-height: 1.4;
+}
+
+/* ==================== ACTION GALLERY (GRID) ==================== */
+.action-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.gallery-card {
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+}
+
+.gallery-card:active {
+    transform: scale(0.96);
+}
+
+.gallery-card-icon {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.gallery-card-title {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.card-share {
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+    box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);
+}
+
+.card-sponsor {
+    background: linear-gradient(135deg, #FF9500 0%, #FFCC00 100%);
+    box-shadow: 0 10px 20px rgba(255, 149, 0, 0.2);
+}
+
+/* ==================== IDENTIFICATION SQUARE (VISION) ==================== */
+.vision-square {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(30px);
+    border-radius: 24px;
+    padding: 32px 24px;
     margin-bottom: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.04),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
 }
 
-.setting-group h4 {
+.vision-phrase {
     font-size: 18px;
     font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-body.girl-mode .setting-group h4 {
-    border-bottom-color: rgba(236, 72, 153, 0.3);
-    color: var(--text-primary);
-}
-
-.setting-item {
-    margin-bottom: 16px;
-}
-
-.setting-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 200ms ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-body.girl-mode .setting-label {
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(251, 207, 232, 0.5); /* Rose-200 faint */
-}
-
-.setting-label:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-.setting-label span {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.setting-toggle {
-    width: 44px;
-    height: 24px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border: none;
+    line-height: 1.5;
+    color: #1c1c1e;
+    letter-spacing: -0.3px;
+    margin: 0;
     position: relative;
+    z-index: 1;
+}
+
+.vision-phrase span {
+    color: #0EA5E9;
+}
+
+/* ==================== ESSENTIAL LIST & SEGMENTED CONTROL ==================== */
+.ios-list-group {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.theme-selector-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+}
+
+.segmented-control {
+    background: #E9E9EA;
+    padding: 2px;
+    border-radius: 10px;
+    display: flex;
+    width: 140px;
+    position: relative;
+    user-select: none;
+}
+
+.segment {
+    flex: 1;
+    padding: 6px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #8E8E93;
+    text-align: center;
+    position: relative;
+    z-index: 2;
     cursor: pointer;
-    transition: all 200ms ease;
-    appearance: none;
+    transition: color 0.25s;
 }
 
-.setting-toggle:checked {
-    background: var(--primary-color);
+.segment.active {
+    color: #1c1c1e;
 }
 
-.setting-toggle::before {
-    content: '';
+.segment-pill {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 20px;
-    height: 20px;
+    width: calc(50% - 2px);
+    height: calc(100% - 4px);
     background: white;
-    border-radius: 50%;
-    transition: transform 200ms ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.2);
 }
 
-.setting-toggle:checked::before {
-    transform: translateX(20px);
+body:not(.girl-mode) .segment-pill {
+    transform: translateX(0);
 }
 
-#clear-data-btn {
+body.girl-mode .segment-pill {
+    transform: translateX(100%);
+}
+
+.row-label {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Reset/Clear Button - Premium "System Glass" Action */
+.reset-button {
     width: 100%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 16px;
-    background: rgba(255, 93, 93, 0.1);
-    color: #ff5d5d;
-    border: 1px solid rgba(255, 93, 93, 0.2);
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 200ms ease;
+    gap: 12px;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.03),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
 }
 
-#clear-data-btn:hover {
-    background: rgba(255, 93, 93, 0.2);
-    transform: translateY(-1px);
+.reset-button:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 59, 48, 0.4);
+    box-shadow:
+        0 8px 30px rgba(255, 59, 48, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
 }
 
-#clear-data-btn svg {
+.reset-button svg {
     width: 20px;
     height: 20px;
     stroke: currentColor;
-    fill: none;
+    stroke-width: 2.2;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.about-info {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+/* ==================== DARK MODE ==================== */
+body.dark-mode .brand-meta-mini h2 {
+    color: white;
 }
 
-body.girl-mode .about-info {
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(251, 207, 232, 0.5);
+body.dark-mode .brand-meta-mini p {
+    color: #98989d;
 }
 
-.about-info p {
-    margin: 8px 0;
-    color: var(--text-secondary);
-    line-height: 1.5;
+body.dark-mode .pro-badge {
+    background: rgba(14, 165, 233, 0.15);
 }
 
-.about-info strong {
-    color: var(--text-primary);
+body.dark-mode .vision-square,
+body.dark-mode .ios-list-group {
+    background: rgba(28, 28, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .vision-phrase,
+body.dark-mode .row-label {
+    color: white;
+}
+
+body.dark-mode .segmented-control {
+    background: #39393D;
+}
+
+body.dark-mode .segment-pill {
+    background: #636366;
+}
+
+body.dark-mode .segment.active {
+    color: white;
+}
+
+body.dark-mode .reset-button {
+    background: rgba(28, 28, 30, 0.8);
+    border-color: rgba(255, 59, 48, 0.2);
+}
+
+/* Girl Mode Sync */
+body.girl-mode .brand-icon-mini {
+    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
+}
+
+body.girl-mode .pro-badge {
+    color: #FF2D55;
+    background: rgba(255, 45, 85, 0.1);
+    border-color: rgba(255, 45, 85, 0.2);
+}
+
+body.girl-mode .card-share {
+    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
+}
+
+body.girl-mode .vision-phrase span {
+    color: #FF2D55;
 }
