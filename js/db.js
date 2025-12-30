@@ -9,7 +9,7 @@ class HarviDatabase {
         this.db = null;
         this.initialized = false;
         this.initPromise = null;
-        
+
         // ADD THESE to track failures
         this.initAttempts = 0;           // ← Count attempts
         this.maxAttempts = 3;             // ← Maximum retries
@@ -25,7 +25,7 @@ class HarviDatabase {
         if (this.permanentlyFailed) {
             throw new Error(`IndexedDB permanently failed: ${this.lastError?.message || 'Unknown error'}. The app cannot store data offline.`);
         }
-        
+
         // Return existing promise if initialization in progress
         if (this.initPromise) {
             return this.initPromise;
@@ -35,13 +35,13 @@ class HarviDatabase {
             console.log('✓ Using existing IndexedDB connection');
             return this.db;
         }
-        
+
         // Check if we've exceeded retry limit
         if (this.initAttempts >= this.maxAttempts) {
             this.permanentlyFailed = true;
             throw new Error(`IndexedDB initialization failed after ${this.maxAttempts} attempts. Last error: ${this.lastError?.message}`);
         }
-        
+
         // Increment attempt counter
         this.initAttempts++;
         console.log(`🔄 IndexedDB initialization attempt ${this.initAttempts}/${this.maxAttempts}`);
@@ -55,23 +55,23 @@ class HarviDatabase {
                 reject(error);
                 return;
             }
-            
+
             const request = indexedDB.open(this.dbName, this.version);
             request.onerror = () => {
                 const error = request.error || new Error('Unknown IndexedDB error');
                 console.error(`❌ IndexedDB initialization failed (attempt ${this.initAttempts}):`, error);
-                
+
                 // Store error for debugging
                 this.lastError = error;
-                
+
                 // Check if this is a permanent error (user blocked, private mode, etc.)
-                if (error.name === 'SecurityError' || 
+                if (error.name === 'SecurityError' ||
                     error.name === 'InvalidStateError' ||
                     error.message?.includes('private browsing')) {
                     console.error('⚠️  Permanent error detected - IndexedDB unavailable');
                     this.permanentlyFailed = true;
                 }
-                
+
                 // DON'T reset initPromise immediately - let it reject naturally
                 // Reset will happen in the next init() call
                 reject(error);
@@ -82,14 +82,14 @@ class HarviDatabase {
                 this.initAttempts = 0; // Reset counter on success
                 console.log('✓ IndexedDB initialized successfully');
                 resolve(this.db);
-                
+
                 // Handle unexpected DB close
                 this.db.onclose = () => {
                     console.warn('⚠️  IndexedDB connection closed unexpectedly');
                     this.initialized = false;
                     this.db = null;
                 };
-                
+
                 // Handle version change from another tab
                 this.db.onversionchange = () => {
                     console.warn('⚠️  IndexedDB version changed in another tab');
@@ -105,17 +105,17 @@ class HarviDatabase {
                     db.createObjectStore('lectures', { keyPath: 'id' });
                 }
                 if (!db.objectStoreNames.contains('quizProgress')) {
-                    const progressStore = db.createObjectStore('quizProgress', { 
-                        keyPath: 'id', 
-                        autoIncrement: true 
+                    const progressStore = db.createObjectStore('quizProgress', {
+                        keyPath: 'id',
+                        autoIncrement: true
                     });
                     progressStore.createIndex('lectureId', 'lectureId', { unique: false });
                     progressStore.createIndex('timestamp', 'timestamp', { unique: false });
                 }
                 if (!db.objectStoreNames.contains('quizResults')) {
-                    const resultsStore = db.createObjectStore('quizResults', { 
-                        keyPath: 'id', 
-                        autoIncrement: true 
+                    const resultsStore = db.createObjectStore('quizResults', {
+                        keyPath: 'id',
+                        autoIncrement: true
                     });
                     resultsStore.createIndex('lectureId', 'lectureId', { unique: false });
                     resultsStore.createIndex('date', 'date', { unique: false });
@@ -124,9 +124,9 @@ class HarviDatabase {
                     db.createObjectStore('settings', { keyPath: 'key' });
                 }
                 if (!db.objectStoreNames.contains('syncQueue')) {
-                    db.createObjectStore('syncQueue', { 
-                        keyPath: 'id', 
-                        autoIncrement: true 
+                    db.createObjectStore('syncQueue', {
+                        keyPath: 'id',
+                        autoIncrement: true
                     });
                 }
                 console.log('✓ Object stores created/verified');
@@ -147,7 +147,7 @@ class HarviDatabase {
             await this.init();
             const tx = this.db.transaction(['lectures'], 'readwrite');
             const store = tx.objectStore('lectures');
-            
+
             const lecture = {
                 ...lectureData,
                 cachedAt: new Date().toISOString(),
@@ -276,7 +276,7 @@ class HarviDatabase {
                     const results = request.result;
                     if (results.length > 0) {
                         // Return the most recent progress
-                        const mostRecent = results.sort((a, b) => 
+                        const mostRecent = results.sort((a, b) =>
                             new Date(b.timestamp) - new Date(a.timestamp)
                         )[0];
                         console.log(`✓ Retrieved quiz progress for lecture ${lectureId}`);
@@ -290,6 +290,40 @@ class HarviDatabase {
         } catch (error) {
             console.error('Failed to get quiz progress:', error);
             return null;
+        }
+    }
+
+    /**
+     * Delete quiz progress for a lecture (used when quiz is completed)
+     */
+    async deleteQuizProgress(lectureId) {
+        try {
+            await this.init();
+            const tx = this.db.transaction(['quizProgress'], 'readwrite');
+            const store = tx.objectStore('quizProgress');
+            const index = store.index('lectureId');
+
+            return new Promise((resolve) => {
+                const request = index.openCursor(IDBKeyRange.only(lectureId));
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        cursor.delete();
+                        cursor.continue();
+                    } else {
+                        console.log(`✓ Quiz progress deleted for lecture ${lectureId}`);
+                        resolve();
+                    }
+                };
+                request.onerror = () => {
+                    console.warn('Error in delete cursor:', request.error);
+                    resolve();
+                };
+            });
+        } catch (error) {
+            console.error('Failed to delete quiz progress:', error);
+            // Return resolved promise so caller isn't blocked by DB failures
+            return Promise.resolve();
         }
     }
 
@@ -340,7 +374,7 @@ class HarviDatabase {
             return new Promise((resolve, reject) => {
                 const request = index.getAll(lectureId);
                 request.onsuccess = () => {
-                    const results = request.result.sort((a, b) => 
+                    const results = request.result.sort((a, b) =>
                         new Date(b.date) - new Date(a.date)
                     );
                     console.log(`✓ Retrieved ${results.length} results for lecture ${lectureId}`);
@@ -366,7 +400,7 @@ class HarviDatabase {
             return new Promise((resolve, reject) => {
                 const request = store.getAll();
                 request.onsuccess = () => {
-                    const results = request.result.sort((a, b) => 
+                    const results = request.result.sort((a, b) =>
                         new Date(b.date) - new Date(a.date)
                     );
                     resolve(results);
@@ -515,7 +549,7 @@ class HarviDatabase {
         try {
             await this.init();
             const storeNames = ['lectures', 'quizProgress', 'quizResults', 'settings', 'syncQueue'];
-            
+
             return Promise.all(storeNames.map(storeName => {
                 return new Promise((resolve, reject) => {
                     const tx = this.db.transaction([storeName], 'readwrite');

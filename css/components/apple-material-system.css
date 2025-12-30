@@ -9,60 +9,80 @@
    ============================================ */
 
 :root {
-    /* === Material Blur Layers (Fixed Syntax) === */
-    --ios-material-thin-filter: blur(10px) saturate(180%) brightness(1.15);
-    --ios-material-regular-filter: blur(20px) saturate(180%) brightness(1.2);
-    --ios-material-thick-filter: blur(30px) saturate(180%) brightness(1.25);
+  /* === Material Blur Layers (Fixed Syntax) === */
+  --ios-material-thin-filter: blur(10px) saturate(180%) brightness(1.15);
+  --ios-material-regular-filter: blur(20px) saturate(180%) brightness(1.2);
+  --ios-material-thick-filter: blur(30px) saturate(180%) brightness(1.25);
 
-    /* === System Background Colors === */
-    --system-background: #FFFFFF;
-    --secondary-system-background: #F2F2F7;
-    --tertiary-system-background: #FFFFFF;
+  /* === System Background Colors === */
+  --system-background: #FFFFFF;
+  --secondary-system-background: #F2F2F7;
+  --tertiary-system-background: #FFFFFF;
 
-    --system-group-background: #F2F2F7;
-    --secondary-system-group-background: #FFFFFF;
+  --system-group-background: #F2F2F7;
+  --secondary-system-group-background: #FFFFFF;
 
-    --system-fill: rgba(120, 120, 128, 0.1);
-    --secondary-system-fill: rgba(120, 120, 128, 0.08);
-    --tertiary-system-fill: rgba(120, 120, 128, 0.06);
+  --system-fill: rgba(120, 120, 128, 0.1);
+  --secondary-system-fill: rgba(120, 120, 128, 0.08);
+  --tertiary-system-fill: rgba(120, 120, 128, 0.06);
 
-    /* === Semantic Separators === */
-    --separator: rgba(60, 60, 67, 0.29);
-    --opaque-separator: #C6C6C6;
+  /* === Semantic Separators === */
+  --separator: rgba(60, 60, 67, 0.29);
+  --opaque-separator: #C6C6C6;
 
-    /* === Label Colors === */
-    --label-primary: rgba(0, 0, 0, 1);
-    --label-secondary: rgba(60, 60, 67, 0.6);
-    --label-tertiary: rgba(60, 60, 67, 0.3);
-    --label-quaternary: rgba(60, 60, 67, 0.18);
+  /* === Label Colors === */
+  --label-primary: rgba(0, 0, 0, 1);
+  --label-secondary: rgba(60, 60, 67, 0.6);
+  --label-tertiary: rgba(60, 60, 67, 0.3);
+  --label-quaternary: rgba(60, 60, 67, 0.18);
 
-    /* === Tint Colors === */
-    --tint-boy: #0EA5E9;
-    --tint-girl: #EC4899;
+  /* === Tint Colors === */
+  --tint-boy: #0EA5E9;
+  --tint-girl: #EC4899;
 
-    /* === Typography Tracking === */
-    --tracking-tight: -0.022em;
-    --tracking-normal: -0.011em;
-    --tracking-loose: 0em;
+  /* === System Semantic Colors === */
+  --system-red: #FF3B30;
+  --system-orange: #FF9500;
+  --system-yellow: #FFCC00;
+  --system-green: #34C759;
+  --system-teal: #30B0C7;
+  --system-blue: #007AFF;
+  --system-indigo: #5856D6;
+  --system-purple: #AF52DE;
+  --system-pink: #FF2D55;
+  --system-gray: #8E8E93;
+
+  /* === Feedback Backgrounds (Light) === */
+  --system-green-light: rgba(52, 199, 89, 0.18);
+  --system-red-light: rgba(255, 59, 48, 0.18);
+
+  /* === Typography Tracking === */
+  --tracking-tight: -0.022em;
+  --tracking-normal: -0.011em;
+  --tracking-loose: 0em;
 }
 
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --system-background: #000000;
-        --secondary-system-background: #1C1C1E;
-        --tertiary-system-background: #2C2C2E;
+  :root {
+    --system-background: #000000;
+    --secondary-system-background: #1C1C1E;
+    --tertiary-system-background: #2C2C2E;
 
-        --system-group-background: #1C1C1E;
-        --secondary-system-group-background: #2C2C2E;
+    --system-group-background: #1C1C1E;
+    --secondary-system-group-background: #2C2C2E;
 
-        --label-primary: rgba(255, 255, 255, 1);
-        --label-secondary: rgba(235, 235, 240, 0.6);
-        --label-tertiary: rgba(235, 235, 240, 0.3);
-        --label-quaternary: rgba(235, 235, 240, 0.18);
+    --label-primary: rgba(255, 255, 255, 1);
+    --label-secondary: rgba(235, 235, 240, 0.6);
+    --label-tertiary: rgba(235, 235, 240, 0.3);
+    --label-quaternary: rgba(235, 235, 240, 0.18);
 
-        --separator: rgba(84, 84, 88, 0.65);
-    }
+    --separator: rgba(84, 84, 88, 0.65);
+
+    /* === Feedback Backgrounds (Dark) === */
+    --system-green-light: rgba(48, 209, 88, 0.25);
+    --system-red-light: rgba(255, 69, 58, 0.25);
+  }
 }
 
 /* ============================================
@@ -70,39 +90,39 @@
    ============================================ */
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-    color: var(--label-primary);
-    background-color: var(--system-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  color: var(--label-primary);
+  background-color: var(--system-background);
 }
 
 /* Large Title - Scroll to Inline Transition */
 .screen-title {
-    font-family: -apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif;
-    font-size: clamp(28px, 7vw, 34px);
-    font-weight: 700;
-    letter-spacing: var(--tracking-tight);
-    line-height: 1.1;
-    margin: 0 0 1rem 0;
-    transition: font-size 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif;
+  font-size: clamp(28px, 7vw, 34px);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+  transition: font-size 0.3s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .header-title {
-    font-size: clamp(17px, 4.5vw, 20px);
-    font-weight: 600;
-    letter-spacing: var(--tracking-normal);
+  font-size: clamp(17px, 4.5vw, 20px);
+  font-weight: 600;
+  letter-spacing: var(--tracking-normal);
 }
 
 .body-text {
-    font-size: clamp(15px, 3.8vw, 17px);
-    letter-spacing: var(--tracking-normal);
-    line-height: 1.5;
-    color: var(--label-primary);
+  font-size: clamp(15px, 3.8vw, 17px);
+  letter-spacing: var(--tracking-normal);
+  line-height: 1.5;
+  color: var(--label-primary);
 }
 
 .caption-text {
-    font-size: clamp(13px, 3vw, 15px);
-    letter-spacing: var(--tracking-normal);
-    color: var(--label-secondary);
+  font-size: clamp(13px, 3vw, 15px);
+  letter-spacing: var(--tracking-normal);
+  color: var(--label-secondary);
 }
 
 /* ============================================
@@ -111,28 +131,28 @@ body {
 
 /* iOS Squircle Approximation (24px radius with subtle smoothing) */
 .ios-squircle {
-    border-radius: 24px;
-    -webkit-mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
-    mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
+  border-radius: 24px;
+  -webkit-mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
+  mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
 }
 
 /* Card-style squircles */
 .glass-card,
 .material-card {
-    border-radius: 24px;
-    overflow: hidden;
+  border-radius: 24px;
+  overflow: hidden;
 }
 
 /* Small component squircles (buttons, badges) */
 .icon-button,
 .badge,
 .segmented-control-item {
-    border-radius: 20px;
+  border-radius: 20px;
 }
 
 /* Large corner squircles (bottom sheets, full modals) */
 .bottom-sheet {
-    border-radius: 28px 28px 0 0;
+  border-radius: 28px 28px 0 0;
 }
 
 /* ============================================
@@ -140,32 +160,32 @@ body {
    ============================================ */
 
 .material-thin {
-    backdrop-filter: var(--ios-material-thin-filter);
-    background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: var(--ios-material-thin-filter);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .material-regular {
-    backdrop-filter: var(--ios-material-regular-filter);
-    background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: var(--ios-material-regular-filter);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .material-thick {
-    backdrop-filter: var(--ios-material-thick-filter);
-    background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: var(--ios-material-thick-filter);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
-    .material-thin {
-        background: rgba(0, 0, 0, 0.15);
-    }
+  .material-thin {
+    background: rgba(0, 0, 0, 0.15);
+  }
 
-    .material-regular {
-        background: rgba(0, 0, 0, 0.25);
-    }
+  .material-regular {
+    background: rgba(0, 0, 0, 0.25);
+  }
 
-    .material-thick {
-        background: rgba(0, 0, 0, 0.35);
-    }
+  .material-thick {
+    background: rgba(0, 0, 0, 0.35);
+  }
 }
 
 /* ============================================
@@ -174,83 +194,83 @@ body {
 
 /* Base Inset Grouped List - Fallback */
 .list-inset-grouped {
-    background: var(--system-group-background);
-    border-radius: 12px;
-    overflow: hidden;
-    margin: 1rem;
+  background: var(--system-group-background);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem;
 }
 
 /* Inset Grouped List - Premium Glass 2.0 Version */
 .grouped-list {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(15px) saturate(180%);
-    -webkit-backdrop-filter: blur(15px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    overflow: hidden;
-    margin: 1rem 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 1rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
 body.girl-mode .grouped-list {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .list-item {
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    cursor: pointer;
-    background: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .list-item:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    padding-left: 1.75rem;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding-left: 1.75rem;
 }
 
 .list-item:active {
-    background-color: rgba(0, 0, 0, 0.05);
-    transform: scale(0.98);
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(0.98);
 }
 
 .list-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .list-item:active {
-    background-color: var(--system-fill);
+  background-color: var(--system-fill);
 }
 
 /* Segmented Control */
 .segmented-control {
-    display: inline-flex;
-    background: var(--secondary-system-background);
-    border-radius: 8px;
-    padding: 4px;
-    gap: 4px;
+  display: inline-flex;
+  background: var(--secondary-system-background);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
 }
 
 .segmented-control-item {
-    padding: 6px 16px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    color: var(--label-secondary);
-    font-weight: 500;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--label-secondary);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .segmented-control-item.active {
-    background: var(--system-background);
-    color: var(--label-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--system-background);
+  color: var(--label-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ============================================
@@ -258,19 +278,19 @@ body.girl-mode .grouped-list {
    ============================================ */
 
 .shadow-elevation-1 {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .shadow-elevation-2 {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .shadow-elevation-3 {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .shadow-elevation-4 {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 /* ============================================
@@ -278,17 +298,17 @@ body.girl-mode .grouped-list {
    ============================================ */
 
 .interactive-element {
-    transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .interactive-element:hover {
-    opacity: 0.85;
-    transform: scale(0.98);
+  opacity: 0.85;
+  transform: scale(0.98);
 }
 
 .interactive-element:active {
-    opacity: 0.7;
-    transform: scale(0.95);
+  opacity: 0.7;
+  transform: scale(0.95);
 }
 
 /* ============================================
@@ -298,8 +318,8 @@ body.girl-mode .grouped-list {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-    outline: 2px solid var(--tint-boy);
-    outline-offset: 2px;
+  outline: 2px solid var(--tint-boy);
+  outline-offset: 2px;
 }
 
 /* ============================================
@@ -307,24 +327,24 @@ input:focus-visible {
    ============================================ */
 
 .safe-area-top {
-    padding-top: max(1rem, env(safe-area-inset-top));
+  padding-top: max(1rem, env(safe-area-inset-top));
 }
 
 .safe-area-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 .safe-area-left {
-    padding-left: max(1rem, env(safe-area-inset-left));
+  padding-left: max(1rem, env(safe-area-inset-left));
 }
 
 .safe-area-right {
-    padding-right: max(1rem, env(safe-area-inset-right));
+  padding-right: max(1rem, env(safe-area-inset-right));
 }
 
 .home-indicator-space {
-    height: env(safe-area-inset-bottom, 0);
-    min-height: 20px;
+  height: env(safe-area-inset-bottom, 0);
+  min-height: 20px;
 }
 
 /* ============================================
@@ -332,21 +352,21 @@ input:focus-visible {
    ============================================ */
 
 .vibrancy-light {
-    mix-blend-mode: screen;
-    opacity: 0.8;
+  mix-blend-mode: screen;
+  opacity: 0.8;
 }
 
 .vibrancy-dark {
-    mix-blend-mode: multiply;
-    opacity: 0.8;
+  mix-blend-mode: multiply;
+  opacity: 0.8;
 }
 
 .vibrancy-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    opacity: 0.05;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.05;
 }
 
 /* ============================================
@@ -356,25 +376,25 @@ input:focus-visible {
 /* Card-level shadows - subtle depth */
 .shadow-card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-              0 8px 24px rgba(0, 0, 0, 0.06);
+    0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* Sheet shadows - bottom sheets, modals */
 .shadow-sheet {
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08),
-              0 -16px 64px rgba(0, 0, 0, 0.12);
+    0 -16px 64px rgba(0, 0, 0, 0.12);
 }
 
 /* Floating element shadows - buttons, floating actions */
 .shadow-floating {
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15),
-              0 4px 12px rgba(0, 0, 0, 0.08);
+    0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Elevated/Popup shadows */
 .shadow-elevated {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1),
-              0 2px 6px rgba(0, 0, 0, 0.06);
+    0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* Subtle divider shadow */
@@ -386,41 +406,41 @@ input:focus-visible {
 /* Card with primary accent shadow */
 .shadow-card-primary {
   box-shadow: 0 4px 16px rgba(14, 165, 233, 0.12),
-              0 8px 32px rgba(14, 165, 233, 0.08);
+    0 8px 32px rgba(14, 165, 233, 0.08);
 }
 
 /* Sheet with primary accent */
 .shadow-sheet-primary {
   box-shadow: 0 -4px 24px rgba(14, 165, 233, 0.1),
-              0 -16px 64px rgba(14, 165, 233, 0.15);
+    0 -16px 64px rgba(14, 165, 233, 0.15);
 }
 
 /* Floating with primary accent */
 .shadow-floating-primary {
   box-shadow: 0 12px 48px rgba(14, 165, 233, 0.2),
-              0 4px 12px rgba(14, 165, 233, 0.12);
+    0 4px 12px rgba(14, 165, 233, 0.12);
 }
 
 /* ===== SUCCESS COLOR SHADOWS ===== */
 .shadow-card-success {
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.12),
-              0 8px 32px rgba(16, 185, 129, 0.08);
+    0 8px 32px rgba(16, 185, 129, 0.08);
 }
 
 .shadow-floating-success {
   box-shadow: 0 12px 48px rgba(16, 185, 129, 0.2),
-              0 4px 12px rgba(16, 185, 129, 0.12);
+    0 4px 12px rgba(16, 185, 129, 0.12);
 }
 
 /* ===== ERROR COLOR SHADOWS ===== */
 .shadow-card-error {
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.12),
-              0 8px 32px rgba(239, 68, 68, 0.08);
+    0 8px 32px rgba(239, 68, 68, 0.08);
 }
 
 .shadow-floating-error {
   box-shadow: 0 12px 48px rgba(239, 68, 68, 0.2),
-              0 4px 12px rgba(239, 68, 68, 0.12);
+    0 4px 12px rgba(239, 68, 68, 0.12);
 }
 
 /* ============================================
@@ -438,11 +458,9 @@ input:focus-visible {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.2) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 100%);
   pointer-events: none;
 }
 
@@ -457,11 +475,9 @@ input:focus-visible {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 100%);
   pointer-events: none;
 }
 
@@ -476,11 +492,9 @@ input:focus-visible {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.3) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      transparent 100%);
   pointer-events: none;
 }
 
@@ -521,102 +535,82 @@ input:focus-visible {
 /* Ultra-thin glass - most subtle */
 .material-ultraThin {
   backdrop-filter: blur(10px) saturate(180%) brightness(1.02);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.72),
-    rgba(255, 255, 255, 0.65)
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(255, 255, 255, 0.65));
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* Thin glass - subtle background */
 .material-thin-enhanced {
   backdrop-filter: blur(10px) saturate(180%) brightness(1.05);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.7),
-    rgba(255, 255, 255, 0.6)
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.6));
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Regular glass - standard use */
 .material-regular-enhanced {
   backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.6),
-    rgba(255, 255, 255, 0.45)
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.45));
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 /* Chrome glass - metallic feel */
 .material-chrome {
   backdrop-filter: blur(30px) saturate(200%) brightness(1.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.2) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Thick glass - high blur, opaque */
 .material-thick-enhanced {
   backdrop-filter: blur(30px) saturate(180%) brightness(1.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.5),
-    rgba(255, 255, 255, 0.35)
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0.35));
   border: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 /* Dark glass materials */
 @media (prefers-color-scheme: dark) {
   .material-ultraThin {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.08),
-      rgba(255, 255, 255, 0.05)
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.05));
     border-color: rgba(255, 255, 255, 0.08);
   }
 
   .material-thin-enhanced {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.12),
-      rgba(255, 255, 255, 0.08)
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0.08));
     border-color: rgba(255, 255, 255, 0.1);
   }
 
   .material-regular-enhanced {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.15),
-      rgba(255, 255, 255, 0.1)
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.15),
+        rgba(255, 255, 255, 0.1));
     border-color: rgba(255, 255, 255, 0.12);
   }
 
   .material-chrome {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.05) 100%);
     border-color: rgba(255, 255, 255, 0.15);
   }
 
   .material-thick-enhanced {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 255, 255, 0.12)
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.18),
+        rgba(255, 255, 255, 0.12));
     border-color: rgba(255, 255, 255, 0.18);
   }
 }
@@ -626,6 +620,7 @@ input:focus-visible {
    ============================================ */
 
 @media (max-width: 768px) and (prefers-color-scheme: dark) {
+
   .material-thin,
   .material-thin-enhanced {
     background: rgba(0, 0, 0, 0.2);
@@ -647,10 +642,10 @@ input:focus-visible {
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ============================================
@@ -658,12 +653,12 @@ input:focus-visible {
    ============================================ */
 
 @media print {
-    .no-print {
-        display: none;
-    }
+  .no-print {
+    display: none;
+  }
 
-    body {
-        background: white;
-        color: black;
-    }
+  body {
+    background: white;
+    color: black;
+  }
 }

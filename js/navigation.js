@@ -109,31 +109,46 @@ class Navigation {
         container.appendChild(hubContainer);
 
         // 1. Add Hero "Continue Mastery" Card if data exists
-        if (this.app.lastLectureId && this.app.lastLectureName) {
+        if (this.app.resumableQuiz && this.app.lastLectureName) {
+            const progress = this.app.resumableQuiz;
+            const percent = Math.round((progress.currentIndex / progress.questions.length) * 100);
+
             const hero = document.createElement('div');
             hero.className = 'hero-continue-card';
             hero.innerHTML = `
-                <div class="hero-badge">High Yield</div>
+                <div class="hero-badge">Resume Quiz</div>
                 <div>
                     <h3 class="hero-title">${this.app.lastLectureName}</h3>
-                    <p class="hero-subtitle">Ready to master this topic?</p>
+                    <p class="hero-subtitle">${progress.currentIndex} of ${progress.questions.length} questions • ${percent}% complete</p>
                 </div>
                 <div class="hero-footer">
                     <div class="resume-btn">Continue Quiz</div>
                 </div>
+                <div class="hero-progress-pill" style="width: ${percent}%"></div>
             `;
-            hero.onclick = () => {
-                // Logic to reload this specific lecture
+            hero.onclick = async () => {
+                const lectureId = this.app.lastLectureId;
+                if (!lectureId) return;
+
                 if (window.dynamicIsland) {
                     window.dynamicIsland.show({
-                        title: '📚 Loading Topic',
+                        title: '📚 Restoring Session',
                         subtitle: this.app.lastLectureName,
-                        type: 'success'
+                        type: 'info'
                     });
                 }
-                // Simulate navigation into that subject or start quiz
-                // (Depends on app logic, but here we show intent)
-                console.log('Resume lecture:', this.app.lastLectureId);
+
+                try {
+                    const resumeMetadata = {
+                        ...progress.metadata,
+                        fromSavedProgress: true,
+                        currentIndex: progress.currentIndex,
+                        score: progress.score
+                    };
+                    this.app.startQuiz(progress.questions, resumeMetadata);
+                } catch (error) {
+                    console.error('Failed to resume from hero card:', error);
+                }
             };
             hubContainer.appendChild(hero);
         }

@@ -192,10 +192,8 @@ class MCQApp {
                 if (progress && progress.currentIndex < progress.questions.length) {
                     this.resumableQuiz = progress;
                     this.lastLectureId = lastLectureId;
+                    this.lastLectureName = progress.metadata?.lecture || null; // ← RESTORE NAME
                     console.log('✓ Resumable quiz found:', lastLectureId);
-
-                    // Show floating resume prompt
-                    this.showResumePrompt(lastLectureId, progress);
                 }
             }
         } catch (error) {
@@ -203,87 +201,6 @@ class MCQApp {
         }
     }
 
-    /**
-     * Show floating pill prompting user to resume their quiz
-     */
-    showResumePrompt(lectureId, progress) {
-        // Use Dynamic Island notification system instead of custom prompt
-        if (window.dynamicIsland) {
-            const progressText = `${progress.metadata?.name || 'Quiz'} (${progress.currentIndex}/${progress.questions.length})`;
-
-            window.dynamicIsland.show({
-                title: '▶️ Resume Quiz',
-                subtitle: progressText,
-                type: 'info',
-                duration: 0, // Don't auto-dismiss
-                onTap: () => {
-                    window.dynamicIsland.hide();
-
-                    // ADD THIS FLAG to indicate this is a resume operation
-                    const resumeMetadata = {
-                        ...progress.metadata,
-                        fromSavedProgress: true,  // ← KEY FLAG
-                        currentIndex: progress.currentIndex,
-                        score: progress.score
-                    };
-
-                    this.startQuiz(progress.questions, resumeMetadata);
-                },
-                onClose: () => {
-                    // User dismissed it
-                }
-            });
-        } else {
-            // Fallback: show in custom prompt if DynamicIsland not available
-            this.showResumeFallback(lectureId, progress);
-        }
-    }
-
-    showResumeFallback(lectureId, progress) {
-        // Wait for navigation to be initialized
-        setTimeout(() => {
-            const container = document.getElementById('cards-container');
-            if (!container) return;
-
-            const prompt = document.createElement('div');
-            prompt.className = 'resume-prompt';
-            prompt.innerHTML = `
-                <div class="resume-content">
-                    <span class="resume-icon">▶️</span>
-                    <div class="resume-text">
-                        <p class="resume-label">Resume Quiz</p>
-                        <p class="resume-progress">${progress.metadata?.name || 'Your Quiz'} (${progress.currentIndex}/${progress.questions.length})</p>
-                    </div>
-                    <button class="resume-close" aria-label="Dismiss">✕</button>
-                </div>
-            `;
-
-            // Resume button click handler
-            prompt.addEventListener('click', (e) => {
-                if (e.target.classList.contains('resume-close')) {
-                    prompt.remove();
-                } else {
-                    // ADD FLAG HERE TOO
-                    const resumeMetadata = {
-                        ...progress.metadata,
-                        fromSavedProgress: true,  // ← KEY FLAG
-                        currentIndex: progress.currentIndex,
-                        score: progress.score
-                    };
-                    this.startQuiz(progress.questions, resumeMetadata);
-                }
-            });
-
-            // Close button specifically
-            prompt.querySelector('.resume-close').addEventListener('click', (e) => {
-                e.stopPropagation();
-                prompt.classList.add('fade-out');
-                setTimeout(() => prompt.remove(), 300);
-            });
-
-            container.parentElement.insertBefore(prompt, container);
-        }, 100);
-    }
 
     /**
      * Handle online/offline status changes
@@ -411,9 +328,14 @@ class MCQApp {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const screenId = item.dataset.screen;
+
                 if (screenId) {
-                    // Show the requested screen (active state handled by showScreen)
-                    this.showScreen(screenId);
+                    // Logic: If clicking home while a quiz/result is active, perform a clean reset
+                    if (screenId === 'navigation-screen') {
+                        this.resetApp();
+                    } else {
+                        this.showScreen(screenId);
+                    }
 
                     // Haptic feedback
                     if (navigator.vibrate) {
@@ -575,9 +497,22 @@ class MCQApp {
         // Save lecture ID for resumable quiz
         if (pathInfo && pathInfo.lectureId) {
             this.lastLectureId = pathInfo.lectureId;
-            this.lastLectureName = pathInfo.name; // ← Store lecture name
+            this.lastLectureName = pathInfo.lecture; // ← Store lecture name
             await harviDB.setSetting('lastActiveLectureId', pathInfo.lectureId);
+
+            // If starting NEW (not from saved progress), clear any stale progress record
+            if (!pathInfo.fromSavedProgress) {
+                await harviDB.deleteQuizProgress(pathInfo.lectureId);
+            }
         }
+
+        // AGGRESSIVE CLEANUP: Hide any existing resume prompts
+        if (window.dynamicIsland) {
+            window.dynamicIsland.hide();
+        }
+        const existingPrompt = document.querySelector('.resume-prompt');
+        if (existingPrompt) existingPrompt.remove();
+        this.resumableQuiz = null;
 
         this.quiz.start(quizSessionQuestions, pathInfo);
     }
@@ -585,19 +520,29 @@ class MCQApp {
     async showResults(score, total, metadata) {
         this.results.show(score, total, metadata);
 
+        // AGGRESSIVE CLEAR: Stop resume prompts immediately
+        this.resumableQuiz = null;
+
         // Save quiz result and clear resumable state
-        if (this.currentQuiz && this.lastLectureId) {
+        if (this.lastLectureId) {
+            const currentLectureId = this.lastLectureId; // Capture in case it changes
             try {
-                const timeSpent = Date.now() - (this.currentQuiz.startTime || Date.now());
+                // 1. Clear resume pointer in DB IMMEDIATELY (sync)
+                await harviDB.setSetting('lastActiveLectureId', null);
+
+                // 2. Physically delete the progress record
+                await harviDB.deleteQuizProgress(currentLectureId);
+
+                const timeSpent = this.currentQuiz ? (Date.now() - (this.currentQuiz.startTime || Date.now())) : 0;
                 const result = { score, total, timeSpent };
 
-                await harviDB.saveQuizResult(this.lastLectureId, result, this.lastLectureName);
-                await harviDB.setSetting('lastActiveLectureId', null);
+                // 3. Save results
+                await harviDB.saveQuizResult(currentLectureId, result, this.lastLectureName);
 
                 // Queue for sync if offline
                 if (!navigator.onLine) {
                     await harviDB.queueSync('saveQuizResult', {
-                        lectureId: this.lastLectureId,
+                        lectureId: currentLectureId,
                         lectureName: this.lastLectureName,
                         ...result
                     });
