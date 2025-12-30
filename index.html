@@ -61,7 +61,8 @@
                 <div class="header-container">
                     <div id="header-content-wrapper">
                         <!-- Brand/Logo Area (Clickable to return home) -->
-                        <button class="brand-container" id="brand-container" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <button class="brand-container" id="brand-container"
+                            style="background: none; border: none; cursor: pointer; padding: 0;">
                             <h1 class="app-title">Harvi</h1>
                             <p class="brand-description">Questions you need</p>
                         </button>
@@ -138,7 +139,8 @@
         <div id="stats-screen" class="screen">
             <div class="container">
                 <div class="header-container">
-                    <button class="brand-container" id="brand-stats" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    <button class="brand-container" id="brand-stats"
+                        style="background: none; border: none; cursor: pointer; padding: 0;">
                         <h1 class="app-title">Statistics</h1>
                     </button>
                 </div>
@@ -152,7 +154,8 @@
         <div id="profile-screen" class="screen">
             <div class="container">
                 <div class="header-container">
-                    <button class="brand-container" id="brand-profile" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    <button class="brand-container" id="brand-profile"
+                        style="background: none; border: none; cursor: pointer; padding: 0;">
                         <h1 class="app-title">Profile</h1>
                     </button>
                 </div>
@@ -181,107 +184,107 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { 
+                navigator.serviceWorker.register('./sw.js', {
                     scope: './',
                     updateViaCache: 'none'  // ← ADD: Always check for updates
                 })
-                .then(registration => {
-                    console.log('✓ Service Worker registered:', registration);
-                    // CRITICAL FIX: Check for updates IMMEDIATELY on load
-                    console.log('🔄 Checking for service worker updates...');
-                    registration.update().catch(err => {
-                        console.warn('Update check failed:', err);
-                    });
-                    // NEW: Use Page Visibility API instead of setInterval
-                    // This works reliably even when page is backgrounded
-                    let visibilityChangeHandler = () => {
-                        if (!document.hidden) {
-                            console.log('📱 App became visible - checking for updates');
-                            registration.update().catch(err => {
-                                console.warn('Update check failed:', err);
-                            });
-                        }
-                    };
-                    
-                    document.addEventListener('visibilitychange', visibilityChangeHandler);
-                    
-                    // REMOVED: Focus handler to reduce update checks
-                    // window.addEventListener('focus', focusHandler);
-                    
-                    // NEW: Periodic check using requestIdleCallback for better performance
-                    // Falls back to setTimeout if requestIdleCallback not supported
-                    let lastUpdateCheck = Date.now();
-                    const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours (increased from 1 hour)
-                    
-                    function scheduleUpdateCheck() {
-                        const scheduleCallback = window.requestIdleCallback || window.setTimeout;
-                        const timeoutDuration = window.requestIdleCallback ? undefined : UPDATE_CHECK_INTERVAL;
-                        
-                        scheduleCallback(() => {
-                            const now = Date.now();
-                            if (now - lastUpdateCheck >= UPDATE_CHECK_INTERVAL) {
-                                console.log('⏰ Periodic update check');
+                    .then(registration => {
+                        console.log('✓ Service Worker registered:', registration);
+                        // CRITICAL FIX: Check for updates IMMEDIATELY on load
+                        console.log('🔄 Checking for service worker updates...');
+                        registration.update().catch(err => {
+                            console.warn('Update check failed:', err);
+                        });
+                        // NEW: Use Page Visibility API instead of setInterval
+                        // This works reliably even when page is backgrounded
+                        let visibilityChangeHandler = () => {
+                            if (!document.hidden) {
+                                console.log('📱 App became visible - checking for updates');
                                 registration.update().catch(err => {
-                                    console.warn('Periodic update check failed:', err);
+                                    console.warn('Update check failed:', err);
                                 });
-                                lastUpdateCheck = now;
                             }
-                            
-                            // Schedule next check
-                            scheduleUpdateCheck();
-                        }, timeoutDuration);
-                    }
-                    
-                    scheduleUpdateCheck();
+                        };
 
-                    // Handle service worker updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        
-                        if (!newWorker) {
-                            console.warn('Update found but no installing worker');
-                            return;
-                        }
-                        
-                        console.log('📦 New service worker installing...');
-                        
-                        newWorker.addEventListener('statechange', () => {
-                            console.log('Service worker state:', newWorker.state);
-                            
-                            if (newWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
-                                    // New service worker installed, but old one still active
-                                    console.log('🆕 New version available!');
-                                    
-                                    // Dispatch custom event for app to handle
-                                    document.dispatchEvent(new CustomEvent('sw-update-available', {
-                                        detail: {
-                                            registration: registration,
-                                            newWorker: newWorker
-                                        }
-                                    }));
-                                } else {
-                                    // First install
-                                    console.log('✓ Service worker installed for first time');
+                        document.addEventListener('visibilitychange', visibilityChangeHandler);
+
+                        // REMOVED: Focus handler to reduce update checks
+                        // window.addEventListener('focus', focusHandler);
+
+                        // NEW: Periodic check using requestIdleCallback for better performance
+                        // Falls back to setTimeout if requestIdleCallback not supported
+                        let lastUpdateCheck = Date.now();
+                        const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours (increased from 1 hour)
+
+                        function scheduleUpdateCheck() {
+                            const scheduleCallback = window.requestIdleCallback || window.setTimeout;
+                            const timeoutDuration = window.requestIdleCallback ? undefined : UPDATE_CHECK_INTERVAL;
+
+                            scheduleCallback(() => {
+                                const now = Date.now();
+                                if (now - lastUpdateCheck >= UPDATE_CHECK_INTERVAL) {
+                                    console.log('⏰ Periodic update check');
+                                    registration.update().catch(err => {
+                                        console.warn('Periodic update check failed:', err);
+                                    });
+                                    lastUpdateCheck = now;
                                 }
+
+                                // Schedule next check
+                                scheduleUpdateCheck();
+                            }, timeoutDuration);
+                        }
+
+                        scheduleUpdateCheck();
+
+                        // Handle service worker updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+
+                            if (!newWorker) {
+                                console.warn('Update found but no installing worker');
+                                return;
                             }
-                            
-                            if (newWorker.state === 'activated') {
-                                console.log('✓ New service worker activated');
+
+                            console.log('📦 New service worker installing...');
+
+                            newWorker.addEventListener('statechange', () => {
+                                console.log('Service worker state:', newWorker.state);
+
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // New service worker installed, but old one still active
+                                        console.log('🆕 New version available!');
+
+                                        // Dispatch custom event for app to handle
+                                        document.dispatchEvent(new CustomEvent('sw-update-available', {
+                                            detail: {
+                                                registration: registration,
+                                                newWorker: newWorker
+                                            }
+                                        }));
+                                    } else {
+                                        // First install
+                                        console.log('✓ Service worker installed for first time');
+                                    }
+                                }
+
+                                if (newWorker.state === 'activated') {
+                                    console.log('✓ New service worker activated');
+                                }
+                            });
+                        });
+
+                        // NEW: Handle controller change (update activated)
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            console.log('🔄 New service worker activated - reloading app');
+                            // Only reload if we're not in the middle of something important
+                            if (!document.querySelector('.quiz-screen.active')) {
+                                window.location.reload();
+                            } else {
+                                console.log('Quiz in progress - deferring reload');
                             }
                         });
-                    });
-                    
-                    // NEW: Handle controller change (update activated)
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        console.log('🔄 New service worker activated - reloading app');
-                        // Only reload if we're not in the middle of something important
-                        if (!document.querySelector('.quiz-screen.active')) {
-                            window.location.reload();
-                        } else {
-                            console.log('Quiz in progress - deferring reload');
-                        }
-                    });
                     })
                     .catch(error => {
                         console.log('✗ Service Worker registration failed:', error);
@@ -295,19 +298,19 @@
         <nav class="bottom-nav">
             <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10"/>
+                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10" />
                 </svg>
                 <span class="bottom-nav-item-label">Home</span>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3v18h18M7 16v-8m4 8V8m4 8v-4m4 4V6"/>
+                    <path d="M3 3v18h18M7 16v-8m4 8V8m4 8v-4m4 4V6" />
                 </svg>
                 <span class="bottom-nav-item-label">Stats</span>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
                 </svg>
                 <span class="bottom-nav-item-label">Profile</span>
             </a>

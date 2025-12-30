@@ -236,67 +236,7 @@ body.girl-mode .brand-description {
         transform: scale(1.02);
     }
 
-    /* ========================================
-   SCROLL-DRIVEN ANIMATIONS (Masterclass Feature)
-   ======================================== */
-
-    /* If supported, use native scroll timeline */
-    @supports (animation-timeline: scroll()) {
-        .header-container {
-            /* Define a named scroll timeline on the container, 
-           but since 'container' scrolls inside 'screen', 
-           we need to bind to the scrollable area. */
-            animation-timeline: scroll(nearest);
-            animation-name: headerScrollEffect;
-            animation-range: 0px 100px;
-        }
-
-        .app-title {
-            animation-timeline: scroll(nearest);
-            animation-name: titleScrollEffect;
-            animation-range: 0px 100px;
-        }
-
-        .brand-description {
-            animation-timeline: scroll(nearest);
-            animation-name: fadeOutScroll;
-            animation-range: 0px 50px;
-        }
+    .brand-description:hover {
+        transform: translateY(-1px) scale(1.02);
     }
-
-    @keyframes headerScrollEffect {
-        to {
-            padding: 0.75rem 2rem;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-    }
-
-    @keyframes titleScrollEffect {
-        to {
-            font-size: 1.5rem;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeOutScroll {
-        to {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-    }
-
-    /* Dark mode overrides for scroll effect */
-    @media (prefers-color-scheme: dark) {
-        @keyframes headerScrollEffect {
-            to {
-                padding: 0.75rem 2rem;
-                background: rgba(0, 0, 0, 0.85);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            }
-        }
-    }
+}

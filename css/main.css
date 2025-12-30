@@ -17,8 +17,6 @@
 @import url('components/quiz-container.css');
 @import url('components/quiz-options.css');
 @import url('components/results-screen.css');
-@import url('components/bento-grid.css');
-@import url('components/mesh-background.css');
 
 /* ===== THEMES ===== */
 @import url('themes/girl-mode.css');
