@@ -398,7 +398,7 @@ class Navigation {
         }
 
         // CLEANUP: Remove old event listeners before clearing container
-        const oldCards = container.querySelectorAll('.list-item[data-lecture-id]');
+        const oldCards = container.querySelectorAll('.lecture-card-masterpiece[data-lecture-id]');
         oldCards.forEach(card => {
             if (card._clickHandler) {
                 card.removeEventListener('click', card._clickHandler);
@@ -789,14 +789,20 @@ class Navigation {
             screen.removeEventListener('scroll', this.scrollListener);
         }
 
+        let isTicking = false;
         this.scrollListener = () => {
-            const scrollY = screen.scrollTop;
-            const threshold = 10; // Trigger earlier for smoother feel
+            if (!isTicking) {
+                requestAnimationFrame(() => {
+                    const scrollY = screen.scrollTop;
+                    const threshold = 15; // Standard iOS threshold for header transition
 
-            if (scrollY > threshold) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+                    const isScrolled = scrollY > threshold;
+                    if (header.classList.contains('scrolled') !== isScrolled) {
+                        header.classList.toggle('scrolled', isScrolled);
+                    }
+                    isTicking = false;
+                });
+                isTicking = true;
             }
         };
 

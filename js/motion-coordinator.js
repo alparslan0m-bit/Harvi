@@ -10,7 +10,7 @@ class MotionCoordinator {
     this.supportsHighFrameRate = this.detectHighFrameRate();
     this.activeAnimations = new Set();
     this.staggerDelay = 30; // ms between staggered elements
-    
+
     this.init();
   }
 
@@ -34,7 +34,7 @@ class MotionCoordinator {
    */
   detectHighFrameRate() {
     if (!window.requestAnimationFrame) return false;
-    
+
     let frameCount = 0;
     let lastTime = performance.now();
     let frameRate = 60;
@@ -42,13 +42,13 @@ class MotionCoordinator {
     const countFrame = () => {
       frameCount++;
       const currentTime = performance.now();
-      
+
       if (currentTime >= lastTime + 1000) {
         frameRate = frameCount;
         frameCount = 0;
         lastTime = currentTime;
       }
-      
+
       if (frameCount < 10) {
         requestAnimationFrame(countFrame);
       }
@@ -59,11 +59,14 @@ class MotionCoordinator {
   }
 
   /**
-   * Monitor frame rate during interactions
+   * Monitor frame rate briefly during initial interactions to calibrate performance
+   * FIXED: No longer runs continuously to prevent periodic jank and layout thrashing
    */
   monitorFrameRate() {
     let lastTime = performance.now();
     let frameCount = 0;
+    let totalMeasures = 0;
+    const maxMeasures = 3; // Calibrate for 3 seconds only
 
     const measureFrame = () => {
       frameCount++;
@@ -71,20 +74,28 @@ class MotionCoordinator {
 
       if (currentTime >= lastTime + 1000) {
         const fps = frameCount;
-        if (fps < 30) {
-          // Enable performance optimizations
+        totalMeasures++;
+
+        if (fps < 45) { // Higher threshold for performance mode
           document.documentElement.classList.add('low-performance');
-        } else {
-          document.documentElement.classList.remove('low-performance');
+          this.isLowPerformance = true;
+          console.log(`🔋 Performance Calibration: ${fps} FPS detected. Optimizations enabled.`);
         }
+
         frameCount = 0;
         lastTime = currentTime;
       }
 
-      requestAnimationFrame(measureFrame);
+      // Stop monitoring after calibration phase to save power and main thread cycles
+      if (totalMeasures < maxMeasures) {
+        requestAnimationFrame(measureFrame);
+      } else {
+        console.log('🏁 Performance calibration complete. Monitoring disabled for stability.');
+      }
     };
 
-    requestAnimationFrame(measureFrame);
+    // Delay start slightly to allow initial rendering to settle
+    setTimeout(() => requestAnimationFrame(measureFrame), 500);
   }
 
   /**

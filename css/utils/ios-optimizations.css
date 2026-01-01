@@ -23,6 +23,7 @@
 .prevent-text-flicker {
     -webkit-font-smoothing: antialiased;
     -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
@@ -61,7 +62,6 @@
 .no-bounce {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
 }
 
 /* iOS-specific animation performance */
