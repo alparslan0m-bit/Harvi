@@ -46,7 +46,29 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
+    .screen {
+        /* Reserve space for the sidebar on desktop */
+        left: 280px;
+        padding: 40px;
+        padding-bottom: 40px;
+        /* No tab-bar padding on desktop */
+    }
+
+    /* Full width for quiz/results or when explicitly requested */
+    body.quiz-mode-active .screen,
+    .screen.results-screen {
+        left: 0;
+    }
+
+    .container {
+        padding: 0 32px;
+        max-width: 1000px;
+        /* More readable measure for desktop */
+    }
+}
+
+@media (max-width: 767px) {
     .screen {
         padding: clamp(12px, 3vw, 16px);
     }

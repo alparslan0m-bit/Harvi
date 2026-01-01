@@ -105,7 +105,7 @@ body.girl-mode .bottom-nav-item.active {
     opacity: 0.6;
 }
 
-/* Desktop Sidebar Logic */
+/* Desktop Sidebar Logic (Standard iPadOS / macOS pattern) */
 @media (min-width: 768px) {
     .bottom-nav-container {
         left: 0;
@@ -115,46 +115,97 @@ body.girl-mode .bottom-nav-item.active {
         width: 280px;
         height: 100vh;
         border-top: none;
-        border-right: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
         padding: 40px 16px;
-        background: rgba(255, 255, 255, 0.7);
+        /* High-level spacing for desktop */
+        background: rgba(250, 250, 252, 0.95);
         display: flex !important;
         flex-direction: column;
+        transition: transform 0.4s var(--ios-ease);
+    }
+
+    /* Hide sidebar in quiz mode to focus on questions */
+    body.quiz-mode-active .bottom-nav-container {
+        transform: translateX(-100%);
     }
 
     .bottom-nav {
         flex-direction: column;
         height: auto;
-        gap: 8px;
+        gap: 6px;
+        /* Tight vertical list for sidebar */
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
     }
 
     .bottom-nav-item {
+        flex: none;
         flex-direction: row;
         justify-content: flex-start;
-        height: 50px;
+        height: 52px;
         padding: 0 16px;
-        border-radius: 12px;
-        gap: 12px;
+        border-radius: 14px;
+        gap: 14px;
         color: #636366;
+        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* Deskstop Hover State */
+    .bottom-nav-item:hover {
+        background: rgba(0, 0, 0, 0.04);
+        color: #1C1C1E;
     }
 
     .bottom-nav-item.active {
         background: rgba(0, 122, 255, 0.1);
+        color: var(--primary-color, #007AFF);
+    }
+
+    body.girl-mode .bottom-nav-item.active {
+        background: rgba(236, 72, 153, 0.1);
+        color: #EC4899;
     }
 
     .bottom-nav-item svg {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
+        transition: transform 0.2s ease;
+    }
+
+    .bottom-nav-item:hover svg {
+        transform: scale(1.05);
     }
 
     .bottom-nav-item-label {
         font-size: 16px;
+        /* Larger for desktop */
+        font-weight: 500;
         margin-top: 0;
+        letter-spacing: -0.2px;
+    }
+
+    .bottom-nav-item.active .bottom-nav-item-label {
+        font-weight: 600;
+    }
+}
+
+/* Dark mode sidebar adjustments */
+@media (min-width: 768px) and (prefers-color-scheme: dark) {
+    .bottom-nav-container {
+        background: rgba(28, 28, 30, 0.98);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bottom-nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #FFFFFF;
     }
 }
 
 /* Landscape Mobile Fix */
-@media (max-height: 450px) and (orientation: landscape) {
+@media (max-height: 450px) and (orientation: landscape) and (max-width: 767px) {
     .bottom-nav-container {
         height: 44px;
         padding-bottom: 0;
