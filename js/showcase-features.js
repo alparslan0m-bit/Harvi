@@ -500,7 +500,6 @@ window.BadgeManager = BadgeManager;
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         AudioToolkit,
-        GestureHandler,
         OptimisticUI,
         SpringPhysics,
         ConfettiEngine,

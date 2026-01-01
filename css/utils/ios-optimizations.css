@@ -42,10 +42,19 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    touch-action: pan-y;
+    /* Restricted to vertical to prevent horizontal edge triggers */
+    -webkit-touch-action: pan-y;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
+    overscroll-behavior-x: none;
+    /* Block system back-swipe gesture */
+}
+
+/* Base screen setup for gestural stability */
+.screen {
+    touch-action: pan-y;
+    overscroll-behavior-x: none;
 }
 
 /* Prevent iOS bounce scrolling */
@@ -68,6 +77,7 @@
 
 /* Reduce motion for iOS users who prefer it */
 @media (prefers-reduced-motion: reduce) {
+
     .ios-animation,
     .hardware-accelerated,
     .smooth-animation {

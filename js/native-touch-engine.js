@@ -8,14 +8,11 @@ class NativeTouchEngine {
     constructor() {
         // Gesture State
         this.touchStart = { x: 0, y: 0, time: 0 };
-        this.isBackSwiping = false;
         this.longPressTimer = null;
         this.activeLongPress = false;
 
         // Config (Apple Interaction Metrics)
         this.config = {
-            swipeEdgeThreshold: 30,      // Early edge detection (px)
-            backSwipeTriggerDistance: 120, // Distance to trigger back (px)
             longPressDuration: 450,      // Standard iOS long-press (ms)
             touchSlop: 10,               // Movement allowed before canceling long-press (px)
             velocityThreshold: 0.6       // Pixels per ms for flick detection
@@ -27,7 +24,7 @@ class NativeTouchEngine {
     init() {
         // Universal Event Listeners (Passive for performance)
         document.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
-        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false }); // Needs non-passive for swipe cancellation
+        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: true }); // Reverted to passive since no cancellation needed
         document.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: true });
         document.addEventListener('touchcancel', (e) => this.handleTouchCancel(e), { passive: true });
 
@@ -59,12 +56,7 @@ class NativeTouchEngine {
             }, this.config.longPressDuration);
         }
 
-        // 2. Edge back-swipe detection
-        // Only trigger if at the left edge and app allows back navigation
-        if (touch.clientX < this.config.swipeEdgeThreshold && !this.isInQuiz()) {
-            this.isBackSwiping = true;
-            this.initBackSwipeVisuals();
-        }
+        /* Edge back-swipe detection removed to prevent accidental navigation */
 
         // 3. Tactile Feedback (Coordinated with CSS :active)
         if (target) {
@@ -82,11 +74,7 @@ class NativeTouchEngine {
             clearTimeout(this.longPressTimer);
         }
 
-        if (this.isBackSwiping) {
-            // Prevent browser's default scroll if we're swiping back
-            if (e.cancelable) e.preventDefault();
-            this.updateBackSwipeVisuals(deltaX);
-        }
+        // No-op for move if long-press is canceled
     }
 
     handleTouchEnd(e) {
@@ -96,143 +84,14 @@ class NativeTouchEngine {
         const duration = Date.now() - this.touchStart.time;
         const velocity = deltaX / duration;
 
-        if (this.isBackSwiping) {
-            this.completeBackSwipe(deltaX, velocity);
-        }
-
-        this.isBackSwiping = false;
         this.activeLongPress = false;
     }
 
     handleTouchCancel() {
         clearTimeout(this.longPressTimer);
-        if (this.isBackSwiping) {
-            this.completeBackSwipe(0, 0); // Revert
-        }
-        this.isBackSwiping = false;
     }
 
-    /**
-     * BACK-SWIPE SYSTEM
-     */
-
-    initBackSwipeVisuals() {
-        // Ensure overlay and indicator exist
-        let overlay = document.querySelector('.swipe-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.className = 'swipe-overlay';
-            document.body.appendChild(overlay);
-        }
-
-        let indicator = document.querySelector('.back-indicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.className = 'back-indicator';
-            indicator.innerHTML = `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M15 18L9 12L15 6" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            `;
-            document.body.appendChild(indicator);
-        }
-
-        overlay.classList.add('active');
-        indicator.style.opacity = '0';
-        indicator.style.left = '-40px';
-    }
-
-    updateBackSwipeVisuals(deltaX) {
-        const screen = document.querySelector('.screen.active');
-        const indicator = document.querySelector('.back-indicator');
-        const overlay = document.querySelector('.swipe-overlay');
-
-        if (!screen || deltaX < 0) return;
-
-        // Elastic constraint (Resistance increases as you swipe further)
-        const resistance = 0.4;
-        const translateX = deltaX * resistance;
-        const progress = Math.min(deltaX / this.config.backSwipeTriggerDistance, 1);
-
-        requestAnimationFrame(() => {
-            screen.style.transform = `translateX(${translateX}px)`;
-            screen.style.borderRadius = `${progress * 24}px`;
-
-            if (indicator) {
-                indicator.style.opacity = progress.toString();
-                indicator.style.left = `${Math.min((deltaX * 0.5) - 40, 20)}px`;
-                indicator.style.transform = `translateY(-50%) scale(${0.8 + (progress * 0.2)})`;
-            }
-
-            if (overlay) {
-                overlay.style.background = `rgba(0, 0, 0, ${progress * 0.3})`;
-            }
-        });
-    }
-
-    completeBackSwipe(deltaX, velocity) {
-        const screen = document.querySelector('.screen.active');
-        const indicator = document.querySelector('.back-indicator');
-        const overlay = document.querySelector('.swipe-overlay');
-
-        const shouldComplete = deltaX > this.config.backSwipeTriggerDistance || velocity > this.config.velocityThreshold;
-
-        if (shouldComplete && window.app) {
-            // Success Haptic
-            if (window.HapticsEngine) window.HapticsEngine.swipe();
-
-            // Animate out
-            screen.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-            screen.style.transform = 'translateX(100%)';
-            screen.style.opacity = '0';
-
-            if (indicator) {
-                indicator.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-                indicator.style.left = '100vw';
-                indicator.style.opacity = '0';
-            }
-
-            setTimeout(() => {
-                window.app.goBack();
-                this.resetSwipeStates(screen, indicator, overlay);
-            }, 300);
-        } else {
-            // Revert
-            screen.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-            screen.style.transform = 'translateX(0)';
-            screen.style.borderRadius = '';
-
-            if (indicator) {
-                indicator.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                indicator.style.left = '-40px';
-                indicator.style.opacity = '0';
-            }
-
-            if (overlay) overlay.classList.remove('active');
-
-            setTimeout(() => {
-                this.resetSwipeStates(screen, indicator, overlay);
-            }, 400);
-        }
-    }
-
-    resetSwipeStates(screen, indicator, overlay) {
-        if (screen) {
-            screen.style.transition = '';
-            screen.style.transform = '';
-            screen.style.borderRadius = '';
-            screen.style.opacity = '';
-        }
-        if (indicator) {
-            indicator.style.transition = '';
-            indicator.style.left = '-40px';
-            indicator.style.opacity = '0';
-        }
-        if (overlay) {
-            overlay.classList.remove('active');
-            overlay.style.background = '';
-        }
-    }
+    /* BACK-SWIPE SYSTEM REMOVED */
 
     /**
      * CONTEXT MENU SYSTEM
