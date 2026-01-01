@@ -409,7 +409,8 @@ class MCQApp {
                 screen.classList.add('active');
 
                 // Reset scroll position on tab switch (Apple standard: new tab starts at top)
-                screen.scrollTop = 0;
+                // Use behavior: 'instant' to avoid fighting momentum scrolls
+                screen.scrollTo({ top: 0, behavior: 'instant' });
             }
 
             // Setup scroll listener for Large Title transition (if applicable)

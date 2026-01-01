@@ -665,7 +665,11 @@ class Navigation {
                 container.appendChild(content);
             }
 
-            container.scrollTop = 0;
+            // Reset active screen scroll position
+            const activeScreen = document.querySelector('.screen.active');
+            if (activeScreen) {
+                activeScreen.scrollTo({ top: 0, behavior: 'instant' });
+            }
         };
 
         // Use View Transitions if available (Apple native feel)
@@ -778,23 +782,24 @@ class Navigation {
      * Monitors scroll position to collapse header
      */
     setupScrollListener() {
+        // Target the actual scrollable screen container
         const screen = document.querySelector('.screen.active');
         if (!screen) return;
 
         const header = screen.querySelector('.scrollable-header');
         if (!header) return;
 
-        // Remove existing listeners to avoid duplicates
-        if (this.scrollListener) {
-            screen.removeEventListener('scroll', this.scrollListener);
+        // Clean up previous instances to prevent event listener leaks
+        if (screen._scrollHandler) {
+            screen.removeEventListener('scroll', screen._scrollHandler);
         }
 
         let isTicking = false;
-        this.scrollListener = () => {
+        const scrollHandler = () => {
             if (!isTicking) {
                 requestAnimationFrame(() => {
                     const scrollY = screen.scrollTop;
-                    const threshold = 15; // Standard iOS threshold for header transition
+                    const threshold = 15;
 
                     const isScrolled = scrollY > threshold;
                     if (header.classList.contains('scrolled') !== isScrolled) {
@@ -806,6 +811,8 @@ class Navigation {
             }
         };
 
-        screen.addEventListener('scroll', this.scrollListener, { passive: true });
+        // Attach to screen and store reference for cleanup
+        screen.addEventListener('scroll', scrollHandler, { passive: true });
+        screen._scrollHandler = scrollHandler;
     }
 }

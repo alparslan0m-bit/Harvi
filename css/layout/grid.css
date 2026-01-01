@@ -4,23 +4,24 @@
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    /* Momentum scrolling */
+    /* Critical for Safari momentum */
+    scroll-behavior: auto !important;
+    /* Force instant scroll for JS resets */
+    touch-action: pan-y;
+    /* Explicitly allow vertical scrolling */
 
-    /* Native Safe Area Insets + Tab Bar Height (50px) */
-    /* Removing top padding to allow header-container to manage safe area insets independently. 
-       This prevents "double-dipping" with the header's own safe-area padding. */
-    padding-top: 0;
-    padding-bottom: calc(50px + env(safe-area-inset-bottom, 20px));
-    padding-left: env(safe-area-inset-left, 16px);
-    padding-right: env(safe-area-inset-right, 16px);
-
-    background: transparent;
-    scroll-behavior: smooth;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+
+    /* Spacing logic */
+    padding-top: 0;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 20px));
+    padding-left: env(safe-area-inset-left, 16px);
+    padding-right: env(safe-area-inset-right, 16px);
+    background: transparent;
 }
 
 .screen.active {
@@ -34,8 +35,8 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
-    min-height: calc(100% + 1px);
-    /* Force scroll engine: always 1px taller than screen */
+    min-height: 100.1%;
+    /* Modern way to ensure scrollability for bounce */
 }
 
 .cards-grid {
