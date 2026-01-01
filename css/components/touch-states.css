@@ -1,144 +1,124 @@
 /* ===== APPLE TOUCH STATES & MICRO-INTERACTIONS ===== */
 /* Press feedback, highlight feedback, and haptic-coordinated interactions */
 
-/* ===== UNIVERSAL PRESSABLE COMPONENT ===== */
-.pressable {
+/* ===== UNIVERSAL PRESSABLE COMPONENT (Apple Tactile Standard) ===== */
+.pressable,
+.btn,
+button,
+.list-item,
+.card-pressable,
+.bottom-nav-item,
+.quiz-option {
   position: relative;
-  transition: transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight),
-              background-color var(--duration-normal) var(--motion-ease-in-out);
+  transition: transform 0.1s cubic-bezier(0.1, 0, 0.2, 1),
+    background-color 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  transform: translateZ(0);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.pressable:active {
-  transform: scale(0.97);
+/* Base Active State: Subtle Scale Down (Mimics iOS Home Screen/Control Center) */
+.pressable:active,
+.btn:active,
+button:active,
+.list-item:active,
+.card-pressable:active,
+.bottom-nav-item:active,
+.quiz-option:active {
+  transform: scale(0.96) translateZ(0);
+  /* Force GPU */
+  filter: brightness(0.92);
 }
 
-/* ===== BUTTON PRESS STATES ===== */
-.btn,
-button {
-  position: relative;
-  transition: transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight),
-              background-color var(--duration-fast) var(--motion-ease-in-out),
-              border-color var(--duration-fast) var(--motion-ease-in-out);
-}
-
+/* Specific Highlight: Buttons */
 .btn:active,
 button:active {
-  transform: scale(0.97);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Lift effect on press release */
-.btn:active::after,
-button:active::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border: 2px solid currentColor;
-  border-radius: inherit;
-  opacity: 0;
-  animation: button-highlight-ring var(--duration-fast) var(--motion-ease-out);
-}
-
-@keyframes button-highlight-ring {
-  0% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.15);
-  }
-}
-
-/* ===== BUTTON PRIMARY STATES ===== */
-.btn-primary {
-  overflow: hidden;
-  position: relative;
-}
-
-.btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+  background-color: var(--secondary-system-fill) !important;
 }
 
 .btn-primary:active {
-  background-color: var(--primary-hover);
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+  background-color: var(--primary-dark) !important;
+  transform: scale(0.98) translateZ(0);
+  /* Primary buttons have more resistance */
 }
 
-/* Glow effect on hover */
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, 
-                              rgba(255, 255, 255, 0.2), 
-                              transparent 70%);
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--motion-ease-in-out);
-  pointer-events: none;
-}
-
-.btn-primary:hover::before {
-  opacity: 1;
-}
-
-.btn-primary:active::before {
-  opacity: 0;
-}
-
-/* ===== LIST ITEM PRESS STATE ===== */
-.list-item {
-  position: relative;
-  transition: background-color var(--duration-fast) var(--motion-ease-in-out),
-              transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight);
-}
-
+/* Specific Highlight: List Items (iOS Settings Style) */
 .list-item:active {
-  background-color: var(--bg-hover);
-  transform: scale(0.98) translateX(2px);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  background-color: var(--tertiary-system-fill);
+  transform: scale(1) translateZ(0);
+  /* Lists usually don't scale on iPhone settings */
 }
 
-/* Highlight flash on tap */
-@keyframes list-item-highlight {
-  0% {
-    background-color: transparent;
-  }
-  50% {
-    background-color: var(--system-fill, var(--bg-hover));
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
-.list-item.activated {
-  animation: list-item-highlight 400ms var(--motion-ease-in-out);
-}
-
-/* ===== CARD TAP FEEDBACK ===== */
-.card-pressable {
-  position: relative;
-  transition: transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight),
-              background-color var(--duration-fast) var(--motion-ease-in-out);
-}
-
+/* Specific Highlight: Square/Card elements */
 .card-pressable:active {
-  transform: scale(0.96) translateY(2px);
-  box-shadow: var(--shadow-md);
+  transform: scale(0.97) translateY(1px);
+  box-shadow: var(--shadow-sm);
 }
 
-.card-pressable:hover {
-  box-shadow: var(--shadow-lg);
+/* Selection State - Success Feedback */
+.quiz-option.selected {
+  background-color: var(--success-light);
+  border-color: var(--success-color);
+  transform: scale(1);
+  animation: touch-confirm 0.4s var(--ios-ease);
+}
+
+@keyframes touch-confirm {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Swipe Overlays & Indicators (Managed by native-touch-engine.js) */
+.swipe-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 2000;
+  pointer-events: none;
+  transition: background 0.2s ease;
+}
+
+.swipe-overlay.active {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.back-indicator {
+  position: fixed;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 2001;
+  opacity: 0;
+  transition: opacity 0.2s ease, left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.back-indicator svg {
+  width: 24px;
+  height: 24px;
+  color: var(--tint-boy);
 }
 
 /* ===== SELECTION FEEDBACK ===== */
@@ -180,9 +160,9 @@ button:active::after {
   position: relative;
   overflow: hidden;
   transition: background-color var(--duration-fast) var(--motion-ease-in-out),
-              border-color var(--duration-fast) var(--motion-ease-in-out),
-              transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight);
+    border-color var(--duration-fast) var(--motion-ease-in-out),
+    transform var(--duration-instant) var(--motion-spring-tight),
+    box-shadow var(--duration-instant) var(--motion-spring-tight);
 }
 
 .quiz-option:active {
@@ -192,8 +172,8 @@ button:active::after {
 .quiz-option.selected {
   background-color: var(--success-light);
   border-color: var(--success-color);
-  box-shadow: 0 0 0 2px var(--success-light), 
-              0 0 0 4px var(--success-color);
+  box-shadow: 0 0 0 2px var(--success-light),
+    0 0 0 4px var(--success-color);
   animation: selection-scale-in var(--animation-entrance);
 }
 
@@ -227,7 +207,7 @@ button:active::after {
   top: 2px;
   left: 2px;
   transition: transform var(--duration-normal) var(--motion-spring),
-              box-shadow var(--duration-instant) var(--motion-spring-tight);
+    box-shadow var(--duration-instant) var(--motion-spring-tight);
   box-shadow: var(--shadow-sm);
 }
 
@@ -274,7 +254,7 @@ button:active::after {
 .long-pressable {
   position: relative;
   transition: transform var(--duration-instant) var(--motion-spring-tight),
-              filter var(--duration-normal) var(--motion-ease-in-out);
+    filter var(--duration-normal) var(--motion-ease-in-out);
   -webkit-touch-callout: none;
   user-select: none;
 }
@@ -289,8 +269,8 @@ button:active::after {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center,
-                              rgba(0, 0, 0, 0.05),
-                              rgba(0, 0, 0, 0.15));
+      rgba(0, 0, 0, 0.05),
+      rgba(0, 0, 0, 0.15));
   opacity: 0;
   transition: opacity var(--duration-instant) var(--motion-spring-tight);
   border-radius: inherit;
@@ -307,6 +287,7 @@ button:active::after {
     transform: scale(0);
     opacity: 0.6;
   }
+
   100% {
     transform: scale(4);
     opacity: 0;
@@ -328,11 +309,11 @@ input[type="range"] {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(to right, 
-                              var(--primary-color) 0%,
-                              var(--primary-color) var(--slider-value, 50%),
-                              var(--bg-tertiary) var(--slider-value, 50%),
-                              var(--bg-tertiary) 100%);
+  background: linear-gradient(to right,
+      var(--primary-color) 0%,
+      var(--primary-color) var(--slider-value, 50%),
+      var(--bg-tertiary) var(--slider-value, 50%),
+      var(--bg-tertiary) 100%);
   outline: none;
   transition: background var(--duration-fast) var(--motion-ease-in-out);
 }
@@ -348,7 +329,7 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
   transition: transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight);
+    box-shadow var(--duration-instant) var(--motion-spring-tight);
 }
 
 input[type="range"]::-webkit-slider-thumb:active {
@@ -365,7 +346,7 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
   transition: transform var(--duration-instant) var(--motion-spring-tight),
-              box-shadow var(--duration-instant) var(--motion-spring-tight);
+    box-shadow var(--duration-instant) var(--motion-spring-tight);
 }
 
 input[type="range"]::-moz-range-thumb:active {
@@ -378,8 +359,8 @@ input:not([type="range"]),
 textarea,
 select {
   transition: border-color var(--duration-normal) var(--motion-ease-in-out),
-              box-shadow var(--duration-normal) var(--motion-ease-in-out),
-              background-color var(--duration-fast) var(--motion-ease-in-out);
+    box-shadow var(--duration-normal) var(--motion-ease-in-out),
+    background-color var(--duration-fast) var(--motion-ease-in-out);
 }
 
 input:focus:not([type="range"]),
@@ -399,6 +380,7 @@ select:focus {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -406,19 +388,58 @@ select:focus {
 
 /* ===== SHAKE ANIMATION (Error Feedback) ===== */
 @keyframes shake-x {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
 }
 
 @keyframes shake-y {
-  0%, 100% { transform: translateY(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateY(-4px); }
-  20%, 40%, 60%, 80% { transform: translateY(4px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateY(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateY(4px);
+  }
 }
 
-.shake-x { animation: shake-x 400ms var(--motion-spring-tight); }
-.shake-y { animation: shake-y 400ms var(--motion-spring-tight); }
+.shake-x {
+  animation: shake-x 400ms var(--motion-spring-tight);
+}
+
+.shake-y {
+  animation: shake-y 400ms var(--motion-spring-tight);
+}
 
 /* ===== SELECTION SCALE-IN ===== */
 @keyframes selection-scale-in {
@@ -426,6 +447,7 @@ select:focus {
     transform: scale(0.8);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -441,6 +463,7 @@ select:focus {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(90deg);
   }
@@ -456,6 +479,7 @@ select:focus {
     transform: translateY(0);
     opacity: 0;
   }
+
   to {
     transform: translateY(-20px);
     opacity: 1;
@@ -466,18 +490,95 @@ select:focus {
   animation: label-float 300ms var(--motion-ease-out) forwards;
 }
 
+/* ===== APPLE CONTEXT MENU (Native Logic) ===== */
+.context-menu {
+  position: fixed;
+  z-index: 5000;
+  min-width: 250px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 6px;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.context-menu.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.context-menu-item {
+  background: none;
+  border: none;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+  border-radius: 10px;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.context-menu-item:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.context-menu-item.destructive {
+  color: var(--system-red);
+}
+
+.context-menu-separator {
+  height: 0.5px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 4px 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .context-menu {
+    background: rgba(28, 28, 30, 0.82);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  }
+
+  .context-menu-item {
+    color: #FFF;
+  }
+
+  .context-menu-item:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .context-menu-separator {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
 /* ===== ACCESSIBILITY ===== */
 @media (prefers-reduced-motion: reduce) {
+
   .pressable,
   .btn,
   button,
   .list-item,
   .card-pressable,
+  .context-menu,
   input[type="range"]::-webkit-slider-thumb,
   input[type="range"]::-moz-range-thumb {
     transition: none;
   }
-  
+
   .pressable:active,
   .btn:active,
   button:active,

@@ -40,16 +40,6 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Enhanced touch feedback */
-.mobile-touch-fix {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
-}
-
 /* Improved touch targets */
 .touch-target {
     min-height: 44px;
@@ -58,43 +48,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-/* Enhanced touch feedback for interactive elements */
-.touch-feedback {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.1s ease-out;
-    -webkit-transition: all 0.1s ease-out;
-}
-
-.touch-feedback:active {
-    transform: scale(0.98) translateZ(0);
-    -webkit-transform: scale(0.98) translateZ(0);
-}
-
-/* Mobile-specific ripple effect */
-.touch-ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(99, 102, 241, 0.3);
-    transform: scale(0);
-    animation: ripple 0.6s linear;
-    pointer-events: none;
-}
-
-@keyframes ripple {
-    to {
-        transform: scale(4);
-        opacity: 0;
-    }
-}
-
-@-webkit-keyframes ripple {
-    to {
-        -webkit-transform: scale(4);
-        opacity: 0;
-    }
 }
 
 /* Mobile-first Layout Adjustments */
