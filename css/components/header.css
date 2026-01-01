@@ -26,6 +26,7 @@
     width: 100%;
 }
 
+/* Brand/Logo Area */
 .brand-container {
     display: flex;
     flex-direction: column;
@@ -36,6 +37,8 @@
     padding: 0;
     margin: 0;
     text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* App Title - Dimensional White (Apple Premium Standard) */
@@ -44,46 +47,72 @@
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.5px;
-    /* Soft, semi-opaque white grade for depth */
-    color: #F5F5F7;
+    color: #F9F9FB;
+    /* Unified Premium White */
     margin: 0;
     line-height: 1.2;
     transition: all 0.2s var(--ios-ease);
-    /* Subtle stereoscopic shadow for legibility and dimension */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.05);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .app-title:active {
     opacity: 0.7;
-    transform: scale(0.99);
+    transform: scale(0.995);
 }
 
 /* Brand Description - Tonal Layering */
 .brand-description {
     font-size: 13px;
     font-weight: 500;
-    /* Reduced opacity for hierarchical depth */
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(249, 249, 251, 0.85);
     margin: 0;
     letter-spacing: 0.1px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* THEME INTEGRATION: Harmonious White Balance */
-/* Removed per-theme color overrides to ensure a unified white-grade identity */
-
+/* THEME INTEGRATION: Unified White System */
 body.girl-mode .brand-description {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(249, 249, 251, 0.82);
 }
 
-/* LARGE TITLE & NATIVE MORPHING */
+/* NATIVE MORPHING TITLES (Used in Navigation) */
+.large-title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 1rem 0;
+    /* Adjusted from 1rem 2rem for consistent container alignment */
+    color: #F9F9FB;
+    text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s var(--ios-ease);
+    opacity: 1;
+}
+
+.inline-title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    text-align: center;
+    padding: 12px 0;
+    color: #F9F9FB;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s var(--ios-ease);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    pointer-events: none;
+}
+
+/* SCROLL STATES & TRANSITIONS */
 .scrollable-header {
     width: 100%;
     position: sticky;
     top: 0;
     background: transparent;
     z-index: 100;
-    /* Initial state before scroll */
+    transition: background 0.3s var(--ios-ease);
 }
 
 .scrollable-header.scrolled {
@@ -91,6 +120,18 @@ body.girl-mode .brand-description {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+
+.scrollable-header.scrolled .large-title {
+    font-size: 17px;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+.scrollable-header.scrolled .inline-title {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -105,15 +146,28 @@ body.girl-mode .brand-description {
     .header-container {
         padding-top: 40px;
         padding-bottom: 24px;
+        margin-bottom: 2rem;
+        /* Consistent spacing */
     }
 
-    .app-title {
-        font-size: 34px;
-        letter-spacing: -0.8px;
+    .app-title,
+    .large-title {
+        font-size: 42px;
+        letter-spacing: -1px;
     }
 
     .brand-description {
         font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .large-title {
+        font-size: 28px;
     }
 }
 

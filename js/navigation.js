@@ -70,9 +70,9 @@ class Navigation {
 
         // 2. Remove scroll listener
         if (this.scrollListener) {
-            const cardsContainer = document.getElementById('cards-container');
-            if (cardsContainer) {
-                cardsContainer.removeEventListener('scroll', this.scrollListener, { passive: true });
+            const screen = document.querySelector('.screen.active');
+            if (screen) {
+                screen.removeEventListener('scroll', this.scrollListener, { passive: true });
                 console.log('✓ Scroll listener removed');
             }
             this.scrollListener = null;
@@ -782,18 +782,16 @@ class Navigation {
         if (!screen) return;
 
         const header = screen.querySelector('.scrollable-header');
-        const cardsContainer = screen.querySelector('#cards-container');
-
-        if (!header || !cardsContainer) return;
+        if (!header) return;
 
         // Remove existing listeners to avoid duplicates
         if (this.scrollListener) {
-            cardsContainer.removeEventListener('scroll', this.scrollListener, { passive: true });
+            screen.removeEventListener('scroll', this.scrollListener);
         }
 
         this.scrollListener = () => {
-            const scrollY = cardsContainer.scrollTop;
-            const threshold = 100; // px
+            const scrollY = screen.scrollTop;
+            const threshold = 10; // Trigger earlier for smoother feel
 
             if (scrollY > threshold) {
                 header.classList.add('scrolled');
@@ -802,6 +800,6 @@ class Navigation {
             }
         };
 
-        cardsContainer.addEventListener('scroll', this.scrollListener, { passive: true });
+        screen.addEventListener('scroll', this.scrollListener, { passive: true });
     }
 }

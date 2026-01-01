@@ -95,23 +95,7 @@ body {
   background-color: var(--system-background);
 }
 
-/* Large Title - Scroll to Inline Transition */
-.screen-title {
-  font-family: -apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif;
-  font-size: clamp(28px, 7vw, 34px);
-  font-weight: 700;
-  letter-spacing: var(--tracking-tight);
-  line-height: 1.1;
-  margin: 0 0 1rem 0;
-  transition: font-size 0.3s cubic-bezier(0.3, 0, 0.2, 1);
-}
-
-.header-title {
-  font-size: clamp(17px, 4.5vw, 20px);
-  font-weight: 600;
-  letter-spacing: var(--tracking-normal);
-}
-
+/* Base typography managed via typography-system.css and component styles */
 .body-text {
   font-size: clamp(15px, 3.8vw, 17px);
   letter-spacing: var(--tracking-normal);
