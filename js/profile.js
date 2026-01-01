@@ -75,8 +75,14 @@ class Profile {
             });
             sponsorCard.insertAdjacentHTML('afterbegin', '<span class="sponsor-badge">Partner</span>');
 
-            // Detect standalone mode
-            const isApp = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+            // Detect standalone mode (Safari-safe)
+            let isApp = false;
+            try {
+                isApp = window.navigator.standalone === true ||
+                    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+            } catch (e) {
+                console.warn('[Profile] matchMedia check failed:', e);
+            }
 
             // 3. Install App Card (Small/Parallel)
             const installCard = this.createCard({
@@ -162,8 +168,8 @@ class Profile {
         try {
             if (navigator.share) {
                 await navigator.share(shareData);
-            } else {
-                // Fallback: Copy to clipboard
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                // Fallback: Copy to clipboard (Safari-safe)
                 await navigator.clipboard.writeText(window.location.origin);
                 if (window.dynamicIsland) {
                     window.dynamicIsland.show({
@@ -172,9 +178,26 @@ class Profile {
                         type: 'success'
                     });
                 }
+            } else {
+                // Ultimate fallback for older browsers
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: 'Share Link',
+                        subtitle: window.location.origin,
+                        type: 'info'
+                    });
+                }
             }
         } catch (err) {
             console.warn('Share failed:', err);
+            // Graceful degradation
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: 'Share Link',
+                    subtitle: window.location.origin,
+                    type: 'info'
+                });
+            }
         }
     }
 

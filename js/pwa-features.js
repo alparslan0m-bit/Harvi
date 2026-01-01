@@ -42,7 +42,14 @@ class CustomA2HSPrompt {
      * Manual trigger for installation logic
      */
     triggerInstall() {
-        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        // Safari-safe standalone detection
+        let isStandalone = false;
+        try {
+            isStandalone = window.navigator.standalone === true ||
+                (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+        } catch (e) {
+            console.warn('[PWA] matchMedia check failed:', e);
+        }
 
         if (isStandalone) {
             if (window.dynamicIsland) {
