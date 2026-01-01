@@ -38,44 +38,42 @@
     text-align: left;
 }
 
-/* App Title - Professional & Calm */
+/* App Title - Dimensional White (Apple Premium Standard) */
 .app-title {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.5px;
-    color: var(--text-primary, #1C1C1E);
+    /* Soft, semi-opaque white grade for depth */
+    color: #F5F5F7;
     margin: 0;
     line-height: 1.2;
-    transition: opacity 0.2s var(--ios-ease);
+    transition: all 0.2s var(--ios-ease);
+    /* Subtle stereoscopic shadow for legibility and dimension */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .app-title:active {
-    opacity: 0.6;
+    opacity: 0.7;
+    transform: scale(0.99);
 }
 
-/* Brand Description - Subtle & Supportive */
+/* Brand Description - Tonal Layering */
 .brand-description {
     font-size: 13px;
     font-weight: 500;
-    color: var(--text-secondary, #8E8E93);
+    /* Reduced opacity for hierarchical depth */
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
-    letter-spacing: -0.1px;
+    letter-spacing: 0.1px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* THEME INTEGRATION: Azure (Default) */
-body:not(.girl-mode) .app-title {
-    color: var(--primary-color, #0EA5E9);
-}
-
-/* THEME INTEGRATION: Blush (Girl Mode) */
-body.girl-mode .app-title {
-    color: #EC4899;
-}
+/* THEME INTEGRATION: Harmonious White Balance */
+/* Removed per-theme color overrides to ensure a unified white-grade identity */
 
 body.girl-mode .brand-description {
-    color: #DB2777;
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* LARGE TITLE & NATIVE MORPHING */

@@ -1,10 +1,15 @@
 :root {
     /* Default Theme (Blue Mode) - Cool, clinical blues/teals with strong contrast */
-    --primary-color: #0EA5E9;       /* Sky 500 */
-    --primary-hover: #0284C7;       /* Sky 600 */
-    --primary-light: #E0F2FE;       /* Sky 100 */
-    --primary-dark: #075985;        /* Sky 800 */
-    --bg-hover: #F1F5F9;            /* Slate 100 */
+    --primary-color: #0EA5E9;
+    /* Sky 500 */
+    --primary-hover: #0284C7;
+    /* Sky 600 */
+    --primary-light: #E0F2FE;
+    /* Sky 100 */
+    --primary-dark: #075985;
+    /* Sky 800 */
+    --bg-hover: #F1F5F9;
+    /* Slate 100 */
 
     --success-color: #10B981;
     --success-light: #ECFDF5;
@@ -14,16 +19,23 @@
     --error-light: #FEF2F2;
     --error-dark: #DC2626;
 
-    --text-primary: #1F2937;        /* Slate 800 */
-    --text-secondary: #475569;      /* Slate 600 */
-    --text-muted: #94A3B8;          /* Slate 400 */
+    --text-primary: #1F2937;
+    /* Slate 800 */
+    --text-secondary: #475569;
+    /* Slate 600 */
+    --text-muted: #94A3B8;
+    /* Slate 400 */
 
     --bg-primary: #FFFFFF;
-    --bg-secondary: #F8FAFC;        /* Slate 50 */
-    --bg-tertiary: #F1F5F9;         /* Slate 100 */
+    --bg-secondary: #F8FAFC;
+    /* Slate 50 */
+    --bg-tertiary: #F1F5F9;
+    /* Slate 100 */
 
-    --border-color: #E2E8F0;        /* Slate 200 */
-    --border-light: #F1F5F9;        /* Slate 100 */
+    --border-color: #E2E8F0;
+    /* Slate 200 */
+    --border-light: #F1F5F9;
+    /* Slate 100 */
 
     /* Glassmorphism Design System */
     --glass-bg: rgba(255, 255, 255, 0.7);
@@ -63,10 +75,12 @@
     --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);  /* sky -> teal */
+    --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+    /* sky -> teal */
     --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
     --gradient-error: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    --gradient-bg: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);       /* sky -> cyan */
+    --gradient-bg: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
+    /* sky -> cyan */
     --gradient-overlay: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(20, 184, 166, 0.9) 100%);
 
     /* Backdrop filters for premium feel */

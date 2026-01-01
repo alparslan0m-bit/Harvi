@@ -1,24 +1,33 @@
 /* Girl Mode - Variable Override System only */
 body.girl-mode {
     /* 1. Color Palette Swaps (Blue -> Pink) */
-    --primary-color: #EC4899;       /* Rose 500 */
-    --primary-hover: #DB2777;       /* Rose 600 */
-    --primary-light: #FFE4E6;       /* Rose 100 */
-    --primary-dark: #BE185D;        /* Rose 700 */
+    --primary-color: #EC4899;
+    /* Rose 500 */
+    --primary-hover: #DB2777;
+    /* Rose 600 */
+    --primary-light: #FFE4E6;
+    /* Rose 100 */
+    --primary-dark: #BE185D;
+    /* Rose 700 */
 
     /* 2. Backgrounds (Clean & Bright, No "Dark" Gradients) */
     --bg-primary: #FFFFFF;
-    --bg-secondary: #FFF1F2;        /* Rose 50 */
-    --bg-tertiary: #FFE4E6;         /* Rose 100 */
-    --border-color: #FBCFE8;        /* Rose 200 */
+    --bg-secondary: #FFF1F2;
+    /* Rose 50 */
+    --bg-tertiary: #FFE4E6;
+    /* Rose 100 */
+    --border-color: #FBCFE8;
+    /* Rose 200 */
 
     /* 3. Text (Keep high contrast mostly, but soften muted text) */
-    --text-primary: #1F2937;        /* Gray 800 (Sharp) */
+    --text-primary: #1F2937;
+    /* Gray 800 (Sharp) */
     --text-muted: #9CA3AF;
 
     /* 4. SHADOWS - The "No Black Shadows" Fix */
     /* We replace black shadows with Diffuse Pink Glows */
-    --shadow-color: 236, 72, 153; /* r,g,b of Pink */
+    --shadow-color: 236, 72, 153;
+    /* r,g,b of Pink */
 
     --shadow-sm: 0 1px 2px 0 rgba(var(--shadow-color), 0.15);
     --shadow-md: 0 4px 6px -1px rgba(var(--shadow-color), 0.2), 0 2px 4px -1px rgba(var(--shadow-color), 0.1);
@@ -33,7 +42,8 @@ body.girl-mode {
 
     /* 5. Gradients */
     --gradient-primary: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
-    --gradient-bg: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); /* For specific elements that need gradient */
+    --gradient-bg: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+    /* For specific elements that need gradient */
 
     /* 6. Focus ring */
     --focus-ring: 0 0 0 3px rgba(236, 72, 153, 0.3);
