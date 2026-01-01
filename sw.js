@@ -18,10 +18,10 @@ const IMAGE_CACHE = `harvi-images-v${APP_VERSION}`;
 // Log version info
 console.log(`[SW] Version ${APP_VERSION} (${BUILD_TIMESTAMP})`);
 console.log(`[SW] Cache names:`, {
-    shell: CACHE_NAME,
-    runtime: RUNTIME_CACHE,
-    api: API_CACHE,
-    images: IMAGE_CACHE
+  shell: CACHE_NAME,
+  runtime: RUNTIME_CACHE,
+  api: API_CACHE,
+  images: IMAGE_CACHE
 });
 
 // Determine base path (works for root or subdirectory deployments)
@@ -30,6 +30,7 @@ const BASE_PATH = self.registration.scope.replace(self.location.origin, '').slic
 const ASSETS_TO_CACHE = [
   BASE_PATH + '/',
   BASE_PATH + '/index.html',
+  BASE_PATH + '/manifest.json',
   BASE_PATH + '/css/main.css',
   BASE_PATH + '/css/base/variables.css',
   BASE_PATH + '/css/base/reset.css',
@@ -46,6 +47,11 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/css/components/showcase-glass-2.0.css',
   BASE_PATH + '/css/components/bottom-nav.css',
   BASE_PATH + '/css/components/gamification.css',
+  BASE_PATH + '/css/components/profile.css',
+  BASE_PATH + '/css/components/modals.css',
+  BASE_PATH + '/css/components/pwa-features.css',
+  BASE_PATH + '/css/components/dynamic-island.css',
+  BASE_PATH + '/css/components/native-navigation.css',
   BASE_PATH + '/css/layout/grid.css',
   BASE_PATH + '/css/themes/girl-mode.css',
   BASE_PATH + '/css/utils/responsive.css',
@@ -57,6 +63,10 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/js/quiz.js',
   BASE_PATH + '/js/results.js',
   BASE_PATH + '/js/navigation.js',
+  BASE_PATH + '/js/profile.js',
+  BASE_PATH + '/js/pwa-features.js',
+  BASE_PATH + '/js/motion-coordinator.js',
+  BASE_PATH + '/js/native-touch-engine.js',
   BASE_PATH + '/js/animations.js',
   BASE_PATH + '/js/showcase-features.js',
   BASE_PATH + '/js/dynamic-island.js',
@@ -85,107 +95,107 @@ self.addEventListener('install', (event) => {
  * IMPROVED: Deletes ALL caches not matching current version
  */
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Activating Service Worker version', APP_VERSION);
-    
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            // List of current cache names (all with same version)
-            const currentCaches = [
-                CACHE_NAME,
-                RUNTIME_CACHE,
-                API_CACHE,
-                IMAGE_CACHE
-            ];
-            
-            console.log('[SW] Current caches:', currentCaches);
-            console.log('[SW] Found caches:', cacheNames);
-            
-            // Delete any cache that:
-            // 1. Is a Harvi cache (starts with 'harvi-')
-            // 2. But NOT in current version list
-            const cachesToDelete = cacheNames.filter(cacheName => {
-                // Check if this is a Harvi cache
-                const isHarviCache = cacheName.startsWith('harvi-');
-                // Check if it's in our current version caches
-                const isCurrentCache = currentCaches.includes(cacheName);
-                // Delete if it's ours but old version
-                return isHarviCache && !isCurrentCache;
+  console.log('[SW] Activating Service Worker version', APP_VERSION);
+
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      // List of current cache names (all with same version)
+      const currentCaches = [
+        CACHE_NAME,
+        RUNTIME_CACHE,
+        API_CACHE,
+        IMAGE_CACHE
+      ];
+
+      console.log('[SW] Current caches:', currentCaches);
+      console.log('[SW] Found caches:', cacheNames);
+
+      // Delete any cache that:
+      // 1. Is a Harvi cache (starts with 'harvi-')
+      // 2. But NOT in current version list
+      const cachesToDelete = cacheNames.filter(cacheName => {
+        // Check if this is a Harvi cache
+        const isHarviCache = cacheName.startsWith('harvi-');
+        // Check if it's in our current version caches
+        const isCurrentCache = currentCaches.includes(cacheName);
+        // Delete if it's ours but old version
+        return isHarviCache && !isCurrentCache;
+      });
+
+      if (cachesToDelete.length > 0) {
+        console.log('[SW] Deleting old caches:', cachesToDelete);
+      } else {
+        console.log('[SW] No old caches to delete');
+      }
+
+      return Promise.all(
+        cachesToDelete.map((cacheName) => {
+          console.log('[SW] Deleting cache:', cacheName);
+          return caches.delete(cacheName);
+        })
+      );
+    })
+      .then(() => {
+        console.log('[SW] Old caches cleaned up');
+        return self.clients.claim();
+      })
+      .then(() => {
+        console.log('[SW] Service worker activated and claimed clients');
+
+        // Notify all clients about the new version
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SW_ACTIVATED',
+              version: APP_VERSION,
+              buildTime: BUILD_TIMESTAMP
             });
-            
-            if (cachesToDelete.length > 0) {
-                console.log('[SW] Deleting old caches:', cachesToDelete);
-            } else {
-                console.log('[SW] No old caches to delete');
-            }
-            
-            return Promise.all(
-                cachesToDelete.map((cacheName) => {
-                    console.log('[SW] Deleting cache:', cacheName);
-                    return caches.delete(cacheName);
-                })
-            );
-        })
-        .then(() => {
-            console.log('[SW] Old caches cleaned up');
-            return self.clients.claim();
-        })
-        .then(() => {
-            console.log('[SW] Service worker activated and claimed clients');
-            
-            // Notify all clients about the new version
-            return self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({
-                        type: 'SW_ACTIVATED',
-                        version: APP_VERSION,
-                        buildTime: BUILD_TIMESTAMP
-                    });
-                });
-            });
-        })
-    );
+          });
+        });
+      })
+  );
 });
 
 /**
  * Message handler - allow clients to query version
  */
 self.addEventListener('message', (event) => {
-    console.log('[SW] Received message:', event.data);
-    
-    // Existing prefetch handler
-    if (event.data && event.data.type === 'PREFETCH_QUIZZES') {
-        const lectureIds = event.data.lectureIds || [];
-        prefetchQuizzes(lectureIds);
-        return;
-    }
-    
-    // NEW: Version query handler
-    if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({
-            version: APP_VERSION,
-            buildTime: BUILD_TIMESTAMP,
-            caches: {
-                shell: CACHE_NAME,
-                runtime: RUNTIME_CACHE,
-                api: API_CACHE,
-                images: IMAGE_CACHE
-            }
-        });
-        return;
-    }
-    
-    // NEW: Clear all caches (for debugging/reset)
-    if (event.data && event.data.type === 'CLEAR_CACHES') {
-        event.waitUntil(
-            caches.keys()
-                .then(names => Promise.all(names.map(name => caches.delete(name))))
-                .then(() => {
-                    console.log('[SW] All caches cleared');
-                    event.ports[0].postMessage({ ok: true });
-                })
-        );
-        return;
-    }
+  console.log('[SW] Received message:', event.data);
+
+  // Existing prefetch handler
+  if (event.data && event.data.type === 'PREFETCH_QUIZZES') {
+    const lectureIds = event.data.lectureIds || [];
+    prefetchQuizzes(lectureIds);
+    return;
+  }
+
+  // NEW: Version query handler
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({
+      version: APP_VERSION,
+      buildTime: BUILD_TIMESTAMP,
+      caches: {
+        shell: CACHE_NAME,
+        runtime: RUNTIME_CACHE,
+        api: API_CACHE,
+        images: IMAGE_CACHE
+      }
+    });
+    return;
+  }
+
+  // NEW: Clear all caches (for debugging/reset)
+  if (event.data && event.data.type === 'CLEAR_CACHES') {
+    event.waitUntil(
+      caches.keys()
+        .then(names => Promise.all(names.map(name => caches.delete(name))))
+        .then(() => {
+          console.log('[SW] All caches cleared');
+          event.ports[0].postMessage({ ok: true });
+        })
+    );
+    return;
+  }
 });
 
 async function prefetchQuizzes(lectureIds) {
@@ -341,11 +351,11 @@ self.addEventListener('fetch', (event) => {
             // Graceful degradation for missing static assets
             if (request.destination === 'image') {
               // Return a placeholder image or cached fallback
-              return caches.match(BASE_PATH + '/icons/icon-192x192.png');
+              return caches.match(BASE_PATH + '/icons/icon-192x192.svg');
             }
             return new Response('Asset not found', { status: 404 });
-          });
-      })
+          })
+      )
   );
 });
 
@@ -372,62 +382,62 @@ self.addEventListener('sync', (event) => {
  * IMPROVED: Comprehensive error handling to prevent service worker crashes
  */
 self.addEventListener('push', (event) => {
-    // CRITICAL FIX: Wrap entire handler in try-catch to prevent SW crashes
-    try {
-        if (!event || !event.data) {
-            console.warn('Invalid push event received');
-            return;
-        }
-
-        let data = { title: 'Harvi', body: 'New content available' };
-
-        // Try to parse JSON data with comprehensive error handling
-        try {
-            const jsonData = event.data.json();
-            if (jsonData && typeof jsonData === 'object') {
-                data = { ...data, ...jsonData };
-            }
-        } catch (jsonError) {
-            console.warn('Failed to parse push notification JSON:', jsonError);
-            
-            // Fallback: try to get text content
-            try {
-                const textData = event.data.text();
-                if (textData && typeof textData === 'string') {
-                    data.body = textData;
-                }
-            } catch (textError) {
-                console.warn('Failed to read push notification text:', textError);
-                // Continue with default data
-            }
-        }
-
-        // Validate and sanitize notification data with fallbacks
-        const title = String(data.title || 'Harvi').substring(0, 100);
-        const body = String(data.body || 'New content available').substring(0, 200);
-        const requireInteraction = Boolean(data.requireInteraction);
-
-        const options = {
-            body: body,
-            icon: BASE_PATH + '/icons/icon-192x192.png',
-            badge: BASE_PATH + '/icons/badge-72x72.png',
-            tag: data.tag || 'harvi-notification',
-            requireInteraction: requireInteraction,
-            data: data.data || {}
-        };
-
-        event.waitUntil(
-            self.registration.showNotification(title, options)
-                .catch(notificationError => {
-                    console.error('Failed to show notification:', notificationError);
-                    // Don't re-throw - we've handled the error
-                })
-        );
-    } catch (error) {
-        console.error('Push notification handler error:', error);
-        // CRITICAL: Don't let push handler errors crash the service worker
-        // Just log and continue - the SW stays alive
+  // CRITICAL FIX: Wrap entire handler in try-catch to prevent SW crashes
+  try {
+    if (!event || !event.data) {
+      console.warn('Invalid push event received');
+      return;
     }
+
+    let data = { title: 'Harvi', body: 'New content available' };
+
+    // Try to parse JSON data with comprehensive error handling
+    try {
+      const jsonData = event.data.json();
+      if (jsonData && typeof jsonData === 'object') {
+        data = { ...data, ...jsonData };
+      }
+    } catch (jsonError) {
+      console.warn('Failed to parse push notification JSON:', jsonError);
+
+      // Fallback: try to get text content
+      try {
+        const textData = event.data.text();
+        if (textData && typeof textData === 'string') {
+          data.body = textData;
+        }
+      } catch (textError) {
+        console.warn('Failed to read push notification text:', textError);
+        // Continue with default data
+      }
+    }
+
+    // Validate and sanitize notification data with fallbacks
+    const title = String(data.title || 'Harvi').substring(0, 100);
+    const body = String(data.body || 'New content available').substring(0, 200);
+    const requireInteraction = Boolean(data.requireInteraction);
+
+    const options = {
+      body: body,
+      icon: BASE_PATH + '/icons/icon-192x192.png',
+      badge: BASE_PATH + '/icons/badge-72x72.png',
+      tag: data.tag || 'harvi-notification',
+      requireInteraction: requireInteraction,
+      data: data.data || {}
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(title, options)
+        .catch(notificationError => {
+          console.error('Failed to show notification:', notificationError);
+          // Don't re-throw - we've handled the error
+        })
+    );
+  } catch (error) {
+    console.error('Push notification handler error:', error);
+    // CRITICAL: Don't let push handler errors crash the service worker
+    // Just log and continue - the SW stays alive
+  }
 });
 
 /**

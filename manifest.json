@@ -12,130 +12,32 @@
     "education",
     "medical"
   ],
-  "screenshots": [
+  "icons": [
     {
-      "src": "./icons/screenshot-192.png",
+      "src": "./icons/icon-192x192.svg",
       "sizes": "192x192",
-      "form_factor": "narrow"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "./icons/screenshot-512.png",
+      "src": "./icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./icons/icon-512x512.svg",
       "sizes": "512x512",
       "form_factor": "wide"
     }
   ],
-  "icons": [
-    {
-      "src": "./icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-192x192-maskable.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "./icons/icon-512x512-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Resume Last Quiz",
-      "short_name": "Resume",
-      "description": "Continue your last quiz session",
-      "url": "./index.html?action=resume",
-      "icons": [
-        {
-          "src": "./icons/shortcut-resume-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Browse Questions",
-      "short_name": "Browse",
-      "description": "Browse all available medical questions",
-      "url": "./index.html?action=browse",
-      "icons": [
-        {
-          "src": "./icons/shortcut-browse-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "My Progress",
-      "short_name": "Progress",
-      "description": "View your learning statistics",
-      "url": "./index.html?action=progress",
-      "icons": [
-        {
-          "src": "./icons/shortcut-progress-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "share_target": {
-    "action": "./share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
   "prefer_related_applications": false
 }
