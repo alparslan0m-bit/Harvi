@@ -10,16 +10,18 @@
 class CustomA2HSPrompt {
     constructor() {
         this.deferredPrompt = null;
-        this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         this.init();
     }
 
     init() {
         // Listen for beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
+            // Stash the event so it can be triggered later.
             this.deferredPrompt = e;
-            this.showCustomPrompt();
+            console.log('✓ PWA Install Prompt captured');
         });
 
         // Track app installed state
@@ -27,158 +29,122 @@ class CustomA2HSPrompt {
             console.log('✓ PWA installed successfully');
             this.deferredPrompt = null;
             localStorage.setItem('harvi_app_installed', 'true');
-            HapticsEngine.success();
-            audioToolkit.play('celebration');
-        });
+            if (window.HapticsEngine) window.HapticsEngine.notification('success');
 
-        // For iOS, show manual installation instructions
-        if (this.isIOS) {
+            // Re-render profile if active
+            if (window.app && window.app.profile) {
+                window.app.profile.init();
+            }
+        });
+    }
+
+    /**
+     * Manual trigger for installation logic
+     */
+    triggerInstall() {
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isStandalone) {
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: 'Already Installed',
+                    subtitle: 'Harvi is running as a native app',
+                    type: 'success'
+                });
+            }
+            return;
+        }
+
+        if (this.deferredPrompt) {
+            // Android / Chrome Desktop
+            this.installApp();
+        } else if (this.isIOS) {
+            // iOS Safari
             this.showIOSInstallPrompt();
+        } else {
+            // Other Desktop / Fallback
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: 'How to Install',
+                    subtitle: 'Use your browser\'s install menu or icon in address bar',
+                    type: 'info'
+                });
+            }
         }
     }
 
-    showCustomPrompt() {
-        const existingPrompt = document.getElementById('custom-a2hs-prompt');
-        if (existingPrompt) {
-            existingPrompt.remove();
+    async installApp() {
+        if (!this.deferredPrompt) return;
+
+        try {
+            this.deferredPrompt.prompt();
+            const { outcome } = await this.deferredPrompt.userChoice;
+            console.log(`User response to install: ${outcome}`);
+            this.deferredPrompt = null;
+        } catch (err) {
+            console.error('Install prompt failed:', err);
         }
+    }
+
+    showIOSInstallPrompt() {
+        // Remove existing if any
+        const existing = document.getElementById('ios-install-prompt');
+        if (existing) existing.remove();
 
         const prompt = document.createElement('div');
-        prompt.id = 'custom-a2hs-prompt';
-        prompt.className = 'custom-a2hs-container';
+        prompt.id = 'ios-install-prompt';
+        prompt.className = 'ios-install-container';
+
+        // Premium Apple-inspired instruction UI
         prompt.innerHTML = `
-            <div class="custom-a2hs-card glass-card">
-                <button class="a2hs-close" aria-label="Close">&times;</button>
-                <div class="a2hs-content">
-                    <div class="a2hs-icon">🚀</div>
-                    <h2 class="a2hs-title">Install Harvi</h2>
-                    <p class="a2hs-description">
-                        Get instant access to medical MCQs. Works offline, faster loading, and home screen icon.
-                    </p>
-                    <div class="a2hs-benefits">
-                        <div class="a2hs-benefit">
-                            <span class="benefit-icon">📱</span>
-                            <span class="benefit-text">App-like experience</span>
+            <div class="ios-install-card glass-card">
+                <div class="ios-install-handle"></div>
+                <div class="ios-content">
+                    <div class="ios-header-row">
+                        <div class="ios-app-icon">🏥</div>
+                        <div class="ios-app-info">
+                            <h3>Install Harvi</h3>
+                            <p>Add to your home screen</p>
                         </div>
-                        <div class="a2hs-benefit">
-                            <span class="benefit-icon">📡</span>
-                            <span class="benefit-text">Works offline</span>
+                        <button class="ios-close-btn">&times;</button>
+                    </div>
+                    
+                    <div class="ios-instruction-steps">
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <p>Tap the <strong>Share</strong> button in the browser toolbar</p>
+                            <span class="step-icon share-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                            </span>
                         </div>
-                        <div class="a2hs-benefit">
-                            <span class="benefit-icon">⚡</span>
-                            <span class="benefit-text">Lightning fast</span>
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <p>Scroll down and select <strong>Add to Home Screen</strong></p>
+                            <span class="step-icon plus-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            </span>
                         </div>
                     </div>
-                    <div class="a2hs-buttons">
-                        <button class="btn-install">Install Now</button>
-                        <button class="btn-dismiss">Not Now</button>
-                    </div>
+                    
+                    <button class="ios-done-btn">Got It</button>
                 </div>
             </div>
+            <div class="ios-backdrop"></div>
         `;
 
         document.body.appendChild(prompt);
 
-        // Event listeners
-        prompt.querySelector('.a2hs-close').addEventListener('click', () => {
-            this.dismissPrompt(prompt);
-        });
+        // Haptic feedback
+        if (window.HapticsEngine) window.HapticsEngine.notification('success');
 
-        prompt.querySelector('.btn-install').addEventListener('click', () => {
-            this.installApp();
-        });
+        const close = () => {
+            prompt.classList.add('fade-out');
+            setTimeout(() => prompt.remove(), 400);
+        };
 
-        prompt.querySelector('.btn-dismiss').addEventListener('click', () => {
-            this.dismissPrompt(prompt);
-        });
-
-        // Auto-dismiss after 10 seconds
-        setTimeout(() => {
-            if (document.body.contains(prompt)) {
-                this.dismissPrompt(prompt);
-            }
-        }, 10000);
-    }
-
-    async installApp() {
-        if (this.deferredPrompt) {
-            this.deferredPrompt.prompt();
-            const { outcome } = await this.deferredPrompt.userChoice;
-            console.log(`User response: ${outcome}`);
-            this.deferredPrompt = null;
-        }
-    }
-
-    dismissPrompt(prompt) {
-        prompt.classList.add('fade-out');
-        setTimeout(() => {
-            if (document.body.contains(prompt)) {
-                document.body.removeChild(prompt);
-            }
-        }, 300);
-        
-        // Don't show again for 7 days
-        localStorage.setItem('harvi_a2hs_dismissed', Date.now());
-    }
-
-    showIOSInstallPrompt() {
-        // Check if already installed (Safari fullscreen mode or PWA standalone)
-        const isRunningStandalone = window.navigator.standalone === true || 
-            window.matchMedia('(display-mode: standalone)').matches;
-        if (isRunningStandalone) {
-            return;
-        }
-
-        const lastDismissed = localStorage.getItem('harvi_ios_install_dismissed');
-        if (lastDismissed && Date.now() - lastDismissed < 7 * 24 * 60 * 60 * 1000) {
-            return; // Don't show for 7 days after dismissal
-        }
-
-        setTimeout(() => {
-            const prompt = document.createElement('div');
-            prompt.id = 'ios-install-prompt';
-            prompt.className = 'ios-install-container';
-            prompt.innerHTML = `
-                <div class="ios-install-card glass-card">
-                    <button class="ios-close" aria-label="Close">&times;</button>
-                    <div class="ios-content">
-                        <div class="ios-icon">📲</div>
-                        <h2 class="ios-title">Install on Home Screen</h2>
-                        <p class="ios-description">
-                            Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> for quick access
-                        </p>
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8' stroke='%230EA5E9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 2v10M7 7l5-5 5 5' stroke='%230EA5E9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Share" class="ios-instruction-icon">
-                        <button class="btn-got-it">Got It</button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(prompt);
-
-            prompt.querySelector('.ios-close').addEventListener('click', () => {
-                this.dismissIOSPrompt(prompt);
-            });
-
-            prompt.querySelector('.btn-got-it').addEventListener('click', () => {
-                this.dismissIOSPrompt(prompt);
-            });
-
-            setTimeout(() => {
-                if (document.body.contains(prompt)) {
-                    this.dismissIOSPrompt(prompt);
-                }
-            }, 8000);
-        }, 2000); // Show after 2 seconds
-    }
-
-    dismissIOSPrompt(prompt) {
-        prompt.classList.add('fade-out');
-        setTimeout(() => {
-            if (document.body.contains(prompt)) {
-                document.body.removeChild(prompt);
-            }
-        }, 300);
-        localStorage.setItem('harvi_ios_install_dismissed', Date.now());
+        prompt.querySelector('.ios-close-btn').addEventListener('click', close);
+        prompt.querySelector('.ios-done-btn').addEventListener('click', close);
+        prompt.querySelector('.ios-backdrop').addEventListener('click', close);
     }
 }
 
@@ -204,12 +170,12 @@ class AdaptiveThemeColor {
 
     static updateTheme() {
         const isGirlMode = document.body.classList.contains('girl-mode');
-        
+
         // Boy mode: Sky blue (#0EA5E9)
         // Girl mode: Pink (#EC4899)
         const color = isGirlMode ? '#EC4899' : '#0EA5E9';
         const metaTag = document.querySelector('meta[name="theme-color"]');
-        
+
         if (metaTag) {
             metaTag.setAttribute('content', color);
         }
@@ -373,7 +339,7 @@ if (document.readyState === 'loading') {
 
 function initializePWAFeatures() {
     // Initialize custom A2HS
-    new CustomA2HSPrompt();
+    window.pwaPrompt = new CustomA2HSPrompt();
 
     // Initialize adaptive theme color
     AdaptiveThemeColor.init();

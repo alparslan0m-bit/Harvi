@@ -1,258 +1,292 @@
 /**
- * Profile Screen Manager - App-Centric Bento Edition
- * Re-engineered for high-impact visual hierarchy using Apple's Bento Grid layout.
- * Theme system translated into Male/Female iconography for intuitive personalization.
+ * Profile Manager
+ * Manages the app-centric Bento-style Profile page
+ * Features: Theme toggle, Share, Install PWA, Clear Data
  */
 class Profile {
     constructor(app) {
         this.app = app;
-        this.container = document.getElementById('profile-content');
+        this.containerId = 'profile-content';
     }
 
-    /**
-     * Initialize the Profile page
-     */
-    async init() {
-        if (!this.container) return;
-
-        this.renderProfile();
-        this.setupEventListeners();
+    init() {
+        console.log('👤 Initializing Profile Screen...');
+        this.renderBento();
     }
 
-    /**
-     * Render the high-fidelity Bento-Style Profile interface
-     */
-    renderProfile() {
-        this.container.innerHTML = `
-            <div class="profile-bento-grid">
-                
-                <!-- BENTO SECTION: THEME MODE (Large Square) -->
-                <div class="bento-card bento-theme-card">
-                    <div class="bento-card-header">
-                        <span class="bento-badge">AESTHETIC</span>
-                        <h3 class="bento-title">Visual Tone</h3>
-                    </div>
-                    
-                    <div class="bento-theme-selector" id="theme-selector">
-                        <button class="theme-option" data-theme="azure" id="theme-male">
-                            <div class="theme-icon-container">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 7L12 3L4 7M20 7V17L12 21M20 7L12 11M4 7V17L12 21M4 7L12 11M12 11V21" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <span class="theme-label">Male</span>
-                        </button>
-                        
-                        <button class="theme-option" data-theme="blush" id="theme-female">
-                            <div class="theme-icon-container">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 14C14.7614 14 17 11.7614 17 9C17 6.23858 14.7614 4 12 4C9.23858 4 7 6.23858 7 9C7 11.7614 9.23858 14 12 14Z" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M12 14V21M9 18H15" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <span class="theme-label">Female</span>
-                        </button>
-                        
-                        <div class="theme-indicator-pill"></div>
-                    </div>
-                    <p class="bento-footer-text">Azure (Male) or Blush (Female)</p>
-                </div>
+    renderBento() {
+        const container = document.getElementById(this.containerId);
+        if (!container) return;
 
-                <!-- BENTO SECTION: SPONSOR (Wide Horizontal) -->
-                <div class="bento-card bento-sponsor-card" id="sponsor-card">
-                    <div class="bento-card-header">
-                        <span class="bento-badge gold">PREMIUM</span>
-                    </div>
-                    <div class="bento-sponsor-content">
-                        <h3>Harvi Foundation</h3>
-                        <p>Support medical education for everyone.</p>
-                        <div class="bento-sponsor-placeholder">
-                            <span>Sponsor Space</span>
-                        </div>
-                    </div>
-                </div>
+        container.innerHTML = '';
 
-                <!-- BENTO SECTION: SHARE (Tall Square) -->
-                <div class="bento-card bento-action-card bento-share" id="share-card">
-                    <div class="bento-action-icon">🚀</div>
-                    <h3 class="bento-title">Share Harvi</h3>
-                    <p class="bento-footer-text">Invite your colleagues</p>
-                    <div class="bento-arrow">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                </div>
+        const grid = document.createElement('div');
+        grid.className = 'profile-bento-grid';
 
-                <!-- BENTO SECTION: MAINTENANCE (Small Square) -->
-                <div class="bento-card bento-danger-card" id="clear-data-btn">
-                    <div class="bento-action-icon danger">🗑️</div>
-                    <h3 class="bento-title">Reset</h3>
-                    <p class="bento-footer-text">System purge</p>
-                </div>
+        // 1. Theme Toggle Card (Wide)
+        const themeLabel = this.app.isGirlMode ? 'Switch to Azure' : 'Switch to Blush';
+        const themeSub = this.app.isGirlMode ? 'Currently in Blush theme' : 'Currently in Azure theme';
+        const themeIcon = this.app.isGirlMode
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5 5 0 0 0-7.07 0l-.35.35-.35-.35a5 5 0 0 0-7.07 7.07l.35.35L12 18l6.07-6.07.35-.35a5 5 0 0 0 0-7.07z"/></svg>`;
 
-                <!-- BENTO SECTION: VERSION (Small Square) -->
-                <div class="bento-card bento-info-card">
-                    <div class="bento-action-icon info">✨</div>
-                    <h3 class="bento-title">v2.5.0</h3>
-                    <p class="bento-footer-text">Gold Build</p>
-                </div>
+        const themeCard = this.createCard({
+            title: themeLabel,
+            subtitle: themeSub,
+            icon: themeIcon,
+            className: 'wide theme-card',
+            onClick: () => {
+                this.app.toggleGirlMode();
+                this.init(); // Re-render to update labels
+                if (window.HapticsEngine) window.HapticsEngine.medium();
+            }
+        });
 
-            </div>
+        // 2. Sponsor Placeholder (Wide) - Directly below theme
+        const sponsorCard = this.createCard({
+            title: 'Community Sponsor',
+            subtitle: 'Supporting the next generation of medical professionals.',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+            className: 'wide sponsor-card',
+            onClick: () => {
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: 'Coming Soon',
+                        subtitle: 'Interested in sponsoring? Contact us.',
+                        type: 'info'
+                    });
+                }
+            }
+        });
+        sponsorCard.insertAdjacentHTML('afterbegin', '<span class="sponsor-badge">Partner</span>');
 
-            <div class="profile-legal-footer">
-                <div class="footer-links">
-                    <span>Privacy</span>
-                    <span>Terms</span>
-                    <span>Credits</span>
-                </div>
-                <p>Made for Excellence • Harvi Medicine</p>
+        // Detect standalone mode
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+        // 3. Install App Card (Small/Parallel)
+        const installCard = this.createCard({
+            title: isStandalone ? 'App Installed' : 'Install App',
+            subtitle: isStandalone ? 'Native Experience Active' : 'Add to Home Screen',
+            icon: isStandalone
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+            className: `small-card install-card ${isStandalone ? 'installed-active' : ''}`,
+            onClick: () => this.handleInstall()
+        });
+
+        // 4. Share App Card (Small/Parallel)
+        const shareCard = this.createCard({
+            title: 'Share Harvi',
+            subtitle: 'Tell colleagues',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+            className: 'small-card',
+            onClick: () => this.handleShare()
+        });
+
+        // 5. Clear Data Card (Wide)
+        const clearCard = this.createCard({
+            title: 'Clear All Data',
+            subtitle: 'Resets all progress safely',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+            className: 'wide clear-card',
+            onClick: () => this.handleClearData()
+        });
+
+        // Append all cards in the specified order
+        grid.appendChild(themeCard);
+        grid.appendChild(sponsorCard);
+        grid.appendChild(installCard);
+        grid.appendChild(shareCard);
+        grid.appendChild(clearCard);
+
+        container.appendChild(grid);
+
+        // Apply staggering animation
+        if (window.motionCoordinator) {
+            const items = grid.querySelectorAll('.bento-card');
+            window.motionCoordinator.staggerElements(items, 'animate-bento-entry');
+        } else {
+            grid.querySelectorAll('.bento-card').forEach((el, i) => {
+                el.style.animationDelay = `${i * 0.1}s`;
+                el.classList.add('animate-bento-entry');
+            });
+        }
+    }
+
+    createCard({ title, subtitle, icon, className = '', onClick }) {
+        const card = document.createElement('div');
+        card.className = `bento-card ${className}`;
+
+        card.innerHTML = `
+            <div class="card-icon">${icon}</div>
+            <div class="card-text">
+                <h3 class="card-title">${title}</h3>
+                <p class="card-subtitle">${subtitle}</p>
             </div>
         `;
 
-        this.updateToggleStates();
+        card.addEventListener('click', () => {
+            if (window.HapticsEngine) window.HapticsEngine.selection();
+            onClick();
+        });
+
+        return card;
     }
 
-    /**
-     * Synchronize UI toggles with current application state
-     */
-    updateToggleStates() {
-        const isPink = document.body.classList.contains('girl-mode');
-        const themeSelector = document.getElementById('theme-selector');
-        if (!themeSelector) return;
+    async handleShare() {
+        const shareData = {
+            title: 'Harvi - Medical MCQs',
+            text: 'Master medical exams with Harvi. High-yield questions at your fingertips!',
+            url: window.location.origin
+        };
 
-        const maleBtn = themeSelector.querySelector('[data-theme="azure"]');
-        const femaleBtn = themeSelector.querySelector('[data-theme="blush"]');
-        const pill = themeSelector.querySelector('.theme-indicator-pill');
-
-        if (isPink) {
-            femaleBtn.classList.add('active');
-            maleBtn.classList.remove('active');
-            pill.style.transform = 'translateX(100%)';
-        } else {
-            maleBtn.classList.add('active');
-            femaleBtn.classList.remove('active');
-            pill.style.transform = 'translateX(0)';
-        }
-    }
-
-    /**
-     * Attach premium event handlers with haptic feedback
-     */
-    setupEventListeners() {
-        const themeSelector = document.getElementById('theme-selector');
-        const clearDataBtn = document.getElementById('clear-data-btn');
-        const shareCard = document.getElementById('share-card');
-
-        if (themeSelector) {
-            themeSelector.addEventListener('click', (e) => {
-                const option = e.target.closest('.theme-option');
-                if (!option) return;
-
-                const isPinkNow = document.body.classList.contains('girl-mode');
-                const wantPink = option.dataset.theme === 'blush';
-
-                if (isPinkNow !== wantPink) {
-                    if (window.HapticsEngine) window.HapticsEngine.selection();
-                    this.app.toggleGirlMode();
-                    this.updateToggleStates();
-                }
-            });
-        }
-
-        if (clearDataBtn) {
-            clearDataBtn.addEventListener('click', () => {
-                if (window.HapticsEngine) window.HapticsEngine.warning();
-                this.confirmClearData();
-            });
-        }
-
-        if (shareCard) {
-            shareCard.addEventListener('click', () => {
-                if (window.HapticsEngine) window.HapticsEngine.selection();
-                this.shareApp();
-            });
-        }
-    }
-
-    async shareApp() {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Harvi - Medical Learning',
-                    text: 'Master medical exams with Harvi!',
-                    url: window.location.href
-                });
-            } catch (e) { }
-        } else {
-            // Fallback
-            navigator.clipboard.writeText(window.location.href);
-            if (window.dynamicIsland) {
-                window.dynamicIsland.show({
-                    title: '✓ Link Copied',
-                    subtitle: 'Share it with your colleagues',
-                    type: 'success'
-                });
-            }
-        }
-    }
-
-    /**
-     * Show premium danger modal for data reset
-     */
-    async confirmClearData() {
-        const modalController = await this.showDangerModal();
-        if (modalController.confirmed) {
-            try {
-                if (window.HapticsEngine) window.HapticsEngine.success();
-                if (modalController.deleteBtn) {
-                    modalController.deleteBtn.classList.add('loading');
-                    modalController.deleteBtn.disabled = true;
-                }
-
-                await new Promise(r => setTimeout(r, 1000));
-                await harviDB.clearAll();
-                localStorage.clear();
-
-                modalController.close();
-
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                // Fallback: Copy to clipboard
+                await navigator.clipboard.writeText(window.location.origin);
                 if (window.dynamicIsland) {
                     window.dynamicIsland.show({
-                        title: '✓ System Reset',
-                        subtitle: 'All data cleared successfully.',
+                        title: 'Link Copied',
+                        subtitle: 'Share it with your colleagues!',
                         type: 'success'
                     });
                 }
+            }
+        } catch (err) {
+            console.warn('Share failed:', err);
+        }
+    }
 
-                setTimeout(() => window.location.reload(), 1500);
-            } catch (error) {
-                console.error('[Profile] Reset failed:', error);
+    async handleInstall() {
+        if (window.pwaPrompt) {
+            window.pwaPrompt.triggerInstall();
+        } else {
+            // Fallback for race condition before pwaPrompt init
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: 'Installation',
+                        subtitle: 'Tap Share -> Add to Home Screen',
+                        type: 'info'
+                    });
+                }
+            } else {
+                alert('Installation: Use your browser menu "Add to Home Screen"');
             }
         }
     }
 
-    showDangerModal() {
+    async handleClearData() {
+        const confirmed = await this.showConfirmModal({
+            title: 'Clear All Data?',
+            description: 'This action is irreversible. All your quiz progress, history, and custom settings will be permanently removed from this device.',
+            confirmText: 'Clear Everything',
+            cancelText: 'Keep My Data',
+            type: 'danger'
+        });
+
+        if (!confirmed) return;
+
+        if (window.HapticsEngine) window.HapticsEngine.notification('warning');
+
+        try {
+            // 1. Clear LocalStorage
+            localStorage.clear();
+
+            // 2. Clear IndexedDB
+            const delRequest = indexedDB.deleteDatabase('HarviDB');
+
+            delRequest.onsuccess = () => {
+                console.log('✓ Database deleted successfully');
+                window.location.reload();
+            };
+
+            delRequest.onerror = (e) => {
+                console.error('✗ Failed to delete database:', e);
+                window.location.reload();
+            };
+
+            delRequest.onblocked = () => {
+                console.warn('! Database deletion blocked. Reloading anyway.');
+                window.location.reload();
+            };
+
+        } catch (e) {
+            console.error('Error clearing data:', e);
+            window.location.reload();
+        }
+    }
+
+    /**
+     * Show a premium glassmorphic confirmation modal
+     * Wraps the modal lifecycle in a Promise
+     */
+    showConfirmModal({ title, description, confirmText, cancelText, type = 'info' }) {
         return new Promise((resolve) => {
+            // Create backdrop
             const backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop';
+
+            // Create modal
             const modal = document.createElement('div');
-            modal.className = 'glass-modal bento-danger-modal';
+            modal.className = 'glass-modal';
+
+            const iconColor = type === 'danger' ? '#FF3B30' : 'var(--primary-color)';
+            const icon = type === 'danger' ? '⚠️' : 'ℹ️';
+
             modal.innerHTML = `
                 <div class="glass-modal-header">
-                    <div class="danger-icon-bento">⚠️</div>
-                    <h2 class="glass-modal-title">Clear All Data?</h2>
-                    <p class="glass-modal-description">This action will permanently delete your progress and cache. This cannot be undone.</p>
+                    <div class="glass-modal-icon" style="background: ${iconColor}1a; color: ${iconColor}">
+                        ${icon}
+                    </div>
+                    <h2 class="glass-modal-title">${title}</h2>
                 </div>
+                <p class="glass-modal-description">${description}</p>
                 <div class="glass-modal-actions">
-                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-delete">Purge Data</button>
-                    <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel">Cancel</button>
+                    <button class="glass-modal-btn glass-modal-btn-delete" id="modal-confirm-btn">
+                        ${confirmText}
+                    </button>
+                    <button class="glass-modal-btn glass-modal-btn-cancel" id="modal-cancel-btn">
+                        ${cancelText}
+                    </button>
                 </div>
             `;
+
             document.body.appendChild(backdrop);
             document.body.appendChild(modal);
-            const cleanup = () => { backdrop.remove(); modal.remove(); };
-            modal.querySelector('#modal-cancel').onclick = () => { cleanup(); resolve({ confirmed: false }); };
-            modal.querySelector('#modal-delete').onclick = () => { resolve({ confirmed: true, close: cleanup, deleteBtn: modal.querySelector('#modal-delete') }); };
+
+            const cleanup = (result) => {
+                modal.style.animation = 'modalSpringPopIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) reverse forwards';
+                backdrop.style.opacity = '0';
+                backdrop.style.transition = 'opacity 300ms ease';
+
+                setTimeout(() => {
+                    backdrop.remove();
+                    modal.remove();
+                    resolve(result);
+                }, 300);
+            };
+
+            modal.querySelector('#modal-confirm-btn').onclick = () => {
+                if (window.HapticsEngine) window.HapticsEngine.selection();
+                cleanup(true);
+            };
+
+            modal.querySelector('#modal-cancel-btn').onclick = () => {
+                if (window.HapticsEngine) window.HapticsEngine.selection();
+                cleanup(false);
+            };
+
+            backdrop.onclick = () => {
+                modal.classList.add('shake');
+                setTimeout(() => modal.classList.remove('shake'), 400);
+            };
         });
     }
 }
+
+// Export for app.js
+window.Profile = Profile;
