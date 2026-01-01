@@ -235,7 +235,7 @@ body.girl-mode .grouped-list {
 
 .list-item:active {
   background-color: rgba(0, 0, 0, 0.05);
-  transform: scale(0.98);
+  /* transform: scale(0.98); Removed for native list feel */
 }
 
 .list-item:last-child {

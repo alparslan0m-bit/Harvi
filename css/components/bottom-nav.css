@@ -1,6 +1,7 @@
 /**
  * Bottom Navigation Bar
  * Native-style persistent navigation for mobile
+ * Refined for Apple-like aesthetic
  */
 
 .bottom-nav-container {
@@ -8,10 +9,13 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 70px;
-    padding-bottom: var(--safe-area-bottom, 0);
-    z-index: 200;
+    height: 84px;
+    /* Standard iOS tab bar height including home indicator area */
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 9999;
     display: none;
+    pointer-events: none;
+    /* Let clicks pass through container, re-enable on nav */
 }
 
 .bottom-nav-container.active {
@@ -19,215 +23,232 @@
 }
 
 .bottom-nav {
+    pointer-events: auto;
     width: 100%;
-    height: 70px;
+    height: 100%;
+    /* Heavy frosted glass effect */
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 20px 20px 0 0;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+
+    /* Subtle hairline border */
+    border-top: 0.5px solid rgba(0, 0, 0, 0.15);
+
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
+    align-items: flex-start;
+    /* Align to top to give space for home indicator */
+    padding-top: 8px;
+
+    /* Remove shadow for a flatter, more native look */
+    box-shadow: none;
+}
+
+/* Dark mode support logic (if classes exist) */
+@media (prefers-color-scheme: dark) {
+    .bottom-nav {
+        background: rgba(28, 28, 30, 0.85);
+        border-top: 0.5px solid rgba(255, 255, 255, 0.15);
+    }
 }
 
 body.girl-mode .bottom-nav {
-    background: rgba(255, 255, 255, 0.9);
-    border-top-color: rgba(251, 207, 232, 0.8);
-    /* Rose-200 */
-    box-shadow: 0 -8px 32px rgba(236, 72, 153, 0.15);
-    /* Pink glow up */
+    background: rgba(255, 255, 255, 0.85);
+    border-top-color: rgba(236, 72, 153, 0.2);
 }
 
 .bottom-nav-item {
     flex: 1;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    cursor: pointer;
+    /* Tighter grouping */
+    cursor: default;
+    /* Native apps don't show pointer cursor */
     position: relative;
-    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
-    color: var(--text-secondary);
+    color: #999999;
+    /* Inactive gray */
     text-decoration: none;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease-out;
+    padding-bottom: 20px;
+    /* Balance spacing */
 }
 
 .bottom-nav-item:active {
-    transform: scale(0.95);
+    opacity: 0.5;
+    /* Subtle feedback */
 }
 
 .bottom-nav-item.active {
-    color: var(--primary-color);
+    color: var(--primary-color, #007AFF);
+    /* System Blue fallback */
+}
+
+body.girl-mode .bottom-nav-item.active {
+    color: #EC4899;
 }
 
 .bottom-nav-item svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    /* Slightly larger, standard iOS size */
+    height: 26px;
     stroke: currentColor;
-    stroke-width: 2;
+    stroke-width: 1.8;
+    /* Thinner, more elegant lines */
     fill: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bottom-nav-item.active svg {
+    stroke-width: 2.3;
+    /* Subtle weight increase for active state */
+    /* Note: Ideally we switch to filled icons here, but weight change works for stroke icons */
 }
 
 .bottom-nav-item-label {
-    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    /* Tighter tracking */
+    margin-top: 2px;
+}
+
+.bottom-nav-item.active .bottom-nav-item-label {
     font-weight: 600;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
 }
 
-/* Active indicator dot */
+/* REMOVED: Pulse dot (Not native style) */
 .bottom-nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 8px;
-    width: 6px;
-    height: 6px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    animation: pulse-dot 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-}
-
-@keyframes pulse-dot {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
+    display: none;
 }
 
 /* Badge counter on nav item */
 .nav-badge {
     position: absolute;
-    top: 4px;
-    right: 8px;
-    background-color: var(--error-color);
+    top: 2px;
+    margin-left: 20px;
+    /* Offset from center */
+    background-color: #FF3B30;
+    /* System Red */
     color: white;
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    font-weight: 700;
-    animation: badge-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-weight: 600;
+    box-shadow: 0 0 0 2px white;
+    /* Border cutout effect */
 }
 
-@keyframes badge-pop {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Safe area padding for notched devices */
-@supports (padding: max(0px)) {
-    .bottom-nav-container {
-        padding-bottom: max(8px, env(safe-area-inset-bottom));
-    }
-
-    .bottom-nav {
-        margin: 0 8px 8px 8px;
-    }
-}
-
-/* Responsive - Transform to Sidebar on Desktop */
+/* Desktop Sidebar Transformation */
 @media (min-width: 768px) {
     .bottom-nav-container {
+        pointer-events: none;
         display: flex !important;
-        bottom: auto;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 80px;
-        height: auto;
-        padding-bottom: 0;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        /* Sidebar width */
+        height: 100vh;
+        z-index: 100;
+        padding: 0;
     }
 
     .bottom-nav {
+        pointer-events: auto;
         flex-direction: column;
-        height: auto;
-        padding: 24px 0;
-        border-radius: 30px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        gap: 12px;
-    }
-
-    .bottom-nav-item {
-        width: 100%;
-        padding: 16px 0;
+        justify-content: flex-start;
+        padding-top: 80px;
+        /* Space for window controls/brand */
+        padding-left: 16px;
+        padding-right: 16px;
+        background: rgba(255, 255, 255, 0.0);
+        /* Transparent, let page unified background show */
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border-top: none;
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
         gap: 8px;
     }
 
-    .bottom-nav-item:hover {
-        background: rgba(0, 0, 0, 0.03);
+    .bottom-nav-item {
+        flex: 0 0 auto;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 44px;
+        padding: 0 12px;
+        border-radius: 10px;
+        color: var(--text-secondary, #666);
     }
 
-    body.dark-mode .bottom-nav-item:hover {
-        background: rgba(255, 255, 255, 0.05);
+    .bottom-nav-item:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+        color: var(--text-primary, #000);
+    }
+
+    .bottom-nav-item.active {
+        background-color: rgba(0, 122, 255, 0.1);
+        color: var(--primary-color, #007AFF);
+    }
+
+    body.girl-mode .bottom-nav-item.active {
+        background-color: rgba(236, 72, 153, 0.1);
     }
 
     .bottom-nav-item svg {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 
     .bottom-nav-item-label {
-        font-size: 10px;
-        opacity: 0.7;
+        font-size: 15px;
+        font-weight: 500;
+        margin-left: 12px;
+        margin-top: 0;
     }
 
-    .bottom-nav-item.active::after {
-        left: 0;
-        bottom: auto;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 24px;
-        border-radius: 0 4px 4px 0;
+    .bottom-nav-item:active {
+        transform: scale(0.98);
     }
 
     /* Shift content to the right on desktop, only when sidebar is active and not in quiz/results */
     body:not(.quiz-mode-active) #app .screen:not(.results-screen) .container {
-        padding-left: 100px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding-left: 280px;
+        /* Offset for sidebar */
     }
 }
 
-/* Quiz content padding for bottom nav */
-.quiz-content {
-    padding-bottom: 100px;
-}
-
-@media (max-height: 600px) {
+/* Reduced Height for Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
     .bottom-nav-container {
-        height: 60px;
+        height: 50px;
+        padding-bottom: 0;
     }
 
     .bottom-nav {
-        height: 60px;
+        padding-top: 4px;
+    }
+
+    .bottom-nav-item svg {
+        width: 20px;
+        height: 20px;
     }
 
     .bottom-nav-item-label {
         display: none;
-    }
-
-    .quiz-content {
-        padding-bottom: 80px;
     }
 }

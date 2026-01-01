@@ -13,6 +13,7 @@ class Navigation {
         this.abortController = null; // For request cancellation
         this.scrollListener = null; // Track scroll listener for cleanup
         this.currentHeaderTitle = ''; // Track current header title
+        this.transitionDirection = 'forward'; // 'forward' (push) or 'back' (pop)
     }
 
     /**
@@ -653,26 +654,51 @@ class Navigation {
     /**
      * Render content with smooth fade transition
      */
+    /**
+     * Render content with smooth native-like transition
+     */
     renderWithTransition(container, contentFactory) {
-        container.style.opacity = '0';
-        container.style.transform = 'translateY(10px)';
-        container.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        // Prepare container
+        container.innerHTML = '';
 
-        requestAnimationFrame(() => {
-            container.innerHTML = '';
-            const content = contentFactory();
+        // Generate content
+        const content = contentFactory();
 
-            if (content instanceof DocumentFragment) {
-                container.appendChild(content);
-            } else {
-                container.appendChild(content);
+        // Determine animation class based on direction
+        const animationClass = this.transitionDirection === 'back'
+            ? 'animate-enter-pop'
+            : 'animate-enter-push';
+
+        // Reset direction for next time (default to forward)
+        this.transitionDirection = 'forward';
+
+        // Add animation class to the content wrapper if possible, or container
+        // We prefer animating the child to avoid modifying container layout properties
+        if (content instanceof HTMLElement) {
+            content.classList.add(animationClass);
+
+            // Stagger children if it's a grid/list
+            if (content.children.length > 0 && window.motionCoordinator) {
+                // Determine if we should stagger based on content type
+                const isGrid = content.querySelector('.bento-grid') || content.querySelector('.lecture-grid');
+                if (isGrid) {
+                    // Optional: specialized stagger
+                }
             }
+        }
 
-            requestAnimationFrame(() => {
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0)';
+        if (content instanceof DocumentFragment) {
+            // validating DocumentFragment has children
+            Array.from(content.children).forEach(child => {
+                child.classList.add(animationClass);
             });
-        });
+            container.appendChild(content);
+        } else {
+            container.appendChild(content);
+        }
+
+        // Scroll to top instantly
+        container.scrollTop = 0;
     }
 
     /**
@@ -698,7 +724,11 @@ class Navigation {
         homeItem.className = 'breadcrumb-item';
         homeItem.innerHTML = '🏠 Home';
         homeItem.style.cursor = 'pointer';
-        homeItem.addEventListener('click', () => this.app.navigation.showYears());
+        homeItem.style.cursor = 'pointer';
+        homeItem.addEventListener('click', () => {
+            this.transitionDirection = 'back'; // Home is always back
+            this.app.navigation.showYears();
+        });
         breadcrumb.appendChild(homeItem);
 
         this.currentPath.forEach((item, index) => {
@@ -738,6 +768,11 @@ class Navigation {
 
         // Build path up to target index
         const targetPath = this.currentPath.slice(0, targetIndex + 1);
+
+        // If target is shallower than current, it's a BACK navigation
+        if (targetIndex < this.currentPath.length - 1) {
+            this.transitionDirection = 'back';
+        }
 
         // Navigate based on path length
         switch (targetPath.length) {

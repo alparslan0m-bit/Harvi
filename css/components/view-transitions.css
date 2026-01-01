@@ -1,191 +1,104 @@
 /**
  * View Transitions API Styles
  * Smooth directional transitions between screens and navigation
+ * Tuned for Apple-like "retargeting" physics
  */
+
+:root {
+    --ios-ease: cubic-bezier(0.32, 0.725, 0, 1);
+    --ios-duration: 0.5s;
+}
 
 /* Enable View Transitions for supported browsers */
 @supports (view-transition-name: root) {
-    ::view-transition {
-        animation-duration: 0.6s;
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    ::view-transition-group(root) {
+        animation-duration: var(--ios-duration);
+        animation-timing-function: var(--ios-ease);
     }
 
     ::view-transition-old(root) {
-        animation: slideOut 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeOut 0.2s ease-out;
+        /* Main screens just fade */
+        mix-blend-mode: normal;
     }
 
     ::view-transition-new(root) {
-        animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeIn 0.3s ease-in;
+        mix-blend-mode: normal;
     }
 }
 
 /* Screen Transitions */
 .screen {
-    view-transition-name: screen-transition;
+    view-transition-name: screen-content;
 }
 
-/* Directional slide animations */
-@keyframes slideIn {
+/* 
+   Overrides for specific transitions if we could detect them.
+   For now, we default to a high-quality Cross Dissolve for Tabs,
+   which is standard iOS behavior for Tab Bars.
+*/
+
+/* Directional slide animations (For manual use in JS) */
+@keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(30px);
+        transform: translateX(40px);
+        /* Subtle parallax offset */
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
     }
 }
 
-@keyframes slideOut {
+@keyframes slideOutLeft {
     from {
         opacity: 1;
         transform: translateX(0);
     }
+
     to {
         opacity: 0;
-        transform: translateX(-30px);
+        transform: translateX(-10px);
+        /* Slower exit for parallax feel */
     }
 }
 
-@keyframes slideInBack {
+@keyframes slideInLeft {
     from {
         opacity: 0;
-        transform: translateX(-30px);
+        transform: translateX(-40px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
     }
 }
 
-@keyframes slideOutBack {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(30px);
-    }
+/* Drill-down Enter Animation (Used by Navigation.js) */
+.animate-enter-push {
+    animation: slideInRight 0.5s var(--ios-ease) forwards;
 }
 
-@keyframes expandUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+/* Back Navigation Enter Animation */
+.animate-enter-pop {
+    animation: slideInLeft 0.5s var(--ios-ease) forwards;
 }
 
-@keyframes collapseDown {
-    from {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(30px) scale(0.95);
-    }
+/* Drill-down Exit Animation */
+.animate-exit-push {
+    animation: slideOutLeft 0.5s var(--ios-ease) forwards;
 }
 
-/* Card click expansion effect */
-.card-transition {
-    view-transition-name: card-expand;
-}
-
-@supports (view-transition-name: root) {
-    .card-transition {
-        animation: expandUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-}
-
-/* Quiz screen transitions */
-.quiz-transition-enter {
-    view-transition-name: quiz-screen;
-    animation: expandUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.quiz-transition-exit {
-    animation: collapseDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Results screen transition */
-.results-transition-enter {
-    view-transition-name: results-screen;
-    animation: expandUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Navigation transitions */
-.nav-forward {
-    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav-backward {
-    animation: slideInBack 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Breadcrumb active state transition */
-.breadcrumb-item.active {
-    animation: slideIn 0.3s ease-out;
-}
-
-/* Option selection animation */
-.option-selected {
-    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes scaleOut {
-    from {
-        transform: scale(1);
-        opacity: 1;
-    }
-    to {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-}
-
-/* Micro-animation for micro-interactions */
-@keyframes microPulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
-
-.micro-pulse {
-    animation: microPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Smooth fade transitions */
-.fade-in {
-    animation: fadeIn 0.4s ease-out;
-}
-
-.fade-out {
-    animation: fadeOut 0.4s ease-out;
-}
-
+/* Standard Fade for Tabs */
 @keyframes fadeIn {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -195,67 +108,51 @@
     from {
         opacity: 1;
     }
+
     to {
         opacity: 0;
     }
 }
 
-/* Loading skeleton animation */
-@keyframes shimmer {
-    0% {
-        background-position: -1000px 0;
+/* Slide Up (Modal-like) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
     }
-    100% {
-        background-position: 1000px 0;
-    }
-}
 
-.skeleton-loader {
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.2) 50%,
-        rgba(255, 255, 255, 0.1) 100%
-    );
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite;
-}
-
-/* Success checkmark animation */
-@keyframes checkmark {
-    0% {
-        stroke-dashoffset: 100;
-    }
-    100% {
-        stroke-dashoffset: 0;
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
-.success-checkmark {
-    animation: checkmark 0.8s ease-out forwards;
+/* Stagger Animations for Lists */
+.stagger-appear {
+    opacity: 0;
+    animation: fadeInUp 0.5s var(--ios-ease) forwards;
 }
 
-/* Prevent motion for users who prefer reduced motion */
+/* Card Press State */
+.card-press-active {
+    transform: scale(0.96);
+    transition: transform 0.4s var(--ios-ease);
+}
+
+/* Quiz Screen Specifics */
+.quiz-screen.active {
+    /* Ensure it sits on top if we use z-indexing */
+}
+
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+
     *,
-    *::before,
-    *::after {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-
-    .screen {
-        view-transition-name: none;
-    }
-}
-
-/* Hardware acceleration for smooth animations */
-.card,
-.screen,
-.option,
-.quiz-container {
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
 }
