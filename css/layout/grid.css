@@ -1,23 +1,40 @@
 .screen {
     display: none !important;
-    height: 100%; /* Fill the fixed app container */
-    overflow-y: auto; /* Allow scrolling within the screen */
-    -webkit-overflow-scrolling: touch; /* Enable momentum/bounce */
-    padding: 24px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Momentum scrolling */
+
+    /* Native Safe Area Insets */
+    padding-top: env(safe-area-inset-top, 24px);
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 24px));
+    /* Space for Tab Bar */
+    padding-left: env(safe-area-inset-left, 24px);
+    padding-right: env(safe-area-inset-right, 24px);
+
+    background: transparent;
+    scroll-behavior: smooth;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .screen.active {
     display: block !important;
-    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1 !important;
     visibility: visible !important;
+    z-index: 10;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
-    min-height: calc(100% + 1px); /* Force scroll engine: always 1px taller than screen */
+    min-height: calc(100% + 1px);
+    /* Force scroll engine: always 1px taller than screen */
 }
 
 .cards-grid {

@@ -7,54 +7,7 @@
    SCREEN TRANSITION ANIMATIONS
    ============================================ */
 
-.screen {
-    animation: screenEnter 0.3s cubic-bezier(0.3, 0, 0.2, 1) forwards;
-}
-
-.screen.exiting {
-    animation: screenExit 0.3s cubic-bezier(0.3, 0, 0.2, 1) forwards;
-}
-
-@keyframes screenEnter {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes screenExit {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    to {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-}
-
-/* Back navigation (slide in from left) */
-.screen.entering-back {
-    animation: screenEnterBack 0.3s cubic-bezier(0.3, 0, 0.2, 1) forwards;
-}
-
-@keyframes screenEnterBack {
-    from {
-        opacity: 0;
-        transform: translateX(-100%);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+/* Large Title Morphing logic preserved below */
 
 /* ============================================
    LARGE TITLE TO INLINE TITLE TRANSITION

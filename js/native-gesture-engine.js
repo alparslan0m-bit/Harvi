@@ -106,30 +106,38 @@ class NativeGestureEngine {
 
         if (shouldComplete && this.isBackSwipping) {
             // Animation to complete swipe
-            screen.style.transition = 'all 0.3s cubic-bezier(0.3, 0, 0.2, 1)';
+            screen.style.transition = 'all 0.2s cubic-bezier(0.2, 1, 0.3, 1)'; // Faster completion
             screen.style.transform = 'translateX(100%)';
             screen.style.opacity = '0';
 
+            // Wait for visual completion before logic
             setTimeout(() => {
                 this.hideSwipeOverlay();
                 this.isBackSwipping = false;
-                
-                // PHASE 2: Use explicit navigation stack instead of previousElementSibling
-                if (window.app?.navigationStack?.length > 1) {
+
+                // Signal navigation to skip CSS animation since we handled it manually
+                window.skipAnimation = true;
+
+                // Execute logic
+                if (window.app && typeof window.app.goBack === 'function') {
                     window.app.goBack();
-                } else if (window.app?.previousScreen) {
-                    window.app.showScreen(window.app.previousScreen);
-                } else {
-                    window.app?.showScreen?.('navigation-screen');
                 }
-                
-                screen.style.transition = '';
-                screen.style.transform = '';
-                screen.style.opacity = '';
-            }, 300);
+
+                // Reset container state instanty
+                // slight delay to allow DOM to update via goBack
+                requestAnimationFrame(() => {
+                    // Force reflow
+                    void screen.offsetHeight;
+
+                    screen.style.transition = 'none';
+                    screen.style.transform = '';
+                    screen.style.opacity = '';
+                });
+
+            }, 200); // 200ms match transition
         } else {
-            // Animation back to origin
-            screen.style.transition = 'all 0.3s cubic-bezier(0.3, 0, 0.2, 1)';
+            // Revert swipe (rubber band back)
+            screen.style.transition = 'all 0.3s cubic-bezier(0.2, 1, 0.3, 1)';
             screen.style.transform = 'translateX(0)';
             screen.style.opacity = '1';
 

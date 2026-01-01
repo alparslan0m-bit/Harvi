@@ -5,8 +5,8 @@
  */
 
 :root {
-    --ios-ease: cubic-bezier(0.32, 0.725, 0, 1);
-    --ios-duration: 0.5s;
+    --ios-ease: var(--motion-ease-out, cubic-bezier(0.32, 0.725, 0, 1));
+    --ios-duration: var(--duration-normal, 350ms);
 }
 
 /* Enable View Transitions for supported browsers */

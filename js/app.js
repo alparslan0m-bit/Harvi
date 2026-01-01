@@ -382,26 +382,45 @@ class MCQApp {
      * Creates smooth directional animations between screens
      */
     showScreen(screenId) {
+        // 1. Guard against redundant calls
+        const currentActive = document.querySelector('.screen.active');
+        if (currentActive && currentActive.id === screenId) {
+            console.log(`[Navigation] Screen ${screenId} is already active, skipping.`);
+            return;
+        }
+
         const transition = () => {
             // Track previous screen for back gesture navigation
-            const currentActive = document.querySelector('.screen.active');
             if (currentActive) {
                 this.previousScreen = currentActive.id;
-                // PHASE 2: Maintain explicit navigation stack
+
+                // PHASE 2: Maintain explicit navigation stack for TAB-level peers
+                // This ensures we always have a history to go back to if needed
                 if (!this.navigationStack.includes(screenId)) {
                     this.navigationStack.push(screenId);
                 } else {
-                    this.navigationStack = this.navigationStack.slice(0, this.navigationStack.indexOf(screenId) + 1);
+                    // If going back to an existing tab, truncate the stack up to that point
+                    const index = this.navigationStack.indexOf(screenId);
+                    this.navigationStack = this.navigationStack.slice(0, index + 1);
                 }
             }
+
+            // Sync Tab Bar Highlighting IMMEDIATELY (prevents desync feel)
+            this.updateBottomNavActiveState(screenId);
 
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
-            const screen = document.getElementById(screenId);
-            screen.classList.add('active');
 
-            // Setup scroll listener for Large Title transition
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+
+                // Reset scroll position on tab switch (Apple standard: new tab starts at top)
+                screen.scrollTop = 0;
+            }
+
+            // Setup scroll listener for Large Title transition (if applicable)
             if (this.navigation) {
                 this.navigation.setupScrollListener();
             }
@@ -413,20 +432,19 @@ class MCQApp {
                 this.profile.init();
             }
 
-            // Update bottom navigation active state
-            this.updateBottomNavActiveState(screenId);
-
             // Hide bottom nav during quiz for better focus
             this.toggleBottomNavVisibility(screenId);
 
-            // Subtle haptic tick on screen transition (PHASE 3: iOS-style short pulse)
+            // Subtle haptic tick on screen transition
             if (navigator.vibrate) {
                 navigator.vibrate(5);
             }
         };
 
-        // Use View Transitions API if available (modern browsers)
+        // 2. Execute with View Transitions if supported
         if (document.startViewTransition) {
+            // Give the browser a hint about the transition type
+            // Root-level screen switches use cross-dissolve
             document.startViewTransition(transition);
         } else {
             // Fallback for older browsers
@@ -468,11 +486,32 @@ class MCQApp {
     /**
      * Navigate back using explicit stack (PHASE 2: Replaces previousElementSibling logic)
      */
+    /**
+     * Smart Back Navigation
+     * Prioritizes internal drill-down navigation, then falls back to screen stack
+     */
     goBack() {
+        // 1. Check if we can go back within the Home/Navigation hierarchy
+        if (this.navigation && this.navigation.currentPath.length > 0) {
+            // Get parent path index
+            const parentIndex = this.navigation.currentPath.length - 2;
+
+            if (parentIndex >= 0) {
+                this.navigation.navigateToPath(parentIndex);
+            } else {
+                // If at root level of content (Years), go to root display
+                this.navigation.showYears();
+            }
+            return;
+        }
+
+        // 2. If no internal navigation, pop the screen stack (Tabs)
         if (this.navigationStack.length > 1) {
             this.navigationStack.pop();
             const previousId = this.navigationStack[this.navigationStack.length - 1];
             this.showScreen(previousId);
+        } else {
+            console.log('At root of app, minimal back action');
         }
     }
 

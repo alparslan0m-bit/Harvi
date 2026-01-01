@@ -89,10 +89,10 @@ class Navigation {
      * Smart years loading with caching and smooth transitions
      */
     async showYears() {
-        // Properly clean up before starting new navigation
+        // 1. Prepare State
         if (this.abortController) {
             this.abortController.abort();
-            this.abortController = null;  // ← ADD THIS
+            this.abortController = null;
         }
 
         this.app.showScreen('navigation-screen');
@@ -103,78 +103,53 @@ class Navigation {
         const container = document.getElementById('cards-container');
         if (!container) return;
 
-        // Create the Home Hub Container
-        const hubContainer = document.createElement('div');
-        hubContainer.className = 'home-hub-container';
-        container.innerHTML = '';
-        container.appendChild(hubContainer);
+        // 2. Use Standard Render Path
+        this.renderWithTransition(container, () => {
+            const hubContainer = document.createElement('div');
+            hubContainer.className = 'home-hub-container';
 
-        // 1. Add Hero "Continue Mastery" Card if data exists
-        if (this.app.resumableQuiz && this.app.lastLectureName) {
-            const progress = this.app.resumableQuiz;
-            const percent = Math.round((progress.currentIndex / progress.questions.length) * 100);
+            // Feature Card: Resume Quiz
+            if (this.app.resumableQuiz && this.app.lastLectureName) {
+                const progress = this.app.resumableQuiz;
+                const percent = Math.round((progress.currentIndex / progress.questions.length) * 100);
 
-            const hero = document.createElement('div');
-            hero.className = 'hero-continue-card';
-            hero.innerHTML = `
-                <div class="hero-badge">Resume Quiz</div>
-                <div>
-                    <h3 class="hero-title">${this.app.lastLectureName}</h3>
-                    <p class="hero-subtitle">${progress.currentIndex} of ${progress.questions.length} questions • ${percent}% complete</p>
-                </div>
-                <div class="hero-footer">
-                    <div class="resume-btn">Continue Quiz</div>
-                </div>
-                <div class="hero-progress-pill" style="width: ${percent}%"></div>
-            `;
-            hero.onclick = async () => {
-                const lectureId = this.app.lastLectureId;
-                if (!lectureId) return;
+                const hero = document.createElement('div');
+                hero.className = 'hero-continue-card';
+                hero.innerHTML = `
+                    <div class="hero-badge">Resume Quiz</div>
+                    <div>
+                        <h3 class="hero-title">${this.app.lastLectureName}</h3>
+                        <p class="hero-subtitle">${progress.currentIndex} of ${progress.questions.length} questions • ${percent}% complete</p>
+                    </div>
+                    <div class="hero-progress-pill" style="width: ${percent}%"></div>
+                `;
+                hero.onclick = async () => {
+                    const lectureId = this.app.lastLectureId;
+                    if (!lectureId) return;
+                    this.app.startQuiz(progress.questions, { ...progress.metadata, fromSavedProgress: true });
+                };
+                hubContainer.appendChild(hero);
+            }
 
-                if (window.dynamicIsland) {
-                    window.dynamicIsland.show({
-                        title: '📚 Restoring Session',
-                        subtitle: this.app.lastLectureName,
-                        type: 'info'
-                    });
-                }
+            // Dynamic Content Area
+            const hubContent = document.createElement('div');
+            hubContent.id = 'hub-content-area';
+            hubContainer.appendChild(hubContent);
 
-                try {
-                    const resumeMetadata = {
-                        ...progress.metadata,
-                        fromSavedProgress: true,
-                        currentIndex: progress.currentIndex,
-                        score: progress.score
-                    };
-                    this.app.startQuiz(progress.questions, resumeMetadata);
-                } catch (error) {
-                    console.error('Failed to resume from hero card:', error);
-                }
-            };
-            hubContainer.appendChild(hero);
-        }
+            // Render existing cache or skeleton
+            if (this.isCacheValid() && this.remoteYears) {
+                this.renderYears(hubContent, this.remoteYears, false);
+            } else {
+                this.showLoadingState(hubContent);
+            }
 
-        // Create a dedicated area for dynamic content (Bento Grid)
-        const hubContent = document.createElement('div');
-        hubContent.id = 'hub-content-area';
-        hubContainer.appendChild(hubContent);
+            return hubContainer;
+        });
 
-        const isCacheValid = this.isCacheValid();
-
-        // Show cached data immediately if available and valid
-        if (isCacheValid && this.remoteYears && this.remoteYears.length > 0) {
-            this.renderYears(hubContent, this.remoteYears, false);
-        } else {
-            // Show loading state
-            this.showLoadingState(hubContent);
-        }
-
-        // Always fetch fresh data in background (unless cache is very fresh)
-        if (!isCacheValid || !this.remoteYears) {
+        // 3. Background Fetch Refresh
+        if (!this.isCacheValid() || !this.remoteYears) {
             try {
-                // Create NEW controller
                 this.abortController = new AbortController();
-                // WIRED: Use SafeFetch for automatic retry and error handling
                 const res = await SafeFetch.fetch('./api/years', {
                     signal: this.abortController.signal,
                     timeout: 10000,
@@ -184,7 +159,6 @@ class Navigation {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const years = await res.json();
 
-                // Sort years
                 years.sort((a, b) => {
                     const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
                     const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
@@ -194,21 +168,19 @@ class Navigation {
                 if (years && Array.isArray(years)) {
                     this.remoteYears = years;
                     this.cacheTimestamp = Date.now();
-                    const targetContentArea = document.getElementById('hub-content-area') || hubContainer;
-                    this.renderYears(targetContentArea, years, true);
+                    const targetContentArea = document.getElementById('hub-content-area');
+                    if (targetContentArea) {
+                        this.renderYears(targetContentArea, years, true);
+                    }
                 }
             } catch (e) {
-                this.abortController = null;  // ← ADD: Clean up on error
-
-                if (e.name === 'AbortError') {
-                    return;
+                if (e.name !== 'AbortError') {
+                    console.error('Failed to load years:', e);
+                    this.showErrorState(container, 'Failed to load years.');
                 }
-                console.error('Failed to load years:', e);
-                this.showErrorState(container, 'Failed to load years. Please check server connection.');
             }
         }
     }
-
     /**
      * Check if cache is still valid
      */
@@ -665,16 +637,23 @@ class Navigation {
         const content = contentFactory();
 
         // Determine animation class based on direction
-        const animationClass = this.transitionDirection === 'back'
-            ? 'animate-enter-pop'
-            : 'animate-enter-push';
+        // If a gesture navigation just happened, we SKIP the CSS animation
+        let animationClass = '';
+        if (window.skipAnimation) {
+            console.log('Skipping animation due to gesture');
+            window.skipAnimation = false; // consume flag
+        } else {
+            animationClass = this.transitionDirection === 'back'
+                ? 'animate-enter-pop'
+                : 'animate-enter-push';
+        }
 
         // Reset direction for next time (default to forward)
         this.transitionDirection = 'forward';
 
         // Add animation class to the content wrapper if possible, or container
         // We prefer animating the child to avoid modifying container layout properties
-        if (content instanceof HTMLElement) {
+        if (content instanceof HTMLElement && animationClass) {
             content.classList.add(animationClass);
 
             // Stagger children if it's a grid/list
