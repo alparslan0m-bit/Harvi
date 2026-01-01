@@ -299,24 +299,35 @@
         }
     </script>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation (Refined Apple HIG Standard) -->
     <div class="bottom-nav-container active" id="bottom-nav-container">
         <nav class="bottom-nav">
             <a href="#" class="bottom-nav-item active" id="nav-home" data-screen="navigation-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-10" />
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 9V20C4 20.5523 4.44772 21 5 21H9V15H15V21H19C19.5523 21 20 20.5523 20 20V9L12 2Z"
+                        fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.6"
+                        stroke-linejoin="round" />
                 </svg>
                 <span class="bottom-nav-item-label">Home</span>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-stats" data-screen="stats-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3v18h18M7 16v-8m4 8V8m4 8v-4m4 4V6" />
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 20V12M12 20V4M20 20V16" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" />
+                    <rect x="3" y="11" width="2" height="10" fill="currentColor" fill-opacity="0.1" />
+                    <rect x="11" y="3" width="2" height="18" fill="currentColor" fill-opacity="0.1" />
+                    <rect x="19" y="15" width="2" height="6" fill="currentColor" fill-opacity="0.1" />
                 </svg>
-                <span class="bottom-nav-item-label">Stats</span>
+                <span class="bottom-nav-item-label">Statistics</span>
             </a>
             <a href="#" class="bottom-nav-item" id="nav-profile" data-screen="profile-screen">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
+                        stroke="currentColor" stroke-width="1.6" />
+                    <path d="M6 21V19C6 16.7909 7.79086 15 10 15H14C16.2091 15 18 16.7909 18 19V21"
+                        stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    <circle cx="12" cy="7" r="2" fill="currentColor" fill-opacity="0.1" />
                 </svg>
                 <span class="bottom-nav-item-label">Profile</span>
             </a>

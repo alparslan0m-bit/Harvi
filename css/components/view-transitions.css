@@ -1,50 +1,59 @@
 /**
- * View Transitions API Styles
- * Smooth directional transitions between screens and navigation
- * Tuned for Apple-like "retargeting" physics
+ * Apple Native View Transitions
+ * Professional-tier motion system for spatial continuity
  */
 
 :root {
-    --ios-ease: var(--motion-ease-out, cubic-bezier(0.32, 0.725, 0, 1));
-    --ios-duration: var(--duration-normal, 350ms);
+    --ios-ease: cubic-bezier(0.32, 0.725, 0, 1);
+    --ios-duration: 400ms;
 }
 
 /* Enable View Transitions for supported browsers */
 @supports (view-transition-name: root) {
-    ::view-transition-group(root) {
-        animation-duration: var(--ios-duration);
-        animation-timing-function: var(--ios-ease);
-    }
 
+    /* 1. Root Screen Switch (Tabs) - Smooth Cross Dissolve */
     ::view-transition-old(root) {
-        animation: fadeOut 0.2s ease-out;
-        /* Main screens just fade */
-        mix-blend-mode: normal;
+        animation: 180ms ease-out both fadeOut;
     }
 
     ::view-transition-new(root) {
-        animation: fadeIn 0.3s ease-in;
-        mix-blend-mode: normal;
+        animation: 250ms ease-in both fadeIn;
+    }
+
+    /* 2. Hierarchical Drill-down (Push/Pop) 
+       Note: We assign names to content containers in JS if needed, 
+       but for this app we use standard Push animations on the children. */
+}
+
+/* Push Animation (Drill In) */
+@keyframes iosPushEnter {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
     }
 }
 
-/* Screen Transitions */
-.screen {
-    view-transition-name: screen-content;
+@keyframes iosPushExit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0.5;
+        transform: translateX(-25%);
+        /* Parallax slide out */
+    }
 }
 
-/* 
-   Overrides for specific transitions if we could detect them.
-   For now, we default to a high-quality Cross Dissolve for Tabs,
-   which is standard iOS behavior for Tab Bars.
-*/
-
-/* Directional slide animations (For manual use in JS) */
-@keyframes slideInRight {
+/* Pop Animation (Drill Out) */
+@keyframes iosPopEnter {
     from {
-        opacity: 0;
-        transform: translateX(40px);
-        /* Subtle parallax offset */
+        opacity: 0.5;
+        transform: translateX(-25%);
     }
 
     to {
@@ -53,47 +62,28 @@
     }
 }
 
-@keyframes slideOutLeft {
+@keyframes iosPopExit {
     from {
-        opacity: 1;
         transform: translateX(0);
     }
 
     to {
-        opacity: 0;
-        transform: translateX(-10px);
-        /* Slower exit for parallax feel */
+        transform: translateX(100%);
     }
 }
 
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-40px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Drill-down Enter Animation (Used by Navigation.js) */
+/* Global Transition Classes for Navigation.js */
 .animate-enter-push {
-    animation: slideInRight 0.5s var(--ios-ease) forwards;
+    animation: iosPushEnter var(--ios-duration) var(--ios-ease) both;
+    will-change: transform;
 }
 
-/* Back Navigation Enter Animation */
 .animate-enter-pop {
-    animation: slideInLeft 0.5s var(--ios-ease) forwards;
+    animation: iosPopEnter var(--ios-duration) var(--ios-ease) both;
+    will-change: transform;
 }
 
-/* Drill-down Exit Animation */
-.animate-exit-push {
-    animation: slideOutLeft 0.5s var(--ios-ease) forwards;
-}
-
-/* Standard Fade for Tabs */
+/* Standard Fade */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -114,45 +104,21 @@
     }
 }
 
-/* Slide Up (Modal-like) */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Stagger Animations for Lists */
-.stagger-appear {
-    opacity: 0;
-    animation: fadeInUp 0.5s var(--ios-ease) forwards;
-}
-
-/* Card Press State */
-.card-press-active {
-    transform: scale(0.96);
-    transition: transform 0.4s var(--ios-ease);
-}
-
-/* Quiz Screen Specifics */
-.quiz-screen.active {
-    /* Ensure it sits on top if we use z-indexing */
-}
-
-/* Reduced Motion */
+/* Accessibility: Support users who prefer no motion */
 @media (prefers-reduced-motion: reduce) {
 
     *,
     ::view-transition-group(*),
     ::view-transition-old(*),
     ::view-transition-new(*) {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        animation: none !important;
+        transition: none !important;
     }
+}
+
+/* Performance optimizations */
+.screen {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
 }

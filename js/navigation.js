@@ -629,55 +629,54 @@ class Navigation {
     /**
      * Render content with smooth native-like transition
      */
+    /**
+     * Render content with smooth native-like transition
+     * Uses View Transitions API with a robust fallback
+     */
     renderWithTransition(container, contentFactory) {
-        // Prepare container
-        container.innerHTML = '';
+        const performUpdate = () => {
+            // Generate new content
+            const content = contentFactory();
 
-        // Generate content
-        const content = contentFactory();
-
-        // Determine animation class based on direction
-        // If a gesture navigation just happened, we SKIP the CSS animation
-        let animationClass = '';
-        if (window.skipAnimation) {
-            console.log('Skipping animation due to gesture');
-            window.skipAnimation = false; // consume flag
-        } else {
-            animationClass = this.transitionDirection === 'back'
-                ? 'animate-enter-pop'
-                : 'animate-enter-push';
-        }
-
-        // Reset direction for next time (default to forward)
-        this.transitionDirection = 'forward';
-
-        // Add animation class to the content wrapper if possible, or container
-        // We prefer animating the child to avoid modifying container layout properties
-        if (content instanceof HTMLElement && animationClass) {
-            content.classList.add(animationClass);
-
-            // Stagger children if it's a grid/list
-            if (content.children.length > 0 && window.motionCoordinator) {
-                // Determine if we should stagger based on content type
-                const isGrid = content.querySelector('.bento-grid') || content.querySelector('.lecture-grid');
-                if (isGrid) {
-                    // Optional: specialized stagger
-                }
+            // Handle direction and skip logic
+            let animationClass = '';
+            if (window.skipAnimation) {
+                window.skipAnimation = false;
+            } else {
+                animationClass = this.transitionDirection === 'back'
+                    ? 'animate-enter-pop'
+                    : 'animate-enter-push';
             }
-        }
 
-        if (content instanceof DocumentFragment) {
-            // validating DocumentFragment has children
-            Array.from(content.children).forEach(child => {
-                child.classList.add(animationClass);
+            // Reset direction
+            this.transitionDirection = 'forward';
+
+            // IMPORTANT: Only clear and append at the last moment
+            // This reduces the blank-screen duration
+            container.innerHTML = '';
+
+            if (content instanceof DocumentFragment) {
+                Array.from(content.children).forEach(child => {
+                    if (animationClass) child.classList.add(animationClass);
+                });
+                container.appendChild(content);
+            } else {
+                if (animationClass) content.classList.add(animationClass);
+                container.appendChild(content);
+            }
+
+            container.scrollTop = 0;
+        };
+
+        // Use View Transitions if available (Apple native feel)
+        if (document.startViewTransition) {
+            document.startViewTransition(() => {
+                performUpdate();
+                return Promise.resolve();
             });
-            container.appendChild(content);
         } else {
-            container.appendChild(content);
+            performUpdate();
         }
-
-        // Scroll to top instantly
-        container.scrollTop = 0;
     }
 
     /**

@@ -161,31 +161,18 @@
     padding: 0.75rem;
 }
 
-/* Mobile Navigation */
-.mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-color, #ffffff);
+/* Mobile Navigation - Handled by bottom-nav.css */
+/* Redundant sections removed for cleanup */
+
+/* Mobile-first Layout Adjustments */
+.mobile-container {
     padding: 0.75rem;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-/* Mobile-specific Card Styles */
-.mobile-card {
-    border-radius: 12px;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    background: var(--card-bg, #ffffff);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Mobile Grid Adjustments */
-.mobile-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+.mobile-stack {
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
-    padding: 0.5rem;
 }
