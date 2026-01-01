@@ -20,10 +20,10 @@ class AudioToolkit {
     async init() {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
+
             // Add user interaction listener to resume audio context
             this.setupAudioResumeListener();
-            
+
             await this.generateSounds();
             this.startTime = Date.now();
         } catch (e) {
@@ -47,7 +47,7 @@ class AudioToolkit {
             document.removeEventListener('touchstart', resumeAudio);
             document.removeEventListener('keydown', resumeAudio);
         };
-        
+
         document.addEventListener('click', resumeAudio, { once: true });
         document.addEventListener('touchstart', resumeAudio, { once: true });
         document.addEventListener('keydown', resumeAudio, { once: true });
@@ -82,21 +82,21 @@ class AudioToolkit {
 
     createPopSound() {
         const duration = 0.1;
-        
+
         return () => {
             const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            
+
             osc.frequency.setValueAtTime(800, now);
             osc.frequency.exponentialRampToValueAtTime(600, now + duration);
-            
+
             gain.gain.setValueAtTime(0.3, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-            
+
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            
+
             osc.start(now);
             osc.stop(now + duration);
         };
@@ -104,20 +104,20 @@ class AudioToolkit {
 
     createDingSound() {
         const duration = 0.3;
-        
+
         return () => {
             const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            
+
             osc.frequency.setValueAtTime(1047, now); // C6 note
-            
+
             gain.gain.setValueAtTime(0.4, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-            
+
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            
+
             osc.start(now);
             osc.stop(now + duration);
         };
@@ -125,21 +125,21 @@ class AudioToolkit {
 
     createThudSound() {
         const duration = 0.2;
-        
+
         return () => {
             const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            
+
             osc.frequency.setValueAtTime(200, now);
             osc.frequency.exponentialRampToValueAtTime(100, now + duration);
-            
+
             gain.gain.setValueAtTime(0.3, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-            
+
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            
+
             osc.start(now);
             osc.stop(now + duration);
         };
@@ -153,14 +153,14 @@ class AudioToolkit {
             notes.forEach((freq, idx) => {
                 const osc = this.audioContext.createOscillator();
                 const gain = this.audioContext.createGain();
-                
+
                 osc.frequency.value = freq;
                 gain.gain.setValueAtTime(0.2, now + idx * 0.1);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.2);
-                
+
                 osc.connect(gain);
                 gain.connect(this.audioContext.destination);
-                
+
                 osc.start(now + idx * 0.1);
                 osc.stop(now + idx * 0.1 + 0.2);
             });
@@ -169,21 +169,21 @@ class AudioToolkit {
 
     createRefreshSound() {
         const duration = 0.15;
-        
+
         return () => {
             const now = this.audioContext.currentTime;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            
+
             osc.frequency.setValueAtTime(600, now);
             osc.frequency.exponentialRampToValueAtTime(800, now + duration);
-            
+
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-            
+
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            
+
             osc.start(now);
             osc.stop(now + duration);
         };
@@ -214,76 +214,8 @@ class AudioToolkit {
 const audioToolkit = new AudioToolkit();
 audioToolkit.loadEnabled();
 
-// ============================================
-// GESTURE RECOGNITION & SWIPE HANDLING
-// ============================================
-
-class GestureHandler {
-    constructor() {
-        this.touchStartX = 0;
-        this.touchStartY = 0;
-        this.touchEndX = 0;
-        this.touchEndY = 0;
-        this.minSwipeDistance = 50;
-        this.maxSwipeDistance = 150;
-        this.touchStartHandler = null;
-        this.touchEndHandler = null;
-        this.init();
-    }
-
-    init() {
-        this.touchStartHandler = (e) => this.handleTouchStart(e);
-        this.touchEndHandler = (e) => this.handleTouchEnd(e);
-        
-        document.addEventListener('touchstart', this.touchStartHandler, false);
-        document.addEventListener('touchend', this.touchEndHandler, false);
-    }
-
-    destroy() {
-        if (this.touchStartHandler) {
-            document.removeEventListener('touchstart', this.touchStartHandler, false);
-            this.touchStartHandler = null;
-        }
-        if (this.touchEndHandler) {
-            document.removeEventListener('touchend', this.touchEndHandler, false);
-            this.touchEndHandler = null;
-        }
-    }
-
-    handleTouchStart(e) {
-        this.touchStartX = e.changedTouches[0].screenX;
-        this.touchStartY = e.changedTouches[0].screenY;
-    }
-
-    handleTouchEnd(e) {
-        this.touchEndX = e.changedTouches[0].screenX;
-        this.touchEndY = e.changedTouches[0].screenY;
-        this.handleSwipe();
-    }
-
-    handleSwipe() {
-        const diffX = this.touchStartX - this.touchEndX;
-        const diffY = this.touchStartY - this.touchEndY;
-
-        // Check if it's a horizontal swipe (not vertical)
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            // Swipe from left edge to right = go back
-            if (diffX < -this.minSwipeDistance && this.touchStartX < 50) {
-                this.onSwipeBack();
-            }
-        }
-    }
-
-    onSwipeBack() {
-        const backBtn = document.querySelector('.back-btn');
-        if (backBtn && document.getElementById('quiz-screen')?.classList.contains('active')) {
-            backBtn.click();
-        }
-    }
-}
-
-// Initialize gesture handler
-const gestureHandler = new GestureHandler();
+/* Legacy GestureHandler removed - handled by NativeTouchEngine */
+const gestureHandler = { destroy: () => { } }; // Dummy for compatibility if referenced elsewhere
 
 // ============================================
 // PULL-TO-REFRESH IMPLEMENTATION
@@ -298,9 +230,9 @@ class OptimisticUI {
         // Instant visual feedback before processing
         element.style.transform = 'scale(0.95)';
         element.style.opacity = '0.7';
-        
+
         audioToolkit.play('pop');
-        HapticsEngine.selection();
+        // Haptics handled by NativeTouchEngine to prevent doubling
 
         setTimeout(() => {
             element.style.transform = 'scale(1)';
@@ -423,7 +355,7 @@ class SkeletonLoader {
     static createGridSkeleton(count = 4) {
         const container = document.createElement('div');
         container.className = 'cards-grid';
-        
+
         for (let i = 0; i < count; i++) {
             const skeleton = document.createElement('div');
             skeleton.className = 'card skeleton';
@@ -431,7 +363,7 @@ class SkeletonLoader {
             skeleton.style.borderRadius = '16px';
             container.appendChild(skeleton);
         }
-        
+
         return container;
     }
 
@@ -444,7 +376,7 @@ class SkeletonLoader {
 
         container.innerHTML = '';
         container.className = 'cards-grid';
-        
+
         const totalCards = columns * rows;
         for (let i = 0; i < totalCards; i++) {
             const skeleton = document.createElement('div');
@@ -454,7 +386,7 @@ class SkeletonLoader {
             skeleton.style.minHeight = '100px';
             container.appendChild(skeleton);
         }
-        
+
         return container;
     }
 

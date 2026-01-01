@@ -94,7 +94,8 @@
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    overscroll-behavior-y: contain;
+    overscroll-behavior: none;
+    /* Changed from contain to none for smoother transition at edge */
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -112,20 +113,8 @@
     -webkit-transform: translate3d(0, 0, 0);
     min-height: 44px;
     padding: 0.75rem;
+    touch-action: manipulation;
 }
 
-/* Mobile Navigation - Handled by bottom-nav.css */
+/* Mobile Navigation - Handled by bottom-nav.css & native-navigation.css */
 /* Redundant sections removed for cleanup */
-
-/* Mobile-first Layout Adjustments */
-.mobile-container {
-    padding: 0.75rem;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.mobile-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
