@@ -212,23 +212,15 @@ body.girl-mode .grouped-list {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.list-item:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  padding-left: 1.75rem;
-}
-
 .list-item:active {
-  background-color: rgba(0, 0, 0, 0.05);
-  /* transform: scale(0.98); Removed for native list feel */
+  background-color: var(--tertiary-system-fill);
 }
 
 .list-item:last-child {
   border-bottom: none;
 }
 
-.list-item:active {
-  background-color: var(--system-fill);
-}
+/* Handled by touch-states.css and list-item definition */
 
 /* Segmented Control */
 .segmented-control {
@@ -285,15 +277,7 @@ body.girl-mode .grouped-list {
   transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
-.interactive-element:hover {
-  opacity: 0.85;
-  transform: scale(0.98);
-}
-
-.interactive-element:active {
-  opacity: 0.7;
-  transform: scale(0.95);
-}
+/* Handled by universal .pressable in touch-states.css */
 
 /* ============================================
    FOCUS STATES (ACCESSIBILITY)

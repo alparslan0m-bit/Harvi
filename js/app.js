@@ -338,23 +338,15 @@ class MCQApp {
                     }
 
                     // Haptic feedback
-                    if (navigator.vibrate) {
-                        navigator.vibrate(8);
+                    if (window.HapticsEngine) {
+                        window.HapticsEngine.selection();
                     }
                 }
             });
         });
     }
 
-    /**
-     * Setup pull-to-refresh gesture for lecture list
-     */
-    setupPullToRefresh() {
-        const container = document.getElementById('app');
-        if (container && window.PullToRefresh) {
-            this.pullToRefresh = new PullToRefresh(container);
-        }
-    }
+    /* Legacy setupPullToRefresh removed - handled by native scrolling or specialized engine */
 
     toggleGirlMode() {
         document.body.classList.add('theme-transitioning');
@@ -436,8 +428,8 @@ class MCQApp {
             this.toggleBottomNavVisibility(screenId);
 
             // Subtle haptic tick on screen transition
-            if (navigator.vibrate) {
-                navigator.vibrate(5);
+            if (window.HapticsEngine) {
+                window.HapticsEngine.selection();
             }
         };
 

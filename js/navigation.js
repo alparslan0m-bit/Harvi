@@ -569,7 +569,7 @@ class Navigation {
         // CRITICAL FIX: Instead of cloning, use a single-use flag
         if (!card._clickHandlerAdded) {
             const clickHandler = () => {
-                if (navigator.vibrate) navigator.vibrate(8);
+                if (window.HapticsEngine) window.HapticsEngine.selection();
                 this.app.startQuiz(questions, {
                     year: year.name,
                     module: module.name,
@@ -585,7 +585,7 @@ class Navigation {
             // Update closure with potential new data
             if (card._clickHandler) card.removeEventListener('click', card._clickHandler);
             const clickHandler = () => {
-                if (navigator.vibrate) navigator.vibrate(8);
+                if (window.HapticsEngine) window.HapticsEngine.selection();
                 this.app.startQuiz(questions, {
                     year: year.name,
                     module: module.name,
