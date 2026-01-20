@@ -1,3 +1,4 @@
+{% raw %}
 # Admin Dashboard Architecture Decision
 ## Medical MCQ Platform - Supabase Migration
 
@@ -1557,4 +1558,5 @@ function Header() {
 **Document Status:** ✅ FINAL  
 **Approval Pending:** Yes  
 **Implementation Ready:** Yes
+{% endraw %}
 
