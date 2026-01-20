@@ -1,0 +1,68 @@
+/* ============================================================================
+   QUESTIONS PAGE
+   ============================================================================ */
+.question-text-preview {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #334155;
+}
+
+.question-modal {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.options-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background-color: #f8fafc;
+    /* Slate-50 */
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    /* Slate-300 */
+    margin-top: 8px;
+}
+
+.option-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.option-number {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    color: #475569;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.option-row .form-input {
+    flex: 1;
+    margin: 0;
+}
+
+/* Correct Answer selection styling */
+.option-row input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+    min-height: 80px;
+}

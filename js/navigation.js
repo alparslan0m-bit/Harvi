@@ -420,12 +420,12 @@ class Navigation {
         // START BATCH FETCHING - Single GET request for better caching
         // Note: Offline caching preserved via harviDB.saveLecture() in promise chain
         const lectureIds = subject.lectures.map(lecture => lecture.id);
-        const url = `./api/lectures/batch?ids=${lectureIds.join(',')}`;
+        const url = `/api/lectures/batch?ids=${lectureIds.join(',')}`;
 
         // Check URL length to prevent 414 Request-URI Too Long errors
         const batchFetchPromise = url.length > 2000
             ? // Fallback to POST if URL too long
-            SafeFetch.fetch('./api/lectures/batch', {
+            SafeFetch.fetch('/api/lectures/batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ lectureIds }),

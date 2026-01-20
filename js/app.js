@@ -109,15 +109,7 @@ class MCQApp {
         try {
             await harviDB.init();
 
-            // Use Dynamic Island for initialization feedback
-            if (window.dynamicIsland) {
-                window.dynamicIsland.show({
-                    title: '✓ Ready to Learn',
-                    subtitle: 'Offline mode enabled',
-                    type: 'success',
-                    duration: 1500
-                });
-            }
+            // Use Dynamic Island init removed as per user request
         } catch (error) {
             console.error('⚠️  Database initialization failed:', error);
 
@@ -249,13 +241,40 @@ class MCQApp {
             const queue = await harviDB.getSyncQueue();
             if (queue.length === 0) return;
 
-            console.log(`Syncing ${queue.length} pending items...`);
+            // 🛡️ Filter out tampered items
+            const validItems = queue.filter(item => !item.tampered);
+            const tamperedCount = queue.length - validItems.length;
 
-            for (const item of queue) {
+            if (tamperedCount > 0) {
+                console.error(`🛡️ Skipping ${tamperedCount} tampered sync items.`);
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: '🛡️ Security Alert',
+                        subtitle: `${tamperedCount} items blocked due to tampering`,
+                        type: 'error',
+                        duration: 5000
+                    });
+                }
+            }
+
+            if (validItems.length === 0) return;
+
+            console.log(`Syncing ${validItems.length} pending items...`);
+
+            if (window.dynamicIsland) {
+                window.dynamicIsland.show({
+                    title: '🔄 Syncing Results',
+                    subtitle: `Uploading ${validItems.length} quiz results...`,
+                    type: 'info',
+                    duration: 3000
+                });
+            }
+
+            let syncSuccessCount = 0;
+
+            for (const item of validItems) {
                 try {
-                    // Example: Sync quiz results to server
                     if (item.action === 'saveQuizResult') {
-                        // WIRED: Use SafeFetch for automatic retry and error handling on sync
                         const response = await SafeFetch.fetch('./api/quiz-results', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -264,9 +283,9 @@ class MCQApp {
                             retries: 3
                         });
 
-                        // Only mark as synced if server accepted the data
                         if (response.ok) {
                             await harviDB.markSynced(item.id);
+                            syncSuccessCount++;
                             console.log(`✓ Synced item ${item.id}`);
                         } else {
                             console.warn(`Server rejected item ${item.id}: ${response.status}`);
@@ -277,7 +296,26 @@ class MCQApp {
                 }
             }
 
-            console.log('✓ Sync completed');
+            if (syncSuccessCount > 0) {
+                console.log(`✓ Sync completed: ${syncSuccessCount} items processed`);
+
+                if (window.dynamicIsland) {
+                    window.dynamicIsland.show({
+                        title: '✅ Sync Complete',
+                        subtitle: `Successfully uploaded ${syncSuccessCount} results`,
+                        type: 'success',
+                        duration: 3000
+                    });
+                }
+
+                // PHASE 2: Refresh current screen if it displays stats or history
+                const currentScreen = this.navigationStack[this.navigationStack.length - 1];
+                if (currentScreen === 'stats-screen' && this.stats) {
+                    this.stats.init(); // Refresh stats
+                } else if (currentScreen === 'profile-screen' && this.profile) {
+                    this.profile.init(); // Refresh profile/history
+                }
+            }
         } catch (error) {
             console.warn('Sync error:', error);
         }
@@ -549,6 +587,101 @@ class MCQApp {
         this.quiz.start(quizSessionQuestions, pathInfo);
     }
 
+    /**
+     * CRITICAL FIX: Submit raw answers to backend for grading
+     * Backend trigger will compute is_correct and score
+     */
+    async checkAnswer(questionId, selectedAnswerIndex) {
+        try {
+            // Using SafeFetch to handle network resilience
+            const response = await SafeFetch.fetch('./api/practice/check-answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lectureId: this.lastLectureId, // Optional context
+                    questionId: questionId,
+                    selectedAnswerIndex: selectedAnswerIndex
+                })
+            });
+
+            if (!response.ok) {
+                // If network 'ok' is false (e.g. 404 or 500)
+                // SafeFetch usually returns synthetic response, but check status
+                console.warn('Check answer failed:', response.status);
+                return { success: false };
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Check answer error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async submitQuizAnswers(answers, totalQuestions, metadata = {}) {
+        try {
+            if (!this.lastLectureId) {
+                console.error('No lectureId for quiz submission');
+                this.showResults(0, totalQuestions, metadata);
+                return;
+            }
+
+            // Show loading state
+            const quizScreen = document.getElementById('quiz-screen');
+            if (quizScreen) {
+                const overlay = document.createElement('div');
+                overlay.id = 'quiz-loading-overlay';
+                overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:9999';
+                overlay.innerHTML = '<div style="background:white;padding:2rem;border-radius:12px;text-align:center"><p>Grading your answers...</p></div>';
+                quizScreen.appendChild(overlay);
+            }
+
+            // PAYLOAD FORMAT: Backend expects { lectureId, answers: [{questionId, selectedAnswerIndex}, ...] }
+            const response = await SafeFetch.fetch('./api/quiz-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lectureId: this.lastLectureId,
+                    answers: answers
+                }),
+                timeout: 30000,
+                retries: 2
+            });
+
+            // Remove loading overlay
+            const overlay = document.getElementById('quiz-loading-overlay');
+            if (overlay) overlay.remove();
+
+            if (!response.ok) {
+                console.error('Quiz submission failed:', response.status, response.statusText);
+                // Fallback: show 0 score on error
+                this.showResults(0, totalQuestions, metadata);
+                return;
+            }
+
+            const result = await response.json();
+
+            // Backend response format: { success: true, results: { score, total, percentage, gradedDetails } }
+            // Extract the actual results
+            const quizResults = result.results || result;
+
+            // Store graded results for display
+            this.lastGradedResults = quizResults;
+
+            // Show results with backend-computed score
+            this.showResults(
+                quizResults.score || 0,
+                quizResults.total || totalQuestions,
+                { ...metadata, gradedDetails: quizResults.gradedDetails }
+            );
+
+        } catch (error) {
+            console.error('Quiz submission error:', error);
+            // Fallback: offline or network error - show 0
+            this.showResults(0, totalQuestions, metadata);
+        }
+    }
+
     async showResults(score, total, metadata) {
         this.results.show(score, total, metadata);
 
@@ -566,17 +699,30 @@ class MCQApp {
                 await harviDB.deleteQuizProgress(currentLectureId);
 
                 const timeSpent = this.currentQuiz ? (Date.now() - (this.currentQuiz.startTime || Date.now())) : 0;
-                const result = { score, total, timeSpent };
 
-                // 3. Save results
+                // CRITICAL FIX: Save backend-computed results, including graded details
+                const result = {
+                    score,
+                    total,
+                    timeSpent,
+                    gradedDetails: metadata.gradedDetails || []
+                };
+
+                // 3. Save results with backend-graded information
                 await harviDB.saveQuizResult(currentLectureId, result, this.lastLectureName);
 
                 // Queue for sync if offline
                 if (!navigator.onLine) {
+                    // CRITICAL FIX: Queue answers for backend submission, not just score
+                    // If offline during submission, store answers for retry
+                    const answers = this.currentQuiz ? this.currentQuiz.answers || [] : [];
                     await harviDB.queueSync('saveQuizResult', {
                         lectureId: currentLectureId,
                         lectureName: this.lastLectureName,
-                        ...result
+                        answers: answers,
+                        score: score,
+                        total: total,
+                        timeSpent: timeSpent
                     });
                 }
             } catch (error) {

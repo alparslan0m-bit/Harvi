@@ -12,6 +12,12 @@ class DynamicIsland {
     }
 
     init() {
+        // Wait for DOM to be ready before accessing document.body
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+            return;
+        }
+        
         // Create island container if not exists
         if (!document.querySelector('.dynamic-island-container')) {
             const container = document.createElement('div');

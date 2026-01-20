@@ -64,6 +64,9 @@ class Results {
         this.lastScore = score;
         this.lastTotal = total;
 
+        // CRITICAL FIX: Store backend-graded details for review screen
+        this.lastGradedDetails = metadata.gradedDetails || [];
+
         const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
 
         document.getElementById('score-number').textContent = score;
@@ -104,19 +107,7 @@ class Results {
         messageElement.textContent = message;
         document.getElementById('score-percentage').style.color = color;
 
-        // Show Dynamic Island notification for quiz completion
-        if (window.dynamicIsland) {
-            window.dynamicIsland.show({
-                title: `${notificationIcon} Quiz Complete!`,
-                subtitle: `${score}/${total} correct (${percentage}%)`,
-                type: notificationType,
-                duration: 4000, // Auto-dismiss after 4 seconds
-                onTap: () => {
-                    // User can tap to close or dismiss
-                    window.dynamicIsland.hide();
-                }
-            });
-        }
+        // Dynamic Island notification removed as per user request
 
         // Show share button if Web Share API is available
         if (navigator.share) {

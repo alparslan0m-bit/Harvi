@@ -238,7 +238,15 @@ class Profile {
             // 1. Clear LocalStorage
             localStorage.clear();
 
-            // 2. Clear IndexedDB
+            // 2. Clear IndexedDB using the NUCLEAR approach
+            // First, close any open connections to prevent 'blocked' events
+            if (window.harviDB) {
+                window.harviDB.close();
+            }
+
+            // Wait a tick for connection to close
+            await new Promise(r => setTimeout(r, 100));
+
             const delRequest = indexedDB.deleteDatabase('HarviDB');
 
             delRequest.onsuccess = () => {
@@ -248,11 +256,13 @@ class Profile {
 
             delRequest.onerror = (e) => {
                 console.error('✗ Failed to delete database:', e);
+                // Even if it failed, we reload to try and clear state
                 window.location.reload();
             };
 
             delRequest.onblocked = () => {
-                console.warn('! Database deletion blocked. Reloading anyway.');
+                console.warn('! Database deletion blocked. Forcing reload.');
+                // If blocked, a reload usually frees the lock for the next user attempt
                 window.location.reload();
             };
 

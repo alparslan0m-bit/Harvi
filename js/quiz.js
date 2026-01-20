@@ -7,6 +7,7 @@ class Quiz {
         this.score = 0;
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
+        this.answers = []; // CRITICAL FIX: Array to collect answers for backend submission
 
         this.keyboardHandler = null;
         this.continueClickHandler = null;
@@ -139,7 +140,12 @@ class Quiz {
         if (this.hasAnswered || this.selectedOptionIndex < 0) return;
         const options = this.optionsContainer?.querySelectorAll('.option');
         if (!options || !options[this.selectedOptionIndex]) return;
-        await this.selectAnswer(options[this.selectedOptionIndex], this.selectedOptionIndex);
+
+        const selectedOption = options[this.selectedOptionIndex];
+        const visualIndex = parseInt(selectedOption.dataset.visualIndex || this.selectedOptionIndex);
+        const originalIndex = parseInt(selectedOption.dataset.originalIndex || visualIndex);
+
+        await this.selectAnswer(selectedOption, visualIndex, originalIndex);
     }
 
     async selectOptionByKey(key) {
@@ -153,7 +159,11 @@ class Quiz {
         else if (k >= 'A' && k <= 'D') index = k.charCodeAt(0) - 65;
 
         if (index >= 0 && index < options.length) {
-            await this.selectAnswer(options[index], index);
+            const selectedOption = options[index];
+            const visualIndex = parseInt(selectedOption.dataset.visualIndex || index);
+            const originalIndex = parseInt(selectedOption.dataset.originalIndex || visualIndex);
+
+            await this.selectAnswer(selectedOption, visualIndex, originalIndex);
         }
     }
 
@@ -179,19 +189,43 @@ class Quiz {
             this.questions = this.shuffleArray(clonedQuestions);
             this.questions.forEach(question => {
                 if (question && question.options && question.options.length > 0) {
-                    const optionsWithIndices = question.options.map((text, index) => ({
-                        text,
-                        originalIndex: index
-                    }));
-                    const shuffledOptions = this.shuffleArray([...optionsWithIndices]);
+                    // CRITICAL FIX: Create shuffledOptions map that tracks both visual and original positions
+                    // This is required because backend grading uses originalIndex to verify correctness
+
+                    // 1. Handle both Object options (new format) and String options (legacy)
+                    const optionsWithMetadata = question.options.map((option, originalIndex) => {
+                        // Check if option is an object (new JSONB format) or string (legacy)
+                        if (typeof option === 'object' && option !== null && option.text) {
+                            return {
+                                text: option.text,
+                                originalIndex: originalIndex,
+                                id: option.id || `opt_${originalIndex}`
+                            };
+                        } else {
+                            // Legacy format: string
+                            return {
+                                text: String(option),
+                                originalIndex: originalIndex,
+                                id: `opt_${originalIndex}`
+                            };
+                        }
+                    });
+
+                    // 2. Shuffle the options for display
+                    const shuffledOptions = this.shuffleArray([...optionsWithMetadata]);
+
+                    // 3. Store shuffledOptions for rendering and data retrieval
+                    // This maintains the mapping: visual position → original position
+                    question.shuffledOptions = shuffledOptions;
+
+                    // 4. Keep options as text array for legacy code compatibility
                     question.options = shuffledOptions.map(opt => opt.text);
-                    const correctOptionObject = shuffledOptions.find(opt =>
-                        opt.originalIndex === question.correctAnswer
-                    );
-                    question.correctAnswer = shuffledOptions.indexOf(correctOptionObject);
                 }
             });
         }
+
+        // CRITICAL FIX: Reset answers array to prevent accumulation from previous sessions
+        this.answers = [];
 
         this.metadata = metadata;
         this.currentIndex = isResuming ? (metadata.currentIndex || 0) : 0;
@@ -237,6 +271,10 @@ class Quiz {
         this.hasAnswered = false;
         this.selectedOptionIndex = -1;
 
+        // cleanup previous explanation if any
+        const existingExpl = document.getElementById('q-explanation');
+        if (existingExpl) existingExpl.remove();
+
         if (this.contentArea) {
             // 1. HARD LOCK: Hide container via both opacity and visibility
             this.contentArea.style.opacity = '0';
@@ -250,20 +288,45 @@ class Quiz {
 
             if (this.optionsContainer && currentQuestion && currentQuestion.options) {
                 this.optionsContainer.innerHTML = '';
-                currentQuestion.options.forEach((option, index) => {
-                    const optionElement = this.createOption(option, index);
+
+                // CRITICAL FIX: Use shuffledOptions to maintain originalIndex mapping
+                const optionsToRender = currentQuestion.shuffledOptions ||
+                    currentQuestion.options.map((option, idx) => ({
+                        text: option,
+                        originalIndex: idx,
+                        id: `opt_${idx}`
+                    }));
+
+                optionsToRender.forEach((optionData, visualIndex) => {
+                    const optionElement = this.createOption(optionData, visualIndex);
                     this.optionsContainer.appendChild(optionElement);
                 });
             }
 
             if (this.progressBar) this.updateProgress();
-            if (this.continueBtn) this.continueBtn.disabled = true;
+            if (this.continueBtn) {
+                this.continueBtn.disabled = true;
+                this.continueBtn.textContent = 'Continue'; // Reset button text for next question
+            }
 
             // 3. SECURE REVEAL: Wait for frame synchronization
             requestAnimationFrame(() => {
                 // Restore visibility only when we are ready to slide in
                 this.contentArea.style.visibility = 'visible';
                 this.contentArea.style.opacity = '1';
+
+                // Determine transition direction based on a flag or heuristics (default to forward)
+                // For simplicity, we check if the back-exit class was just present (cleaned up in prevQuestion)
+                // ideally passed as arg, but this works given the flow:
+                // prevQuestion adds back-exit -> waits -> showQuestion
+
+                // Actually, cleaner to rely on caller or check state. 
+                // Since this.showQuestion doesn't take args, we'll default to standard enter
+                // UNLESS we want to add an argument. Let's make it standard 'enter' for now to keep it simple,
+                // OR add the back-enter logic if we want full bi-directional feel.
+
+                // NOTE: To support "Back" slide-in, we need to know direction.
+                // Assuming standard "Next" flow for now as requested by user optimization focus.
                 this.contentArea.classList.add('question-transition-enter');
 
                 // Reset scroll for next question
@@ -273,36 +336,55 @@ class Quiz {
             // Cleanup enter class after animation completes
             setTimeout(() => {
                 this.contentArea.classList.remove('question-transition-enter');
+                this.contentArea.classList.remove('question-transition-back-enter'); // Cleanup potential back class
             }, 800);
         }
     }
 
-    createOption(text, index) {
+    createOption(optionData, visualIndex) {
+        // CRITICAL FIX: optionData is now an object with {text, originalIndex, id}
+        // Extract text safely for both Object and String formats
+        let optionText;
+        let originalIndex;
+
+        if (typeof optionData === 'object' && optionData !== null && optionData.text !== undefined) {
+            optionText = optionData.text;
+            originalIndex = optionData.originalIndex;
+        } else {
+            // Fallback for legacy string format
+            optionText = String(optionData);
+            originalIndex = visualIndex;
+        }
+
         const option = document.createElement('div');
         option.className = 'option';
         option.tabIndex = 0;
         option.setAttribute('role', 'button');
-        option.setAttribute('aria-label', `Option ${String.fromCharCode(65 + index)}: ${text}`);
+        option.setAttribute('aria-label', `Option ${String.fromCharCode(65 + visualIndex)}: ${optionText}`);
+
+        // CRITICAL: Store originalIndex on DOM element for retrieval in selectAnswer()
+        option.dataset.originalIndex = originalIndex;
+        option.dataset.visualIndex = visualIndex;
 
         const optionContent = document.createElement('div');
         optionContent.className = 'option-content';
 
         const optionLetter = document.createElement('div');
         optionLetter.className = 'option-letter';
-        optionLetter.textContent = String.fromCharCode(65 + index);
+        optionLetter.textContent = String.fromCharCode(65 + visualIndex);
 
-        const optionText = document.createElement('div');
-        optionText.className = 'option-text';
-        optionText.textContent = text;
+        const optionText_el = document.createElement('div');
+        optionText_el.className = 'option-text';
+        optionText_el.textContent = optionText;
 
         optionContent.appendChild(optionLetter);
-        optionContent.appendChild(optionText);
+        optionContent.appendChild(optionText_el);
         option.appendChild(optionContent);
 
         const handleSelection = async (e) => {
             if (!this.hasAnswered) {
                 if (window.HapticsEngine) HapticsEngine.selection();
-                await this.selectAnswer(option, index);
+                await this.selectAnswer(option, visualIndex, originalIndex);
             }
         };
 
@@ -316,7 +398,7 @@ class Quiz {
 
         option.addEventListener('focus', () => {
             if (!this.hasAnswered) {
-                this.selectedOptionIndex = index;
+                this.selectedOptionIndex = visualIndex;
                 option.classList.add('keyboard-selected');
                 if (window.HapticsEngine) HapticsEngine.tap();
             }
@@ -329,78 +411,157 @@ class Quiz {
         return option;
     }
 
-    async selectAnswer(selectedOption, selectedIndex) {
+    async selectAnswer(selectedOption, visualIndex, originalIndex) {
         this.hasAnswered = true;
         const currentQuestion = this.questions[this.currentIndex];
-        const correctAnswerIndex = currentQuestion.correctAnswer;
 
+        // 1. Lock UI: Disable all options
         const allOptions = this.optionsContainer.querySelectorAll('.option');
         allOptions.forEach(opt => {
             opt.classList.add('disabled');
             opt.style.pointerEvents = 'none';
         });
 
-        if (selectedIndex === correctAnswerIndex) {
-            this.score++;
-            selectedOption.classList.add('correct');
-
-            // Swap Letter with Checkmark for undisputed clarity
-            const letterEl = selectedOption.querySelector('.option-letter');
-            if (letterEl) letterEl.textContent = '✓';
-
-            if (window.celebrateCorrectAnswer) {
-                window.celebrateCorrectAnswer(selectedOption);
-            }
-
-            if (window.HapticsEngine) HapticsEngine.success();
-            if (window.audioToolkit) audioToolkit.play('ding');
-        } else {
-            selectedOption.classList.add('incorrect');
-
-            // Swap Letter with Cross
-            const letterEl = selectedOption.querySelector('.option-letter');
-            if (letterEl) letterEl.textContent = '✕';
-
-            const correctOption = this.optionsContainer.children[correctAnswerIndex];
-            if (correctOption) {
-                correctOption.classList.add('correct');
-                // Also show checkmark on the correct one
-                const correctLetterEl = correctOption.querySelector('.option-letter');
-                if (correctLetterEl) correctLetterEl.textContent = '✓';
-            }
-            if (window.HapticsEngine) HapticsEngine.failure();
-            if (window.audioToolkit) audioToolkit.play('thud');
-        }
+        // 2. Visual Feedback: Show checking state
+        selectedOption.classList.add('selected'); // Neutral state
 
         if (this.continueBtn) {
-            this.continueBtn.disabled = false;
-            // Delay focus slightly to allow animations to settle
-            setTimeout(() => this.continueBtn.focus(), 300);
+            this.continueBtn.disabled = true;
         }
+
+        try {
+            // 3. API Call: Verify answer with Backend (Practice Mode)
+            const result = await this.app.checkAnswer(currentQuestion.id, originalIndex);
+
+            selectedOption.classList.remove('selected'); // Remove neutral state
+
+            if (result && result.success) {
+                // A. Correct Answer
+                if (result.is_correct) {
+                    selectedOption.classList.add('correct');
+
+                    this.score++;
+
+                    if (window.HapticsEngine) HapticsEngine.notification('success');
+                }
+                // B. Incorrect Answer
+                else {
+                    selectedOption.classList.add('incorrect'); // CSS uses 'incorrect'
+
+                    if (window.HapticsEngine) HapticsEngine.notification('error');
+
+                    // Highlight the actual correct answer
+                    // NOTE: dataset attributes are strings! compare with String() or ==
+                    const correctOption = Array.from(allOptions).find(opt =>
+                        opt.dataset.originalIndex == result.correct_answer_index
+                    );
+
+                    if (correctOption) {
+                        correctOption.classList.add('correct');
+                    }
+                }
+
+                // C. Show Explanation
+                if (result.explanation) {
+                    const existingExpl = document.getElementById('q-explanation');
+                    if (existingExpl) existingExpl.remove();
+
+                    const explDiv = document.createElement('div');
+                    explDiv.id = 'q-explanation';
+                    explDiv.className = 'explanation-card fade-in-up';
+                    explDiv.style.cssText = 'margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary, #f5f5f7); border-radius: 12px; border-left: 4px solid var(--accent-color, #007aff); animation: fadeInUp 0.3s ease-out forwards;';
+                    explDiv.innerHTML = `
+                        <h4 style="margin:0 0 0.5rem 0; font-size: 0.9rem; text-transform:uppercase; color: var(--text-secondary, #666);">Explanation</h4>
+                        <p style="margin:0; line-height: 1.5; color: var(--text-primary, #000);">${result.explanation}</p>
+                    `;
+                    this.optionsContainer.parentNode.appendChild(explDiv);
+
+                    setTimeout(() => explDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+                }
+
+            } else {
+                // Fallback: Network Error or Offline
+                console.warn('Grading result missing or failed');
+                selectedOption.classList.add('selected'); // Revert to neutral
+                selectedOption.innerHTML += ' <span style="font-size:0.8em;opacity:0.7">( Offline )</span>';
+            }
+
+        } catch (err) {
+            console.error('Select answer flow error:', err);
+            selectedOption.classList.remove('checking');
+            selectedOption.classList.add('selected');
+        } finally {
+            // 4. ALWAYS Enable Navigation Button
+            // 4. ALWAYS Enable Navigation Button
+            if (this.continueBtn) {
+                this.continueBtn.disabled = false;
+
+                // Allow immediate click
+                this.continueBtn.style.pointerEvents = 'auto';
+
+                // Auto-focus button for keyboard users
+                setTimeout(() => this.continueBtn.focus(), 150);
+            }
+        }
+    }
+
+    async prevQuestion() {
+        if (this.currentIndex <= 0) return;
+
+        // 1. Visual Transition (Backwards)
+        if (this.contentArea) {
+            this.contentArea.classList.add('question-transition-back-exit');
+        }
+
+        // 2. State Update
+        this.currentIndex--;
+
+        // 3. Background Persistence
+        if (this.app.lastLectureId && harviDB) {
+            harviDB.saveQuizProgress(this.app.lastLectureId, {
+                currentIndex: this.currentIndex,
+                score: this.score,
+                questions: this.questions,
+                metadata: this.metadata
+            }).catch(console.warn);
+        }
+
+        // 4. Wait for Animation
+        await new Promise(r => setTimeout(r, 400));
+
+        // Remove the exit class (cleanup happens in showQuestion's reset logic too)
+        if (this.contentArea) {
+            this.contentArea.classList.remove('question-transition-back-exit');
+        }
+
+        this.showQuestion();
     }
 
     async nextQuestion() {
         if (!this.hasAnswered) return; // Prevent skipping by accidental double clicks
 
+        // 1. Visual Transition (Start Immediately)
         if (this.contentArea) {
             this.contentArea.classList.add('question-transition-exit');
-            await new Promise(r => setTimeout(r, 400));
         }
 
+        // 2. State Update (Synchronous)
         this.currentIndex++;
 
-        try {
-            if (this.app.lastLectureId && harviDB) {
-                await harviDB.saveQuizProgress(this.app.lastLectureId, {
-                    currentIndex: this.currentIndex,
-                    score: this.score,
-                    questions: this.questions,
-                    metadata: this.metadata
-                });
-            }
-        } catch (error) {
-            console.warn('Progress save failed:', error);
+        // 3. Background Persistence (Non-blocking / Fire-and-Forget)
+        // We do NOT await this. It happens in the background to avoid UI jank.
+        if (this.app.lastLectureId && harviDB) {
+            harviDB.saveQuizProgress(this.app.lastLectureId, {
+                currentIndex: this.currentIndex,
+                score: this.score,
+                questions: this.questions,
+                metadata: this.metadata
+            }).catch(err => console.warn('Background progress save warning:', err));
         }
+
+        // 4. Wait for Animation (Parallel with persistence)
+        // Ensure strictly 400ms delay to match CSS transition
+        await new Promise(r => setTimeout(r, 400));
 
         if (this.currentIndex < this.questions.length) {
             this.showQuestion();
@@ -411,7 +572,21 @@ class Quiz {
 
     finishQuiz() {
         this.cleanup();
-        this.app.showResults(this.score, this.questions.length, this.metadata);
+
+        // PRACTICE MODE UPDATE:
+        // We have verified every answer individually via 'checkAnswer'.
+        // The 'this.score' is now accurate and verified.
+        // We can show results immediately without a batch submission.
+
+        // Pass the locally verified results to the results screen logic
+        this.app.showResults(
+            this.score,
+            this.questions.length,
+            {
+                ...this.metadata,
+                mode: 'practice'
+            }
+        );
     }
 
     cleanup() {

@@ -5,7 +5,7 @@
 class HarviDatabase {
     constructor() {
         this.dbName = 'HarviDB';
-        this.version = 1;
+        this.version = 2;  // ← BUMPED: Version 1→2 to clear cached JSONB format data
         this.db = null;
         this.initialized = false;
         this.initPromise = null;
@@ -15,6 +15,10 @@ class HarviDatabase {
         this.maxAttempts = 3;             // ← Maximum retries
         this.permanentlyFailed = false;   // ← Flag for unrecoverable errors
         this.lastError = null;            // ← Store last error for debugging
+
+        // L1 Memory Cache (Performance Optimization)
+        this.cache = new Map();
+        this.intialCacheLoaded = false;
     }
 
     /**
@@ -100,9 +104,28 @@ class HarviDatabase {
             };
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
+                const oldVersion = event.oldVersion;
+                const newVersion = event.newVersion;
+
+                console.log(`🔄 IndexedDB upgrade: v${oldVersion} → v${newVersion}`);
+
+                // Version 1 → 2: Clear lectures cache due to JSONB format change
+                if (oldVersion < 2) {
+                    console.log('📦 Migration v1→v2: Clearing cached lectures (JSONB format change)');
+
+                    // If lectures store exists, clear it
+                    if (db.objectStoreNames.contains('lectures')) {
+                        const transaction = event.target.transaction;
+                        const lectureStore = transaction.objectStore('lectures');
+                        lectureStore.clear();
+                        console.log('✅ Lectures cache cleared - will refetch with new format');
+                    }
+                }
+
                 // Create object stores if they don't exist
                 if (!db.objectStoreNames.contains('lectures')) {
                     db.createObjectStore('lectures', { keyPath: 'id' });
+                    console.log('✅ Created object store: lectures');
                 }
                 if (!db.objectStoreNames.contains('quizProgress')) {
                     const progressStore = db.createObjectStore('quizProgress', {
@@ -154,6 +177,9 @@ class HarviDatabase {
                 isOfflineEnabled: true
             };
 
+            // L1 Cache: Update memory immediately
+            this.cache.set(lecture.id, lecture);
+
             return new Promise((resolve, reject) => {
                 const request = store.put(lecture);
                 request.onsuccess = () => {
@@ -169,9 +195,15 @@ class HarviDatabase {
     }
 
     /**
-     * Get a cached lecture
+     * Get a cached lecture (Memory First Strategy)
      */
     async getLecture(lectureId) {
+        // L1 Cache Check (Sync/Instant)
+        if (this.cache.has(lectureId)) {
+            console.log(`⚡ Served lecture ${lectureId} from memory cache`);
+            return this.cache.get(lectureId);
+        }
+
         try {
             await this.init();
             const tx = this.db.transaction(['lectures'], 'readonly');
@@ -181,6 +213,8 @@ class HarviDatabase {
                 const request = store.get(lectureId);
                 request.onsuccess = () => {
                     if (request.result) {
+                        // Populate L1 Cache
+                        this.cache.set(lectureId, request.result);
                         console.log(`✓ Retrieved cached lecture ${lectureId}`);
                     }
                     resolve(request.result || null);
@@ -194,9 +228,15 @@ class HarviDatabase {
     }
 
     /**
-     * Get all cached lectures
+     * Get all cached lectures (Memory First)
      */
     async getAllLectures() {
+        // Return from memory if we have data and it seems complete (heuristic)
+        if (this.cache.size > 0 && this.intialCacheLoaded) {
+            console.log(`⚡ Served all lectures from memory cache (${this.cache.size})`);
+            return Array.from(this.cache.values());
+        }
+
         try {
             await this.init();
             const tx = this.db.transaction(['lectures'], 'readonly');
@@ -205,8 +245,13 @@ class HarviDatabase {
             return new Promise((resolve, reject) => {
                 const request = store.getAll();
                 request.onsuccess = () => {
-                    console.log(`✓ Retrieved ${request.result.length} cached lectures`);
-                    resolve(request.result);
+                    const results = request.result;
+                    // Bulk populate cache
+                    results.forEach(l => this.cache.set(l.id, l));
+                    this.intialCacheLoaded = true;
+
+                    console.log(`✓ Retrieved ${results.length} cached lectures`);
+                    resolve(results);
                 };
                 request.onerror = () => reject(request.error);
             });
@@ -457,6 +502,32 @@ class HarviDatabase {
     }
 
     /**
+     * Generate HMAC signature for data integrity
+     * @private
+     */
+    async _generateSignature(data) {
+        try {
+            const encoder = new TextEncoder();
+            const signData = encoder.encode(JSON.stringify(data));
+
+            // In a real app, this secret would be device-specific or from a secure cookie
+            // For now, we use a consistent salt to detect basic tampering
+            const salt = 'harvi-secure-sync-v1';
+            const keyData = encoder.encode(salt);
+
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+            );
+
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, signData);
+            return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (e) {
+            console.warn('⚠️ HMAC generation failed, falling back to basic check:', e);
+            return 'legacy-' + Date.now();
+        }
+    }
+
+    /**
      * Queue an action for syncing when online
      */
     async queueSync(action, data) {
@@ -465,9 +536,13 @@ class HarviDatabase {
             const tx = this.db.transaction(['syncQueue'], 'readwrite');
             const store = tx.objectStore('syncQueue');
 
+            // 🛡️ Integrity: Sign the data before queuing
+            const signature = await this._generateSignature({ action, data });
+
             const queueItem = {
                 action,
                 data,
+                signature, // ← Store signature
                 timestamp: new Date().toISOString(),
                 synced: false
             };
@@ -475,7 +550,7 @@ class HarviDatabase {
             return new Promise((resolve, reject) => {
                 const request = store.add(queueItem);
                 request.onsuccess = () => {
-                    console.log(`✓ Action queued for sync: ${action}`);
+                    console.log(`✓ Action queued for sync: ${action} (Signed)`);
                     resolve(queueItem);
                 };
                 request.onerror = () => reject(request.error);
@@ -497,8 +572,28 @@ class HarviDatabase {
 
             return new Promise((resolve, reject) => {
                 const request = store.getAll();
-                request.onsuccess = () => {
+                request.onsuccess = async () => {
                     const items = request.result.filter(item => !item.synced);
+
+                    // 🛡️ Verify integrity of each item
+                    for (const item of items) {
+                        if (!item.signature) {
+                            item.tampered = true;
+                            console.warn('⚠️ Sync item missing signature:', item.id);
+                            continue;
+                        }
+
+                        const expectedSignature = await this._generateSignature({
+                            action: item.action,
+                            data: item.data
+                        });
+
+                        if (item.signature !== expectedSignature) {
+                            item.tampered = true;
+                            console.error('❌ Sync item signature mismatch (tampering detected):', item.id);
+                        }
+                    }
+
                     console.log(`✓ Retrieved ${items.length} pending sync items`);
                     resolve(items);
                 };
@@ -543,6 +638,18 @@ class HarviDatabase {
     }
 
     /**
+     * Close the database connection
+     */
+    close() {
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+            this.initialized = false;
+            console.log('✓ IndexedDB connection closed');
+        }
+    }
+
+    /**
      * Clear all data (useful for logout/reset)
      */
     async clearAll() {
@@ -559,7 +666,10 @@ class HarviDatabase {
                     request.onerror = () => reject(request.error);
                 });
             })).then(() => {
-                console.log('✓ All IndexedDB data cleared');
+                // Also clear L1 Cache
+                this.cache.clear();
+                this.intialCacheLoaded = false;
+                console.log('✓ All IndexedDB data & Memory Cache cleared');
             });
         } catch (error) {
             console.error('Failed to clear database:', error);
