@@ -75,6 +75,12 @@
     transition: transform 0.3s ease;
 }
 
+.card-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+}
+
 .bento-card:hover .card-icon {
     transform: rotate(5deg) scale(1.1);
 }
