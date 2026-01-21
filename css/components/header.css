@@ -20,22 +20,26 @@
    ============================================ */
 
 :root {
-    /* Floating Header Geometry */
-    --header-floating-margin: 12px;
-    --header-floating-border-radius: 16px;
+    /* Full Width Header Geometry */
+    --header-floating-margin: 0px;
+    /* Changed to 0 for edge-to-edge */
+    --header-floating-border-radius: 0px;
+    /* Changed to 0 for flat look */
     --header-floating-padding-v: 16px;
     --header-floating-padding-h: 20px;
 
     /* iOS Glass Effect */
-    --header-glass-bg-light: rgba(255, 255, 255, 0.75);
-    --header-glass-bg-dark: rgba(28, 28, 30, 0.75);
+    --header-glass-bg-light: rgba(255, 255, 255, 0.85);
+    /* Increased opacity slightly for nav bar feel */
+    --header-glass-bg-dark: rgba(28, 28, 30, 0.85);
     --header-glass-blur: 20px;
     --header-glass-saturate: 180%;
 
-    /* iOS-style Soft Shadow */
-    --header-shadow-color: rgba(0, 0, 0, 0.08);
-    --header-shadow-offset-y: 4px;
-    --header-shadow-blur: 20px;
+    /* Standard Nav Bar Shadow */
+    --header-shadow-color: rgba(0, 0, 0, 0.05);
+    /* Lighter shadow */
+    --header-shadow-offset-y: 1px;
+    --header-shadow-blur: 0px;
     --header-shadow-spread: 0px;
 
     /* Safe Areas */
@@ -45,15 +49,18 @@
 }
 
 /* ============================================
-   HEADER CONTAINER - Floating iOS Style
+   HEADER CONTAINER - Full Width iOS Style
    ============================================ */
 
 .header-container {
     /* Positioning - Fixed for app-shell level header */
     position: fixed;
-    top: var(--header-floating-margin);
-    left: var(--header-floating-margin);
-    right: var(--header-floating-margin);
+    top: 0;
+    /* Flush Top */
+    left: 0;
+    /* Flush Left */
+    right: 0;
+    /* Flush Right */
     z-index: 1000;
 
     /* iOS Frosted Glass Effect */
@@ -61,15 +68,14 @@
     backdrop-filter: blur(var(--header-glass-blur)) saturate(var(--header-glass-saturate));
     -webkit-backdrop-filter: blur(var(--header-glass-blur)) saturate(var(--header-glass-saturate));
 
-    /* Floating Appearance */
-    border-radius: var(--header-floating-border-radius);
+    /* Appearance */
+    border-radius: 0;
+    /* Flat */
     padding: var(--header-floating-padding-v) var(--header-floating-padding-h);
 
-    /* iOS-style Soft Shadow (diffused, not harsh) */
-    box-shadow:
-        0 var(--header-shadow-offset-y) var(--header-shadow-blur) var(--header-shadow-spread) var(--header-shadow-color),
-        0 0 0 0.5px rgba(0, 0, 0, 0.04);
-    /* Subtle border for definition */
+    /* Hairline Separator */
+    box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15);
+    /* Native-like separator */
 
     /* Safe Area Awareness */
     padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top));
@@ -112,24 +118,15 @@ body.girl-mode .header-container {
    ============================================ */
 
 /* Add top padding to screens to prevent content from going under floating header */
+/* Add top padding to screens to prevent content from going under flat header */
 .screen {
-    /* Calculate total header height: margin + padding + content + margin */
-    padding-top: calc(var(--header-floating-margin) + var(--header-floating-padding-v) + var(--safe-area-top) + 60px +
-            /* Approximate header content height */
-            var(--header-floating-padding-v) + var(--header-floating-margin) + 16px
-            /* Extra breathing room */
-        );
+    /* Adjusted for edge-to-edge header height with safe areas */
+    padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top) + 60px + var(--header-floating-padding-v) + 12px);
 }
 
 /* When breadcrumb is visible, add extra padding to account for fixed breadcrumb height */
 body.breadcrumb-visible .screen {
-    padding-top: calc(var(--header-floating-margin) + var(--header-floating-padding-v) + var(--safe-area-top) + 60px + var(--header-floating-padding-v) + var(--header-floating-margin) + 8px +
-            /* Gap */
-            56px +
-            /* Breadcrumb approximate height */
-            16px
-            /* Breathing room */
-        );
+    padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top) + 64px + var(--header-floating-padding-v) + 48px + 12px);
 }
 
 /* Quiz Screen Specific Override: Reclaim header space */
@@ -162,31 +159,34 @@ body.breadcrumb-visible .screen {
     transform: scale(0.98);
 }
 
-.app-title {
+.app-title,
+.large-title {
     font-family: 'Outfit', 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     color: var(--text-primary, #1d1d1f);
     margin: 0;
     line-height: 1.1;
 }
 
-body.girl-mode .app-title {
+body.girl-mode .app-title,
+body.girl-mode .large-title {
     color: #FFFFFF;
 }
 
 .brand-description {
     font-family: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
-    color: var(--text-secondary, #8e8e93);
+    color: var(--text-secondary, #636366);
+    /* Slightly darker for better contrast */
     margin: 0;
     line-height: 1.4;
 }
 
 body.girl-mode .brand-description {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* ============================================
@@ -261,8 +261,9 @@ body.girl-mode .inline-title {
 
 @media (min-width: 768px) {
     :root {
-        --header-floating-margin: 20px;
-        --header-floating-border-radius: 20px;
+        --header-floating-margin: 0px;
+        /* Force 0 locally */
+        --header-floating-border-radius: 0px;
         --header-floating-padding-v: 20px;
         --header-floating-padding-h: 32px;
         --sidebar-width: 280px;
@@ -270,13 +271,14 @@ body.girl-mode .inline-title {
 
     .header-container {
         /* Desktop: align with content area, creating space for sidebar */
-        left: calc(var(--sidebar-width) + var(--header-floating-margin));
-        right: var(--header-floating-margin);
+        left: var(--sidebar-width);
+        right: 0;
+        top: 0;
         width: auto;
-        max-width: 1000px;
-        /* Match container max-width */
-        /* Center strictly within the content area if strictly needed, 
-           or just let it float left-aligned with content */
+        /* Remove max-width to let it span the content area fully */
+        max-width: none;
+        /* Match native nav bar look */
+        border-radius: 0;
     }
 
     .app-title,
@@ -295,17 +297,17 @@ body.girl-mode .inline-title {
 
 @media (min-width: 1024px) {
     :root {
-        --header-floating-margin: 24px;
-        --header-floating-padding-h: 40px;
+        --header-floating-padding-v: 24px;
+        --header-floating-padding-h: 48px;
     }
 }
 
 /* Mobile-specific refinements */
 @media (max-width: 767px) {
     :root {
-        --header-floating-margin: 8px;
-        --header-floating-padding-v: 14px;
-        --header-floating-padding-h: 16px;
+        --header-floating-margin: 0px;
+        --header-floating-padding-v: 12px;
+        --header-floating-padding-h: 20px;
     }
 }
 
