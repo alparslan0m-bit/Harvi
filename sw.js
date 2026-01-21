@@ -8,7 +8,7 @@
 // Update this version number with each deployment
 // This ensures all caches are invalidated together
 // ============================================================================
-const APP_VERSION = '2.3.0';  // ← Bump version for latest optimizations
+const APP_VERSION = '2.3.1';  // ← Bump version for latest optimizations
 const BUILD_TIMESTAMP = '2025-12-29T14:30:00+02:00';  // ← Current timestamp
 // Generate cache names from version
 const CACHE_NAME = `harvi-shell-v${APP_VERSION}`;
@@ -45,7 +45,6 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/css/components/view-transitions.css',
   BASE_PATH + '/css/components/showcase-glass-2.0.css',
   BASE_PATH + '/css/components/bottom-nav.css',
-  BASE_PATH + '/css/components/gamification.css',
   BASE_PATH + '/css/components/profile.css',
   BASE_PATH + '/css/components/modals.css',
   BASE_PATH + '/css/components/pwa-features.css',
