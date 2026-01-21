@@ -287,6 +287,15 @@
     }
 }
 
+/* FIX: Accessibility & Low Power Mode Support */
+@media (prefers-reduced-motion: reduce) {
+    .animate-bento-entry {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+}
+
 /* Girl Mode Overrides for Bento */
 body.girl-mode .theme-card {
     background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
