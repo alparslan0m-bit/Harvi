@@ -98,8 +98,49 @@ export async function updateYear(id: string, updates: YearUpdate): Promise<Year>
 // ============================================================================
 
 export async function deleteYear(id: string): Promise<void> {
-    logQuery('DELETE', 'years', { id });
+    logQuery('DELETE CASCADE', 'years', { id });
 
+    // 1. Fetch Hierarchy (Modules -> Subjects) to find orphaned Lectures
+    const { data: modules } = await supabase
+        .from('modules')
+        .select('id')
+        .eq('year_id', id);
+
+    const moduleIds = modules?.map(m => m.id) || [];
+
+    if (moduleIds.length > 0) {
+        const { data: subjects } = await supabase
+            .from('subjects')
+            .select('id')
+            .in('module_id', moduleIds);
+
+        const subjectIds = subjects?.map(s => s.id) || [];
+
+        if (subjectIds.length > 0) {
+            const { data: lectures } = await supabase
+                .from('lectures')
+                .select('id')
+                .in('subject_id', subjectIds);
+
+            const lectureIds = lectures?.map(l => l.id) || [];
+
+            if (lectureIds.length > 0) {
+                // 2. Delete Questions of these lectures
+                await supabase
+                    .from('questions')
+                    .delete()
+                    .in('lecture_id', lectureIds);
+
+                // 3. Delete Lectures (orphans)
+                await supabase
+                    .from('lectures')
+                    .delete()
+                    .in('id', lectureIds);
+            }
+        }
+    }
+
+    // 4. Finally delete the Year (DB should cascade Modules/Subjects, but manual cleanup above ensures deep clean)
     const { error } = await supabase
         .from('years')
         .delete()

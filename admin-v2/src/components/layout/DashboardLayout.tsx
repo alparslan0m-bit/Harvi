@@ -76,11 +76,14 @@ export default function DashboardLayout() {
             {/* Main Content */}
             <main className="main-content">
                 <header className="content-header">
-                    <h1>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
+                    <h1>{activeTab === 'dashboard' ? 'Overview' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
+                    <div className="user-profile">
+                        <span className="badge">Admin</span>
+                    </div>
                 </header>
 
                 <div className="content-body">
-                    {activeTab === 'dashboard' && <DashboardView />}
+                    {activeTab === 'dashboard' && <DashboardView setActiveTab={setActiveTab} />}
                     {activeTab === 'years' && <YearsPage />}
                     {activeTab === 'modules' && <ModulesPage />}
                     {activeTab === 'subjects' && <SubjectsPage />}
@@ -92,48 +95,64 @@ export default function DashboardLayout() {
     );
 }
 
-function DashboardView() {
+interface DashboardViewProps {
+    setActiveTab: (tab: string) => void;
+}
+
+function DashboardView({ setActiveTab }: DashboardViewProps) {
     const { data: years } = useYears();
     const { data: modules } = useModules();
     const { data: subjects } = useSubjects();
     const { data: lectures } = useLectures();
     const { data: questions } = useQuestions();
 
+    const stats = [
+        { label: 'Years', value: years?.length || 0, icon: '📅', color: 'blue', tab: 'years' },
+        { label: 'Modules', value: modules?.length || 0, icon: '📚', color: 'indigo', tab: 'modules' },
+        { label: 'Subjects', value: subjects?.length || 0, icon: '📖', color: 'purple', tab: 'subjects' },
+        { label: 'Lectures', value: lectures?.length || 0, icon: '🎓', color: 'pink', tab: 'lectures' },
+        { label: 'Questions', value: questions?.length || 0, icon: '❓', color: 'orange', tab: 'questions' },
+    ];
+
     return (
         <div className="dashboard-view">
             <div className="stats-grid">
-                <div className="stat-card">
-                    <h3>Total Years</h3>
-                    <p className="stat-value">{years?.length || 0}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Modules</h3>
-                    <p className="stat-value">{modules?.length || 0}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Subjects</h3>
-                    <p className="stat-value">{subjects?.length || 0}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Lectures</h3>
-                    <p className="stat-value">{lectures?.length || 0}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Questions</h3>
-                    <p className="stat-value">{questions?.length || 0}</p>
-                </div>
+                {stats.map((stat) => (
+                    <div
+                        key={stat.label}
+                        className={`stat-card stat-card--${stat.color}`}
+                        onClick={() => setActiveTab(stat.tab)}
+                        role="button"
+                        tabIndex={0}
+                    >
+                        <div className="stat-icon">{stat.icon}</div>
+                        <div className="stat-content">
+                            <h3>{stat.label}</h3>
+                            <p className="stat-value">{stat.value}</p>
+                        </div>
+                        <div className="stat-arrow">→</div>
+                    </div>
+                ))}
             </div>
 
-            <div className="welcome-message">
-                <h2>Welcome to Admin Dashboard v2</h2>
-                <p>Supabase-native admin panel for Medical MCQ Platform</p>
-                <ul style={{ marginTop: '16px', lineHeight: '1.8' }}>
-                    <li>✅ UUID-first design</li>
-                    <li>✅ Clean architecture</li>
-                    <li>✅ TypeScript strict mode</li>
-                    <li>✅ Secure by default</li>
-                    <li>✅ CRUD operations active</li>
-                </ul>
+            <div className="quick-actions-section">
+                <h2>Quick Actions</h2>
+                <div className="actions-grid">
+                    <button className="action-card" onClick={() => setActiveTab('questions')}>
+                        <span className="action-icon">➕</span>
+                        <div className="action-details">
+                            <h4>Add Question</h4>
+                            <p>Create a new MCQ</p>
+                        </div>
+                    </button>
+                    <button className="action-card" onClick={() => setActiveTab('lectures')}>
+                        <span className="action-icon">🎓</span>
+                        <div className="action-details">
+                            <h4>Manage Lectures</h4>
+                            <p>Organize content</p>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
     );

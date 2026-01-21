@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { useSubjects, useCreateSubject, useUpdateSubject, useDeleteSubject } from '../hooks/useSubjects';
 import { useModules } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
+import { useFilteredData } from '../hooks/useFilteredData';
 import type { Subject, SubjectInsert } from '../types/database';
 import { generateExternalId } from '../lib/utils';
+import SearchFilter from '../components/filters/SearchFilter';
+import HighlightedText from '../components/ui/HighlightedText';
+import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
 
 export default function SubjectsPage() {
@@ -13,6 +17,28 @@ export default function SubjectsPage() {
     const createSubject = useCreateSubject();
     const updateSubject = useUpdateSubject();
     const deleteSubject = useDeleteSubject();
+
+    // Context Filter State
+    const [selectedModuleId, setSelectedModuleId] = useState<string>('');
+
+    // Pre-filter data by context
+    const contextFilteredSubjects = (subjects || []).filter(subject => {
+        if (!selectedModuleId) return true;
+        return subject.module_id === selectedModuleId;
+    });
+
+    // Filter state and filtered data (with memoization)
+    const {
+        filterState,
+        setFilterState,
+        filteredData: filteredSubjects,
+        totalCount,
+        matchedCount,
+    } = useFilteredData(contextFilteredSubjects, {
+        searchFields: ['name', 'external_id', 'id'],
+        fuzzySearch: false,
+        minSearchLength: 1,
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
@@ -67,6 +93,31 @@ export default function SubjectsPage() {
                 </button>
             </div>
 
+            {/* Search & Filter Bar */}
+            <SearchFilter
+                filterState={filterState}
+                onFilterChange={setFilterState}
+                placeholder="Search subjects..."
+                totalCount={totalCount}
+                matchedCount={matchedCount}
+            >
+                <div className="search-filter__filter-item" style={{ minWidth: '200px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedModuleId}
+                        onChange={(e) => setSelectedModuleId(e.target.value)}
+                        style={{ width: '100%', fontWeight: 500 }}
+                    >
+                        <option value="">All Modules</option>
+                        {modules?.map(module => (
+                            <option key={module.id} value={module.id}>
+                                {module.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </SearchFilter>
+
             <div className="table-container">
                 <table className="data-table">
                     <thead>
@@ -79,12 +130,24 @@ export default function SubjectsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {subjects?.map(subject => {
+                        {filteredSubjects?.map(subject => {
                             const module = modules?.find(m => m.id === subject.module_id);
                             return (
                                 <tr key={subject.id}>
-                                    <td><code>{subject.external_id}</code></td>
-                                    <td>{subject.name}</td>
+                                    <td>
+                                        <code>
+                                            <HighlightedText
+                                                text={subject.external_id}
+                                                query={filterState.searchQuery}
+                                            />
+                                        </code>
+                                    </td>
+                                    <td>
+                                        <HighlightedText
+                                            text={subject.name}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
                                     <td>{module?.name || 'Unknown'}</td>
                                     <td>{new Date(subject.created_at).toLocaleDateString()}</td>
                                     <td>
@@ -106,10 +169,33 @@ export default function SubjectsPage() {
                     </tbody>
                 </table>
 
+                {/* Empty States */}
                 {subjects?.length === 0 && (
-                    <div className="empty-state">
-                        <p>No subjects found. Create one to get started.</p>
-                    </div>
+                    <EmptyState
+                        icon="inbox"
+                        title="No subjects found"
+                        description="Create your first subject to get started."
+                        action={{
+                            label: 'Add Subject',
+                            onClick: handleCreate,
+                        }}
+                    />
+                )}
+
+                {subjects && subjects.length > 0 && filteredSubjects?.length === 0 && (
+                    <EmptyState
+                        icon="search"
+                        title="No results match your search"
+                        description="Try adjusting your search terms or filters."
+                        action={{
+                            label: 'Reset Filters',
+                            onClick: () => setFilterState({
+                                searchQuery: '',
+                                status: 'all',
+                                minContentCount: undefined,
+                            }),
+                        }}
+                    />
                 )}
             </div>
 

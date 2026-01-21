@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { useYears, useCreateYear, useUpdateYear, useDeleteYear, useYearChildCounts } from '../hooks/useYears';
+import { useYears, useCreateYear, useUpdateYear, useDeleteYear } from '../hooks/useYears';
+import { useFilteredData } from '../hooks/useFilteredData';
 import type { Year, YearInsert } from '../types/database';
+import SearchFilter from '../components/filters/SearchFilter';
+import HighlightedText from '../components/ui/HighlightedText';
+import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
 
 export default function YearsPage() {
@@ -8,6 +12,19 @@ export default function YearsPage() {
     const createYear = useCreateYear();
     const updateYear = useUpdateYear();
     const deleteYear = useDeleteYear();
+
+    // Filter state and filtered data (with memoization)
+    const {
+        filterState,
+        setFilterState,
+        filteredData: filteredYears,
+        totalCount,
+        matchedCount,
+    } = useFilteredData(years, {
+        searchFields: ['name', 'external_id', 'id', 'icon'],
+        fuzzySearch: false,
+        minSearchLength: 1,
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [editingYear, setEditingYear] = useState<Year | null>(null);
@@ -62,6 +79,15 @@ export default function YearsPage() {
                 </button>
             </div>
 
+            {/* Search & Filter Bar */}
+            <SearchFilter
+                filterState={filterState}
+                onFilterChange={setFilterState}
+                placeholder="Search years by name, external ID, icon, or UUID..."
+                totalCount={totalCount}
+                matchedCount={matchedCount}
+            />
+
             <div className="table-container">
                 <table className="data-table">
                     <thead>
@@ -74,10 +100,22 @@ export default function YearsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {years?.map(year => (
+                        {filteredYears?.map(year => (
                             <tr key={year.id}>
-                                <td><code>{year.external_id}</code></td>
-                                <td>{year.name}</td>
+                                <td>
+                                    <code>
+                                        <HighlightedText
+                                            text={year.external_id}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </code>
+                                </td>
+                                <td>
+                                    <HighlightedText
+                                        text={year.name}
+                                        query={filterState.searchQuery}
+                                    />
+                                </td>
                                 <td>{year.icon || '-'}</td>
                                 <td>{new Date(year.created_at).toLocaleDateString()}</td>
                                 <td>
@@ -98,10 +136,33 @@ export default function YearsPage() {
                     </tbody>
                 </table>
 
+                {/* Empty States */}
                 {years?.length === 0 && (
-                    <div className="empty-state">
-                        <p>No years found. Create one to get started.</p>
-                    </div>
+                    <EmptyState
+                        icon="inbox"
+                        title="No years found"
+                        description="Create your first academic year to get started."
+                        action={{
+                            label: 'Add Year',
+                            onClick: handleCreate,
+                        }}
+                    />
+                )}
+
+                {years && years.length > 0 && filteredYears?.length === 0 && (
+                    <EmptyState
+                        icon="search"
+                        title="No results match your search"
+                        description="Try adjusting your search terms or filters."
+                        action={{
+                            label: 'Reset Filters',
+                            onClick: () => setFilterState({
+                                searchQuery: '',
+                                status: 'all',
+                                minContentCount: undefined,
+                            }),
+                        }}
+                    />
                 )}
             </div>
 

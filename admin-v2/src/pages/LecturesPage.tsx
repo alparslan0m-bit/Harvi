@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useLectures, useCreateLecture, useUpdateLecture, useDeleteLecture } from '../hooks/useLectures';
+import { useLectures, useCreateLecture, useUpdateLecture, useDeleteLecture, useDeleteLectures } from '../hooks/useLectures';
 import { useSubjects } from '../hooks/useSubjects';
 import { useModules } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
+import { useFilteredData } from '../hooks/useFilteredData';
 import type { Lecture, LectureInsert } from '../types/database';
 import { generateExternalId } from '../lib/utils';
+import SearchFilter from '../components/filters/SearchFilter';
+import HighlightedText from '../components/ui/HighlightedText';
+import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
 
 export default function LecturesPage() {
@@ -15,6 +19,35 @@ export default function LecturesPage() {
     const createLecture = useCreateLecture();
     const updateLecture = useUpdateLecture();
     const deleteLecture = useDeleteLecture();
+    const deleteLectures = useDeleteLectures();
+
+    // Context Filter State
+    const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
+
+    // Pre-filter data by context
+    const contextFilteredLectures = (lectures || []).filter(lecture => {
+        if (!selectedSubjectId) return true;
+        return lecture.subject_id === selectedSubjectId;
+    });
+
+    // Detect Orphans (No Subject or Subject ID not found in list)
+    const orphans = lectures?.filter(l => {
+        if (!l.subject_id) return true;
+        return !subjects?.some(s => s.id === l.subject_id);
+    }) || [];
+
+    // Filter state and filtered data (with memoization)
+    const {
+        filterState,
+        setFilterState,
+        filteredData: filteredLectures,
+        totalCount,
+        matchedCount,
+    } = useFilteredData(contextFilteredLectures, {
+        searchFields: ['name', 'external_id', 'id'],
+        fuzzySearch: false,
+        minSearchLength: 1,
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [editingLecture, setEditingLecture] = useState<Lecture | null>(null);
@@ -57,6 +90,17 @@ export default function LecturesPage() {
         }
     }
 
+    async function handleCleanupOrphans() {
+        if (!orphans.length) return;
+        if (!confirm(`Found ${orphans.length} orphaned lectures. This will effectively delete them and their questions. Continue?`)) return;
+
+        try {
+            await deleteLectures.mutateAsync(orphans.map(l => l.id));
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Failed to cleanup orphans');
+        }
+    }
+
     if (isLoading) return <div className="loading-container"><div className="loading" /></div>;
     if (error) return <div className="error-message">Error: {error.message}</div>;
 
@@ -64,10 +108,42 @@ export default function LecturesPage() {
         <div className="management-page">
             <div className="page-header">
                 <h1>Lectures Management</h1>
-                <button className="btn btn-primary" onClick={handleCreate}>
-                    + Add Lecture
-                </button>
+                <div className="header-actions">
+                    {orphans.length > 0 && (
+                        <button className="btn btn-warning" onClick={handleCleanupOrphans} style={{ marginRight: '10px', backgroundColor: '#f59e0b', color: 'white' }}>
+                            ⚠️ Cleanup {orphans.length} Orphans
+                        </button>
+                    )}
+                    <button className="btn btn-primary" onClick={handleCreate}>
+                        + Add Lecture
+                    </button>
+                </div>
             </div>
+
+            {/* Search & Filter Bar */}
+            <SearchFilter
+                filterState={filterState}
+                onFilterChange={setFilterState}
+                placeholder="Search lectures..."
+                totalCount={totalCount}
+                matchedCount={matchedCount}
+            >
+                <div className="search-filter__filter-item" style={{ minWidth: '200px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedSubjectId}
+                        onChange={(e) => setSelectedSubjectId(e.target.value)}
+                        style={{ width: '100%', fontWeight: 500 }}
+                    >
+                        <option value="">All Subjects</option>
+                        {subjects?.map(subject => (
+                            <option key={subject.id} value={subject.id}>
+                                {subject.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </SearchFilter>
 
             <div className="table-container">
                 <table className="data-table">
@@ -82,12 +158,24 @@ export default function LecturesPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {lectures?.map(lecture => {
+                        {filteredLectures?.map(lecture => {
                             const subject = subjects?.find(s => s.id === lecture.subject_id);
                             return (
                                 <tr key={lecture.id}>
-                                    <td><code>{lecture.external_id}</code></td>
-                                    <td>{lecture.name}</td>
+                                    <td>
+                                        <code>
+                                            <HighlightedText
+                                                text={lecture.external_id}
+                                                query={filterState.searchQuery}
+                                            />
+                                        </code>
+                                    </td>
+                                    <td>
+                                        <HighlightedText
+                                            text={lecture.name}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
                                     <td>{subject?.name || <em>Orphaned</em>}</td>
                                     <td>{lecture.order_index}</td>
                                     <td>{new Date(lecture.created_at).toLocaleDateString()}</td>
@@ -110,10 +198,33 @@ export default function LecturesPage() {
                     </tbody>
                 </table>
 
+                {/* Empty States */}
                 {lectures?.length === 0 && (
-                    <div className="empty-state">
-                        <p>No lectures found. Create one to get started.</p>
-                    </div>
+                    <EmptyState
+                        icon="inbox"
+                        title="No lectures found"
+                        description="Create your first lecture to get started."
+                        action={{
+                            label: 'Add Lecture',
+                            onClick: handleCreate,
+                        }}
+                    />
+                )}
+
+                {lectures && lectures.length > 0 && filteredLectures?.length === 0 && (
+                    <EmptyState
+                        icon="search"
+                        title="No results match your search"
+                        description="Try adjusting your search terms or filters."
+                        action={{
+                            label: 'Reset Filters',
+                            onClick: () => setFilterState({
+                                searchQuery: '',
+                                status: 'all',
+                                minContentCount: undefined,
+                            }),
+                        }}
+                    />
                 )}
             </div>
 

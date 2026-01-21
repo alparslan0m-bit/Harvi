@@ -1,0 +1,21 @@
+/**
+ * HighlightedText Component Styles
+ */
+
+.highlight-match {
+    background-color: #fef08a;
+    /* Yellow highlight */
+    color: #854d0e;
+    /* Dark yellow text */
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+    .highlight-match {
+        background-color: #ca8a04;
+        color: #fef3c7;
+    }
+}

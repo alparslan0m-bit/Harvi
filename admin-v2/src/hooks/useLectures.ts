@@ -57,6 +57,18 @@ export function useDeleteLecture() {
     });
 }
 
+export function useDeleteLectures() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (ids: string[]) => lecturesService.deleteLectures(ids),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['lectures'] });
+            queryClient.invalidateQueries({ queryKey: ['questions'] });
+        },
+    });
+}
+
 export function useLectureChildCounts(id: string) {
     return useQuery({
         queryKey: ['lectures', id, 'child-counts'],

@@ -4,7 +4,11 @@ import { useLectures } from '../hooks/useLectures';
 import { useSubjects } from '../hooks/useSubjects';
 import { useModules } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
-import type { Question, QuestionInsert, QuestionOption } from '../types/database';
+import { useFilteredData } from '../hooks/useFilteredData';
+import type { Question, QuestionInsert, QuestionOption, Lecture } from '../types/database';
+import SearchFilter from '../components/filters/SearchFilter';
+import HighlightedText from '../components/ui/HighlightedText';
+import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
 import './QuestionsPage.css';
 
@@ -18,6 +22,28 @@ export default function QuestionsPage() {
     const createQuestion = useCreateQuestion();
     const updateQuestion = useUpdateQuestion();
     const deleteQuestion = useDeleteQuestion();
+
+    // Context Filter State
+    const [selectedLectureId, setSelectedLectureId] = useState<string>('');
+
+    // Pre-filter data by context
+    const contextFilteredQuestions = (questions || []).filter(question => {
+        if (!selectedLectureId) return true;
+        return question.lecture_id === selectedLectureId;
+    });
+
+    // Filter state and filtered data (with memoization)
+    const {
+        filterState,
+        setFilterState,
+        filteredData: filteredQuestions,
+        totalCount,
+        matchedCount,
+    } = useFilteredData(contextFilteredQuestions, {
+        searchFields: ['text', 'external_id', 'id'],
+        fuzzySearch: false,
+        minSearchLength: 1,
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -63,6 +89,14 @@ export default function QuestionsPage() {
     if (isLoading) return <div className="loading-container"><div className="loading" /></div>;
     if (error) return <div className="error-message">Error: {error.message}</div>;
 
+    // Group lectures by subject for the dropdown
+    const lecturesBySubject = (lectures || []).reduce((acc, lecture) => {
+        const subjectName = subjects?.find(s => s.id === lecture.subject_id)?.name || 'Other';
+        if (!acc[subjectName]) acc[subjectName] = [];
+        acc[subjectName].push(lecture);
+        return acc;
+    }, {} as Record<string, Lecture[]>);
+
     return (
         <div className="management-page">
             <div className="page-header">
@@ -71,6 +105,35 @@ export default function QuestionsPage() {
                     + Add Question
                 </button>
             </div>
+
+            {/* Search & Filter Bar */}
+            <SearchFilter
+                filterState={filterState}
+                onFilterChange={setFilterState}
+                placeholder="Search questions..."
+                totalCount={totalCount}
+                matchedCount={matchedCount}
+            >
+                <div className="search-filter__filter-item" style={{ minWidth: '250px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedLectureId}
+                        onChange={(e) => setSelectedLectureId(e.target.value)}
+                        style={{ width: '100%', fontWeight: 500 }}
+                    >
+                        <option value="">All Lectures</option>
+                        {Object.entries(lecturesBySubject).map(([subjectName, lectures]) => (
+                            <optgroup key={subjectName} label={subjectName}>
+                                {lectures.map(lecture => (
+                                    <option key={lecture.id} value={lecture.id}>
+                                        {lecture.name}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        ))}
+                    </select>
+                </div>
+            </SearchFilter>
 
             <div className="table-container">
                 <table className="data-table">
@@ -85,12 +148,24 @@ export default function QuestionsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {questions?.map(question => {
+                        {filteredQuestions?.map(question => {
                             const lecture = lectures?.find(l => l.id === question.lecture_id);
                             return (
                                 <tr key={question.id}>
-                                    <td><code>{question.external_id}</code></td>
-                                    <td className="question-text-preview">{question.text.substring(0, 50)}...</td>
+                                    <td>
+                                        <code>
+                                            <HighlightedText
+                                                text={question.external_id}
+                                                query={filterState.searchQuery}
+                                            />
+                                        </code>
+                                    </td>
+                                    <td className="question-text-preview">
+                                        <HighlightedText
+                                            text={question.text.substring(0, 50) + (question.text.length > 50 ? '...' : '')}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
                                     <td>{lecture?.name || 'Unknown'}</td>
                                     <td>{question.options.length} options</td>
                                     <td>Level {question.difficulty_level}</td>
@@ -113,10 +188,33 @@ export default function QuestionsPage() {
                     </tbody>
                 </table>
 
+                {/* Empty States */}
                 {questions?.length === 0 && (
-                    <div className="empty-state">
-                        <p>No questions found. Create one to get started.</p>
-                    </div>
+                    <EmptyState
+                        icon="inbox"
+                        title="No questions found"
+                        description="Create your first question to get started."
+                        action={{
+                            label: 'Add Question',
+                            onClick: handleCreate,
+                        }}
+                    />
+                )}
+
+                {questions && questions.length > 0 && filteredQuestions?.length === 0 && (
+                    <EmptyState
+                        icon="search"
+                        title="No results match your search"
+                        description="Try adjusting your search terms or filters."
+                        action={{
+                            label: 'Reset Filters',
+                            onClick: () => setFilterState({
+                                searchQuery: '',
+                                status: 'all',
+                                minContentCount: undefined,
+                            }),
+                        }}
+                    />
                 )}
             </div>
 
@@ -138,7 +236,7 @@ export default function QuestionsPage() {
 
 interface QuestionFormModalProps {
     question: Question | null;
-    lectures: Array<{ id: string; name: string; external_id: string; subject_id: string }>;
+    lectures: Array<{ id: string; name: string; external_id: string; subject_id: string | null }>;
     subjects: Array<{ id: string; name: string; external_id: string; module_id: string }>;
     modules: Array<{ id: string; name: string; external_id: string; year_id: string }>;
     years: Array<{ id: string; name: string; external_id: string }>;

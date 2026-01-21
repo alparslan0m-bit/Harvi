@@ -97,6 +97,20 @@ export async function deleteLecture(id: string): Promise<void> {
     }
 }
 
+export async function deleteLectures(ids: string[]): Promise<void> {
+    logQuery('DELETE MANY', 'lectures', { count: ids.length });
+
+    const { error } = await supabase
+        .from('lectures')
+        .delete()
+        .in('id', ids);
+
+    if (error) {
+        logError('deleteLectures', error);
+        throw new Error(`Failed to delete lectures: ${error.message}`);
+    }
+}
+
 export async function getLectureChildCounts(id: string): Promise<{ questions: number }> {
     const { count } = await supabase
         .from('questions')

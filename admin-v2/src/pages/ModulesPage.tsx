@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useModules, useCreateModule, useUpdateModule, useDeleteModule } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
+import { useFilteredData } from '../hooks/useFilteredData';
 import type { Module, ModuleInsert } from '../types/database';
 import { generateExternalId } from '../lib/utils';
+import SearchFilter from '../components/filters/SearchFilter';
+import HighlightedText from '../components/ui/HighlightedText';
+import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
 
 export default function ModulesPage() {
@@ -11,6 +15,28 @@ export default function ModulesPage() {
     const createModule = useCreateModule();
     const updateModule = useUpdateModule();
     const deleteModule = useDeleteModule();
+
+    // Context Filter State
+    const [selectedYearId, setSelectedYearId] = useState<string>('');
+
+    // Pre-filter data by context
+    const contextFilteredModules = (modules || []).filter(module => {
+        if (!selectedYearId) return true;
+        return module.year_id === selectedYearId;
+    });
+
+    // Filter state and filtered data (with memoization)
+    const {
+        filterState,
+        setFilterState,
+        filteredData: filteredModules,
+        totalCount,
+        matchedCount,
+    } = useFilteredData(contextFilteredModules, {
+        searchFields: ['name', 'external_id', 'id'],
+        fuzzySearch: false, // Can be enabled for typo tolerance
+        minSearchLength: 1,
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [editingModule, setEditingModule] = useState<Module | null>(null);
@@ -65,6 +91,31 @@ export default function ModulesPage() {
                 </button>
             </div>
 
+            {/* Search & Filter Bar */}
+            <SearchFilter
+                filterState={filterState}
+                onFilterChange={setFilterState}
+                placeholder="Search modules..."
+                totalCount={totalCount}
+                matchedCount={matchedCount}
+            >
+                <div className="search-filter__filter-item" style={{ minWidth: '200px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedYearId}
+                        onChange={(e) => setSelectedYearId(e.target.value)}
+                        style={{ width: '100%', fontWeight: 500 }}
+                    >
+                        <option value="">All Years</option>
+                        {years?.map(year => (
+                            <option key={year.id} value={year.id}>
+                                {year.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </SearchFilter>
+
             <div className="table-container">
                 <table className="data-table">
                     <thead>
@@ -77,12 +128,24 @@ export default function ModulesPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {modules?.map(module => {
+                        {filteredModules?.map(module => {
                             const year = years?.find(y => y.id === module.year_id);
                             return (
                                 <tr key={module.id}>
-                                    <td><code>{module.external_id}</code></td>
-                                    <td>{module.name}</td>
+                                    <td>
+                                        <code>
+                                            <HighlightedText
+                                                text={module.external_id}
+                                                query={filterState.searchQuery}
+                                            />
+                                        </code>
+                                    </td>
+                                    <td>
+                                        <HighlightedText
+                                            text={module.name}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
                                     <td>{year?.name || 'Unknown'}</td>
                                     <td>{new Date(module.created_at).toLocaleDateString()}</td>
                                     <td>
@@ -104,10 +167,33 @@ export default function ModulesPage() {
                     </tbody>
                 </table>
 
+                {/* Empty States */}
                 {modules?.length === 0 && (
-                    <div className="empty-state">
-                        <p>No modules found. Create one to get started.</p>
-                    </div>
+                    <EmptyState
+                        icon="inbox"
+                        title="No modules found"
+                        description="Create your first module to get started."
+                        action={{
+                            label: 'Add Module',
+                            onClick: handleCreate,
+                        }}
+                    />
+                )}
+
+                {modules && modules.length > 0 && filteredModules?.length === 0 && (
+                    <EmptyState
+                        icon="search"
+                        title="No results match your search"
+                        description="Try adjusting your search terms or filters."
+                        action={{
+                            label: 'Reset Filters',
+                            onClick: () => setFilterState({
+                                searchQuery: '',
+                                status: 'all',
+                                minContentCount: undefined,
+                            }),
+                        }}
+                    />
                 )}
             </div>
 
