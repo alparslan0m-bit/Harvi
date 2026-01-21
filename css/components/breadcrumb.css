@@ -13,8 +13,8 @@
     border: none;
     border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
 
-    /* Positioning below flat header (68px approx + safe-area) */
-    top: calc(12px + 44px + 12px + env(safe-area-inset-top, 0px));
+    /* Positioning below slightly minimized flat header (approx 26px padding + 44px content + safe area) */
+    top: calc(var(--header-floating-padding-v) * 2 + 44px + var(--safe-area-top));
 
     background: var(--header-glass-bg-light);
     backdrop-filter: blur(var(--header-glass-blur)) saturate(var(--header-glass-saturate));
