@@ -11,44 +11,24 @@ class Navigation {
         this.cacheTimestamp = null;
         this.cacheTimeout = 5 * 60 * 1000; // 5 minutes cache validity
         this.abortController = null; // For request cancellation
-        this.scrollListener = null; // Track scroll listener for cleanup
         this.currentHeaderTitle = ''; // Track current header title
         this.transitionDirection = 'forward'; // 'forward' (push) or 'back' (pop)
     }
 
     /**
      * Update header with large title and inline title for morphing effect
-     * Activates the scroll-to-inline transition CSS
+     * REFACTORED: Now delegates to HeaderController
      */
     updateHeader(titleText) {
         this.currentHeaderTitle = titleText;
-        const brandContainer = document.getElementById('brand-container');
-        const navTitleArea = document.getElementById('navigation-title-area');
 
-        if (!brandContainer || !navTitleArea) return;
-
-        // If at the root level (Years), show the master brand
-        if (titleText === 'Years' || !titleText) {
-            brandContainer.style.display = 'flex';
-            navTitleArea.style.display = 'none';
-        } else {
-            // Otherwise show the Navigation Large Title
-            brandContainer.style.display = 'none';
-            navTitleArea.style.display = 'block';
-
-            navTitleArea.innerHTML = `
-                <div class="scrollable-header">
-                    <h1 class="large-title">${titleText}</h1>
-                    <div class="inline-title">${titleText}</div>
-                </div>
-            `;
-
-            // Reset scroll state
-            const scrollableHeader = navTitleArea.querySelector('.scrollable-header');
-            if (scrollableHeader) {
-                scrollableHeader.classList.remove('scrolled');
-            }
+        if (!window.HeaderController) {
+            console.warn('HeaderController not available');
+            return;
         }
+
+        // Delegate to HeaderController
+        window.HeaderController.updateNavigationTitle(titleText);
     }
 
     /**
@@ -68,17 +48,7 @@ class Navigation {
             this.abortController = null;  // ← KEY: null the reference
         }
 
-        // 2. Remove scroll listener
-        if (this.scrollListener) {
-            const screen = document.querySelector('.screen.active');
-            if (screen) {
-                screen.removeEventListener('scroll', this.scrollListener, { passive: true });
-                console.log('✓ Scroll listener removed');
-            }
-            this.scrollListener = null;
-        }
-
-        // 3. Clear cached data if needed (optional - depends on requirements)
+        // 2. Clear cached data if needed (optional - depends on requirements)
         // this.remoteYears = null;
         // this.cacheTimestamp = null;
 
@@ -779,40 +749,12 @@ class Navigation {
 
     /**
      * Setup Large Title scroll transition
-     * Monitors scroll position to collapse header
+     * REFACTORED: Now delegates to HeaderController
      */
     setupScrollListener() {
-        // Target the actual scrollable screen container
-        const screen = document.querySelector('.screen.active');
-        if (!screen) return;
-
-        const header = screen.querySelector('.scrollable-header');
-        if (!header) return;
-
-        // Clean up previous instances to prevent event listener leaks
-        if (screen._scrollHandler) {
-            screen.removeEventListener('scroll', screen._scrollHandler);
+        // Delegate to HeaderController
+        if (window.HeaderController) {
+            window.HeaderController.setupScrollListener();
         }
-
-        let isTicking = false;
-        const scrollHandler = () => {
-            if (!isTicking) {
-                requestAnimationFrame(() => {
-                    const scrollY = screen.scrollTop;
-                    const threshold = 15;
-
-                    const isScrolled = scrollY > threshold;
-                    if (header.classList.contains('scrolled') !== isScrolled) {
-                        header.classList.toggle('scrolled', isScrolled);
-                    }
-                    isTicking = false;
-                });
-                isTicking = true;
-            }
-        };
-
-        // Attach to screen and store reference for cleanup
-        screen.addEventListener('scroll', scrollHandler, { passive: true });
-        screen._scrollHandler = scrollHandler;
     }
 }

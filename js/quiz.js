@@ -235,6 +235,13 @@ class Quiz {
 
         this.app.showScreen('quiz-screen');
 
+        // REFACTORED: Hide Unified Header for Concentration (User Request)
+        if (window.HeaderController) {
+            window.HeaderController.hide();
+            window.HeaderController.hideBreadcrumb();
+            document.body.classList.remove('breadcrumb-visible');
+        }
+
         this.waitForDOMElements().then(() => {
             this.attachButtonListeners(); // Ensure listeners are attached to current DOM
             this.showQuestion();

@@ -331,30 +331,13 @@ class MCQApp {
     }
 
     /**
-     * Setup brand button (Harvi title) to return home
+     * Setup brand button is now handled by HeaderController
+     * This method is deprecated and left empty for backward compatibility
      */
     setupBrandButton() {
-        const brandButton = document.getElementById('brand-container');
-        if (brandButton) {
-            brandButton.addEventListener('click', () => {
-                this.resetApp();
-            });
-        }
-
-        // Handle stats and profile brand buttons
-        const brandStats = document.getElementById('brand-stats');
-        if (brandStats) {
-            brandStats.addEventListener('click', () => {
-                this.showScreen('navigation-screen');
-            });
-        }
-
-        const brandProfile = document.getElementById('brand-profile');
-        if (brandProfile) {
-            brandProfile.addEventListener('click', () => {
-                this.showScreen('navigation-screen');
-            });
-        }
+        // REFACTORED: Header click handlers now managed by HeaderController
+        // See js/header.js for implementation
+        console.log('✓ setupBrandButton: Delegated to HeaderController');
     }
 
     /**
@@ -461,6 +444,36 @@ class MCQApp {
                 this.stats.init();
             } else if (screenId === 'profile-screen' && this.profile) {
                 this.profile.init();
+            } else if (screenId === 'navigation-screen') {
+                // Home page - configure header for dynamic mode
+                if (window.HeaderController) {
+                    window.HeaderController.configure({
+                        title: 'Harvi',
+                        subtitle: 'Questions you need',
+                        mode: 'dynamic',
+                        onTitleClick: () => this.resetApp(),
+                        showBreadcrumb: true
+                    });
+                }
+            }
+
+            // Configure header for Stats and Profile pages
+            if (screenId === 'stats-screen' && window.HeaderController) {
+                window.HeaderController.configure({
+                    title: 'Statistics',
+                    subtitle: 'Your progress at a glance',
+                    mode: 'static',
+                    onTitleClick: () => this.showScreen('navigation-screen'),
+                    showBreadcrumb: false
+                });
+            } else if (screenId === 'profile-screen' && window.HeaderController) {
+                window.HeaderController.configure({
+                    title: 'Profile',
+                    subtitle: 'App Settings & Actions',
+                    mode: 'static',
+                    onTitleClick: () => this.showScreen('navigation-screen'),
+                    showBreadcrumb: false
+                });
             }
 
             // Hide bottom nav during quiz for better focus

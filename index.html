@@ -56,27 +56,33 @@
     </div>
 
     <div id="app" class="ios-touch-optimized">
+        <!-- ============================================
+             UNIFIED HEADER COMPONENT (App Shell Level)
+             Configured by HeaderController based on active page
+             ============================================ -->
+        <div id="header-container" class="header-container">
+            <button class="brand-container" id="brand-container">
+                <h1 class="app-title">Harvi</h1>
+                <p class="brand-description">Questions you need</p>
+            </button>
+
+            <!-- Dynamic Navigation Area (Large Title / Inline Title) -->
+            <div id="navigation-title-area" style="display: none;">
+                <!-- Populated by HeaderController -->
+            </div>
+        </div>
+
+        <!-- Breadcrumb (Global, controlled by Navigation) -->
+        <div class="breadcrumb" id="breadcrumb"></div>
+
+        <!-- Home/Navigation Screen -->
         <div id="navigation-screen" class="screen active">
             <div class="container">
-                <div class="header-container">
-                    <div id="header-content-wrapper">
-                        <!-- Brand/Logo Area (Clickable to return home) -->
-                        <button class="brand-container" id="brand-container">
-                            <h1 class="app-title">Harvi</h1>
-                            <p class="brand-description">Questions you need</p>
-                        </button>
-
-                        <!-- Dynamic Navigation Area (Large Title / Inline Title) -->
-                        <div id="navigation-title-area" style="display: none;">
-                            <!-- Populated by navigation.js -->
-                        </div>
-                    </div>
-                </div>
-                <div class="breadcrumb" id="breadcrumb"></div>
                 <div class="cards-grid" id="cards-container"></div>
             </div>
         </div>
 
+        <!-- Quiz Screen -->
         <div id="quiz-screen" class="screen">
             <div class="quiz-container">
                 <div class="quiz-header">
@@ -105,6 +111,7 @@
             </div>
         </div>
 
+        <!-- Results Screen -->
         <div id="results-screen" class="screen results-screen">
             <div class="results-container" id="results-container">
                 <div class="results-icon">
@@ -138,15 +145,9 @@
             </div>
         </div>
 
-        <!-- Stats Screen -->
+        <!-- Statistics Screen -->
         <div id="stats-screen" class="screen">
             <div class="container">
-                <div class="header-container">
-                    <div class="brand-container" id="brand-stats">
-                        <h1 class="app-title">Statistics</h1>
-                        <p class="brand-description">Your progress at a glance</p>
-                    </div>
-                </div>
                 <div id="stats-content">
                     <!-- Stats will be populated here -->
                 </div>
@@ -156,12 +157,6 @@
         <!-- Profile Screen -->
         <div id="profile-screen" class="screen">
             <div class="container">
-                <div class="header-container">
-                    <div class="brand-container" id="brand-profile">
-                        <h1 class="app-title">Profile</h1>
-                        <p class="brand-description">App Settings & Actions</p>
-                    </div>
-                </div>
                 <div id="profile-content">
                     <!-- Profile content will be populated here -->
                 </div>
@@ -176,6 +171,7 @@
         <div class="loading-spinner"></div>
     </div>
 
+    <script src="js/header.js"></script>
     <script src="js/navigation.js"></script>
     <script src="js/quiz.js"></script>
     <script src="js/results.js"></script>

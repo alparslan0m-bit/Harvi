@@ -59,8 +59,8 @@ The application consists of three major layers:
 ### Architectural Decisions
 
 - **Vanilla JS + Service Worker** (frontend): Reduces bundle size, enables offline-first caching, native-like iOS/Android feel
-- **React + Vite** (admin): Separate modern stack for admin panel to allow independent deployments
-- **Supabase PostgreSQL** (database): Replaces MongoDB—enables triggers for auto-grading, row-level security for multi-tenancy
+- **React + Vite** (admin-v2): Modern stack for admin panel to manage content hierarchy and questions
+- **Supabase PostgreSQL** (database): Enables triggers for auto-grading, row-level security for multi-tenancy
 - **Database triggers** (auto-grading): Ensures students cannot tamper with grades by inspecting network responses
 - **Feature flags** (server): Enable rollback of transformations without redeployment
 
@@ -81,14 +81,12 @@ The application consists of three major layers:
 
 **Security:** Correct answers are NEVER sent to client. Grades are computed server-side via trigger.
 
-### Admin Content Management
+### Content Management (Admin)
 
-1. Admin logs in via Supabase Auth (email/password)
-2. Admin Dashboard (React, admin-v2/) checks `is_admin` role claim
-3. Admin manages Years → Modules → Subjects → Lectures → Questions
-4. All operations via authenticated endpoints (`/api/admin/*`)
-5. Data syncs with Supabase in real-time
-6. Frontend transforms JSONB question options to string arrays for display
+- Admin Dashboard (React, admin-v2/) allows authenticated admins to manage Years → Modules → Subjects → Lectures → Questions
+- All operations via authenticated endpoints (`/api/admin/*`)
+- Data syncs with Supabase in real-time
+- Frontend transforms JSONB question options to string arrays for display
 
 ### Offline Learning
 
@@ -437,7 +435,6 @@ The application includes several active performance features:
 
 ```
 ├── index.html                 # Main student app
-├── admin.html                # Legacy admin (older version)
 ├── js/                       # Core app logic (vanilla JS)
 │   ├── app.js              # MCQApp class - main controller
 │   ├── quiz.js             # Quiz class - question presentation
