@@ -125,10 +125,7 @@ body.girl-mode .header-container {
     padding-top: calc(var(--header-floating-padding-v) * 2 + var(--safe-area-top) + 44px + 12px);
 }
 
-/* When breadcrumb is visible, add extra padding to account for fixed breadcrumb height */
-body.breadcrumb-visible .screen {
-    padding-top: calc(var(--header-floating-padding-v) * 2 + var(--safe-area-top) + 44px + 44px + 12px);
-}
+
 
 /* Quiz Screen Specific Override: Reclaim header space */
 #quiz-screen {

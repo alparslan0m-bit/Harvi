@@ -172,26 +172,7 @@
     margin-bottom: 0.5rem;
 }
 
-.navigation-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 13px;
-    color: var(--label-secondary);
-    overflow-x: auto;
-}
 
-.navigation-breadcrumb-item {
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.navigation-breadcrumb-separator {
-    color: var(--label-tertiary);
-}
 
 /* Context Menu: Handled by touch-states.css */
 

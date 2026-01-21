@@ -63,7 +63,7 @@ data: {
 
 #### 3. **Search Functionality**
 - Global search across current page
-- Question-specific search with breadcrumb navigation
+- Question-specific search navigation
 - Debounced search for performance
 
 #### 4. **Data Validation**
@@ -354,7 +354,7 @@ user_responses.lecture_id  // Denormalized for performance
 **Subjects**
 - Filter by module
 - Display lecture counts
-- Breadcrumb navigation (Year > Module > Subject)
+- Multi-level navigation (Year > Module > Subject)
 
 **Lectures**
 - Filter by subject
@@ -718,7 +718,7 @@ const stats = await supabase
 
 #### Day 3-4: Core Layout
 - [ ] Sidebar navigation
-- [ ] Header with breadcrumbs
+- [ ] Header navigation
 - [ ] Main content area
 - [ ] Modal system
 - [ ] Toast notifications

@@ -7,7 +7,7 @@
  * Features:
  * - Static mode: Fixed title with optional click handler
  * - Dynamic mode: Large title with scroll-based morphing (iOS-style)
- * - Breadcrumb integration
+
  * - Safe-area inset support
  * - Memory leak prevention (proper cleanup)
  * 
@@ -25,7 +25,7 @@
  *   title: 'Harvi',
  *   subtitle: 'Questions you need',
  *   mode: 'dynamic',
- *   showBreadcrumb: true
+
  * });
  */
 class HeaderController {
@@ -38,7 +38,7 @@ class HeaderController {
         this.headerContainer = null;
         this.brandContainer = null;
         this.navTitleArea = null;
-        this.breadcrumb = null;
+
 
         this.init();
     }
@@ -50,7 +50,7 @@ class HeaderController {
         this.headerContainer = document.getElementById('header-container');
         this.brandContainer = document.getElementById('brand-container');
         this.navTitleArea = document.getElementById('navigation-title-area');
-        this.breadcrumb = document.getElementById('breadcrumb');
+
 
         if (!this.headerContainer || !this.brandContainer || !this.navTitleArea) {
             console.error('HeaderController: Required DOM elements not found');
@@ -67,7 +67,7 @@ class HeaderController {
      * @param {string} [config.subtitle] - Optional subtitle text
      * @param {'static'|'dynamic'} [config.mode='static'] - Header behavior mode
      * @param {Function} [config.onTitleClick] - Optional click handler
-     * @param {boolean} [config.showBreadcrumb=false] - Show breadcrumb navigation
+
      */
     configure(config) {
         // Validate config
@@ -79,13 +79,11 @@ class HeaderController {
         // Clean up previous configuration
         this.cleanup();
 
-        // Store new config
         this.currentConfig = {
             title: config.title,
             subtitle: config.subtitle || '',
             mode: config.mode || 'static',
-            onTitleClick: config.onTitleClick || null,
-            showBreadcrumb: config.showBreadcrumb || false
+            onTitleClick: config.onTitleClick || null
         };
 
         // Apply configuration
@@ -99,19 +97,7 @@ class HeaderController {
     render() {
         if (!this.currentConfig) return;
 
-        const { title, subtitle, mode, onTitleClick, showBreadcrumb } = this.currentConfig;
-
-        // Handle breadcrumb visibility and layout adjustments
-        if (this.breadcrumb) {
-            this.breadcrumb.style.display = showBreadcrumb ? 'flex' : 'none';
-
-            // Toggle body class for screen padding adjustments
-            if (showBreadcrumb) {
-                document.body.classList.add('breadcrumb-visible');
-            } else {
-                document.body.classList.remove('breadcrumb-visible');
-            }
-        }
+        const { title, subtitle, mode, onTitleClick } = this.currentConfig;
 
         if (mode === 'dynamic') {
             // Dynamic mode: Show brand container with click support
@@ -169,7 +155,11 @@ class HeaderController {
                 title: 'Harvi',
                 subtitle: 'Questions you need',
                 mode: 'dynamic',
-                showBreadcrumb: true
+                onTitleClick: () => {
+                    if (window.app && window.app.navigation) {
+                        window.app.navigation.showYears();
+                    }
+                }
             });
             return;
         }
@@ -257,23 +247,7 @@ class HeaderController {
         }
     }
 
-    /**
-     * Show breadcrumb navigation
-     */
-    showBreadcrumb() {
-        if (this.breadcrumb) {
-            this.breadcrumb.style.display = 'flex';
-        }
-    }
 
-    /**
-     * Hide breadcrumb navigation
-     */
-    hideBreadcrumb() {
-        if (this.breadcrumb) {
-            this.breadcrumb.style.display = 'none';
-        }
-    }
 
     /**
      * Hide the entire header container

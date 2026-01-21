@@ -40,7 +40,6 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/css/components/quiz-container.css',
   BASE_PATH + '/css/components/quiz-options.css',
   BASE_PATH + '/css/components/results-screen.css',
-  BASE_PATH + '/css/components/breadcrumb.css',
   BASE_PATH + '/css/components/micro-interactions.css',
   BASE_PATH + '/css/components/glassmorphism.css',
   BASE_PATH + '/css/components/view-transitions.css',
@@ -355,7 +354,7 @@ self.addEventListener('fetch', (event) => {
             }
             return new Response('Asset not found', { status: 404 });
           })
-      )
+      })
   );
 });
 

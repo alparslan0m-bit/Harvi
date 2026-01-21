@@ -445,14 +445,12 @@ class MCQApp {
             } else if (screenId === 'profile-screen' && this.profile) {
                 this.profile.init();
             } else if (screenId === 'navigation-screen') {
-                // Home page - configure header for dynamic mode
                 if (window.HeaderController) {
                     window.HeaderController.configure({
                         title: 'Harvi',
                         subtitle: 'Questions you need',
                         mode: 'dynamic',
-                        onTitleClick: () => this.resetApp(),
-                        showBreadcrumb: true
+                        onTitleClick: () => this.resetApp()
                     });
                 }
             }
@@ -463,16 +461,14 @@ class MCQApp {
                     title: 'Statistics',
                     subtitle: 'Your progress at a glance',
                     mode: 'static',
-                    onTitleClick: () => this.showScreen('navigation-screen'),
-                    showBreadcrumb: false
+                    onTitleClick: () => this.showScreen('navigation-screen')
                 });
             } else if (screenId === 'profile-screen' && window.HeaderController) {
                 window.HeaderController.configure({
                     title: 'Profile',
                     subtitle: 'App Settings & Actions',
                     mode: 'static',
-                    onTitleClick: () => this.showScreen('navigation-screen'),
-                    showBreadcrumb: false
+                    onTitleClick: () => this.showScreen('navigation-screen')
                 });
             }
 

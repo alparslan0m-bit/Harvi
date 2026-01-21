@@ -67,7 +67,7 @@ class Navigation {
 
         this.app.showScreen('navigation-screen');
         this.currentPath = [];
-        this.updateBreadcrumb();
+
         this.updateHeader('Years');
 
         const container = document.getElementById('cards-container');
@@ -271,7 +271,7 @@ class Navigation {
 
     showModules(year) {
         this.currentPath = [year];
-        this.updateBreadcrumb();
+
         this.updateHeader(year.name);
 
         const container = document.getElementById('cards-container');
@@ -314,7 +314,7 @@ class Navigation {
 
     showSubjects(year, module) {
         this.currentPath = [year, module];
-        this.updateBreadcrumb();
+
         this.updateHeader(module.name);
 
         const container = document.getElementById('cards-container');
@@ -357,7 +357,7 @@ class Navigation {
      */
     showLectures(year, module, subject) {
         this.currentPath = [year, module, subject];
-        this.updateBreadcrumb();
+
         this.updateHeader(subject.name);
 
         const container = document.getElementById('cards-container');
@@ -663,48 +663,7 @@ class Navigation {
         return emptyDiv;
     }
 
-    /**
-     * Update navigation breadcrumb for hierarchical context
-     */
-    updateBreadcrumb() {
-        const breadcrumb = document.getElementById('breadcrumb');
-        if (!breadcrumb) return;
 
-        breadcrumb.innerHTML = '';
-
-        const homeItem = document.createElement('span');
-        homeItem.className = 'breadcrumb-item';
-        homeItem.innerHTML = '🏠 Home';
-        homeItem.style.cursor = 'pointer';
-        homeItem.style.cursor = 'pointer';
-        homeItem.addEventListener('click', () => {
-            this.transitionDirection = 'back'; // Home is always back
-            this.app.navigation.showYears();
-        });
-        breadcrumb.appendChild(homeItem);
-
-        this.currentPath.forEach((item, index) => {
-            const separator = document.createElement('span');
-            separator.className = 'breadcrumb-separator';
-            separator.textContent = ' > ';
-            breadcrumb.appendChild(separator);
-
-            const pathItem = document.createElement('span');
-            pathItem.className = 'breadcrumb-item';
-            if (index === this.currentPath.length - 1) {
-                pathItem.classList.add('active');
-            }
-            pathItem.textContent = item.name;
-            pathItem.style.cursor = 'pointer';
-
-            // Use path-based navigation instead of hardcoded index checks
-            pathItem.addEventListener('click', () => {
-                this.navigateToPath(index);
-            });
-
-            breadcrumb.appendChild(pathItem);
-        });
-    }
 
     /**
      * Navigate to a specific path level using path-based routing
