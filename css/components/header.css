@@ -22,23 +22,20 @@
 :root {
     /* Full Width Header Geometry */
     --header-floating-margin: 0px;
-    /* Changed to 0 for edge-to-edge */
     --header-floating-border-radius: 0px;
-    /* Changed to 0 for flat look */
-    --header-floating-padding-v: 13px;
-    /* Slightly reduced from 16px */
+    --header-floating-padding-v: 11px;
+    /* Slightly reduced for tighter native feel */
     --header-floating-padding-h: 20px;
 
-    /* iOS Glass Effect */
-    --header-glass-bg-light: rgba(255, 255, 255, 0.85);
-    /* Increased opacity slightly for nav bar feel */
-    --header-glass-bg-dark: rgba(28, 28, 30, 0.85);
+    /* iOS System Appearance */
+    --header-glass-bg-light: #FFFFFF;
+    /* Pure white to match iOS safe-areas */
+    --header-glass-bg-dark: rgba(28, 28, 30, 0.94);
     --header-glass-blur: 20px;
     --header-glass-saturate: 180%;
 
-    /* Standard Nav Bar Shadow */
-    --header-shadow-color: rgba(0, 0, 0, 0.05);
-    /* Lighter shadow */
+    /* Standard Nav Bar Hairline */
+    --header-shadow-color: rgba(0, 0, 0, 0.15);
     --header-shadow-offset-y: 1px;
     --header-shadow-blur: 0px;
     --header-shadow-spread: 0px;
@@ -75,7 +72,7 @@
     padding: var(--header-floating-padding-v) var(--header-floating-padding-h);
 
     /* Hairline Separator */
-    box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.5px 0 var(--header-shadow-color);
     /* Native-like separator */
 
     /* Safe Area Awareness */
@@ -106,11 +103,11 @@ body.girl-mode .header-container {
 /* Fallback for browsers without backdrop-filter support */
 @supports not (backdrop-filter: blur(20px)) {
     .header-container {
-        background: rgba(255, 255, 255, 0.95);
+        background: #FFFFFF;
     }
 
     body.girl-mode .header-container {
-        background: rgba(28, 28, 30, 0.95);
+        background: #1C1C1E;
     }
 }
 
@@ -305,7 +302,8 @@ body.girl-mode .inline-title {
 @media (max-width: 767px) {
     :root {
         --header-floating-margin: 0px;
-        --header-floating-padding-v: 12px;
+        --header-floating-padding-v: 10px;
+        /* Refined for mobile height */
         --header-floating-padding-h: 20px;
     }
 }
@@ -317,8 +315,8 @@ body.girl-mode .inline-title {
 /* When installed as PWA (standalone mode) */
 @media (display-mode: standalone) {
     .header-container {
-        /* Ensure proper spacing for status bar in standalone PWA */
-        padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top) + 4px);
+        /* Respect safe area without adding extra magic spacing */
+        padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top));
     }
 }
 
