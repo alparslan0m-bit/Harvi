@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLectures, useCreateLecture, useUpdateLecture, useDeleteLecture, useDeleteLectures } from '../hooks/useLectures';
+import { useQuestions } from '../hooks/useQuestions';
 import { useSubjects } from '../hooks/useSubjects';
 import { useModules } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
@@ -10,6 +11,10 @@ import SearchFilter from '../components/filters/SearchFilter';
 import HighlightedText from '../components/ui/HighlightedText';
 import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
+import { TrashIcon, EditIcon, EyeIcon } from '../components/ui/Icons';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
+import LectureReviewModal from '../components/modals/LectureReviewModal';
+import LectureEditModal from '../components/modals/LectureEditModal';
 
 export default function LecturesPage() {
     const { data: lectures, isLoading, error } = useLectures();
@@ -20,15 +25,34 @@ export default function LecturesPage() {
     const updateLecture = useUpdateLecture();
     const deleteLecture = useDeleteLecture();
     const deleteLectures = useDeleteLectures();
+    const { data: allQuestions } = useQuestions();
 
     // Context Filter State
+    const [selectedYearId, setSelectedYearId] = useState<string>('');
+    const [selectedModuleId, setSelectedModuleId] = useState<string>('');
     const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
 
     // Pre-filter data by context
     const contextFilteredLectures = (lectures || []).filter(lecture => {
-        if (!selectedSubjectId) return true;
-        return lecture.subject_id === selectedSubjectId;
+        if (selectedSubjectId) return lecture.subject_id === selectedSubjectId;
+
+        const subject = subjects?.find(s => s.id === lecture.subject_id);
+        if (selectedModuleId) return subject?.module_id === selectedModuleId;
+
+        const module = modules?.find(m => m.id === subject?.module_id);
+        if (selectedYearId) return module?.year_id === selectedYearId;
+
+        return true;
     });
+
+    // Sub-filtering for cascading UI
+    const filteredModulesForFilter = selectedYearId
+        ? (modules || []).filter(m => m.year_id === selectedYearId)
+        : [];
+
+    const filteredSubjectsForFilter = selectedModuleId
+        ? (subjects || []).filter(s => s.module_id === selectedModuleId)
+        : [];
 
     // Detect Orphans (No Subject or Subject ID not found in list)
     const orphans = lectures?.filter(l => {
@@ -49,9 +73,12 @@ export default function LecturesPage() {
         minSearchLength: 1,
     });
 
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(false); // For Create
+    const [editModalOpen, setEditModalOpen] = useState(false); // For Edit (New Modal)
     const [editingLecture, setEditingLecture] = useState<Lecture | null>(null);
-    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [lectureToDelete, setLectureToDelete] = useState<string | null>(null);
+    const [reviewLecture, setReviewLecture] = useState<Lecture | null>(null);
 
     function handleCreate() {
         setEditingLecture(null);
@@ -60,7 +87,11 @@ export default function LecturesPage() {
 
     function handleEdit(lecture: Lecture) {
         setEditingLecture(lecture);
-        setShowModal(true);
+        setEditModalOpen(true);
+    }
+
+    function handleReview(lecture: Lecture) {
+        setReviewLecture(lecture);
     }
 
     async function handleSave(data: LectureInsert) {
@@ -76,15 +107,17 @@ export default function LecturesPage() {
         }
     }
 
-    async function handleDelete(id: string) {
-        if (deleteConfirm !== id) {
-            setDeleteConfirm(id);
-            return;
-        }
+    function handleDeleteClick(id: string) {
+        setLectureToDelete(id);
+        setDeleteModalOpen(true);
+    }
 
+    async function handleConfirmDelete() {
+        if (!lectureToDelete) return;
         try {
-            await deleteLecture.mutateAsync(id);
-            setDeleteConfirm(null);
+            await deleteLecture.mutateAsync(lectureToDelete);
+            setDeleteModalOpen(false);
+            setLectureToDelete(null);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to delete lecture');
         }
@@ -128,15 +161,54 @@ export default function LecturesPage() {
                 totalCount={totalCount}
                 matchedCount={matchedCount}
             >
+                <div className="search-filter__filter-item" style={{ minWidth: '150px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedYearId}
+                        onChange={(e) => {
+                            setSelectedYearId(e.target.value);
+                            setSelectedModuleId('');
+                            setSelectedSubjectId('');
+                        }}
+                        style={{ width: '100%', fontWeight: 500 }}
+                    >
+                        <option value="">All Years</option>
+                        {years?.map(year => (
+                            <option key={year.id} value={year.id}>
+                                {year.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="search-filter__filter-item" style={{ minWidth: '180px' }}>
+                    <select
+                        className="search-filter__select"
+                        value={selectedModuleId}
+                        onChange={(e) => {
+                            setSelectedModuleId(e.target.value);
+                            setSelectedSubjectId('');
+                        }}
+                        style={{ width: '100%', fontWeight: 500 }}
+                        disabled={!selectedYearId}
+                    >
+                        <option value="">{selectedYearId ? 'All Modules' : 'Select Year First'}</option>
+                        {filteredModulesForFilter.map(module => (
+                            <option key={module.id} value={module.id}>
+                                {module.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <div className="search-filter__filter-item" style={{ minWidth: '200px' }}>
                     <select
                         className="search-filter__select"
                         value={selectedSubjectId}
                         onChange={(e) => setSelectedSubjectId(e.target.value)}
                         style={{ width: '100%', fontWeight: 500 }}
+                        disabled={!selectedModuleId}
                     >
-                        <option value="">All Subjects</option>
-                        {subjects?.map(subject => (
+                        <option value="">{selectedModuleId ? 'All Subjects' : 'Select Module First'}</option>
+                        {filteredSubjectsForFilter.map(subject => (
                             <option key={subject.id} value={subject.id}>
                                 {subject.name}
                             </option>
@@ -149,10 +221,11 @@ export default function LecturesPage() {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>External ID</th>
                             <th>Name</th>
                             <th>Subject</th>
+                            <th>External ID</th>
                             <th>Order</th>
+                            <th>Questions</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -163,6 +236,13 @@ export default function LecturesPage() {
                             return (
                                 <tr key={lecture.id}>
                                     <td>
+                                        <HighlightedText
+                                            text={lecture.name}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
+                                    <td>{subject?.name || <em>Orphaned</em>}</td>
+                                    <td>
                                         <code>
                                             <HighlightedText
                                                 text={lecture.external_id}
@@ -170,25 +250,25 @@ export default function LecturesPage() {
                                             />
                                         </code>
                                     </td>
-                                    <td>
-                                        <HighlightedText
-                                            text={lecture.name}
-                                            query={filterState.searchQuery}
-                                        />
-                                    </td>
-                                    <td>{subject?.name || <em>Orphaned</em>}</td>
                                     <td>{lecture.order_index}</td>
+                                    <td>{allQuestions?.filter(q => q.lecture_id === lecture.id).length || 0}</td>
                                     <td>{new Date(lecture.created_at).toLocaleDateString()}</td>
                                     <td>
                                         <div className="action-buttons">
+                                            <button className="btn-small btn-secondary" onClick={() => handleReview(lecture)} title="Review Questions">
+                                                <EyeIcon />
+                                                <span>Review</span>
+                                            </button>
                                             <button className="btn-small btn-secondary" onClick={() => handleEdit(lecture)}>
-                                                Edit
+                                                <EditIcon />
+                                                <span>Edit</span>
                                             </button>
                                             <button
-                                                className={`btn-small ${deleteConfirm === lecture.id ? 'btn-danger-confirm' : 'btn-danger'}`}
-                                                onClick={() => handleDelete(lecture.id)}
+                                                className="btn-small btn-danger btn-icon-only"
+                                                onClick={() => handleDeleteClick(lecture.id)}
+                                                title="Delete Lecture"
                                             >
-                                                {deleteConfirm === lecture.id ? 'Confirm?' : 'Delete'}
+                                                <TrashIcon />
                                             </button>
                                         </div>
                                     </td>
@@ -237,6 +317,34 @@ export default function LecturesPage() {
                     onSave={handleSave}
                     onCancel={() => setShowModal(false)}
                     isSaving={createLecture.isPending || updateLecture.isPending}
+                />
+            )}
+
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                title="Delete Lecture"
+                message="Are you sure you want to delete this lecture? All questions associated with it will also be deleted."
+                confirmLabel="Delete"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModalOpen(false)}
+                isDanger={true}
+                isLoading={deleteLecture.isPending}
+            />
+
+            {reviewLecture && (
+                <LectureReviewModal
+                    lecture={reviewLecture}
+                    onClose={() => setReviewLecture(null)}
+                />
+            )}
+
+            {editModalOpen && editingLecture && (
+                <LectureEditModal
+                    lecture={editingLecture}
+                    onClose={() => {
+                        setEditModalOpen(false);
+                        setEditingLecture(null);
+                    }}
                 />
             )}
         </div>

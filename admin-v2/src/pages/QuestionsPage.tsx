@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuestions, useCreateQuestion, useUpdateQuestion, useDeleteQuestion } from '../hooks/useQuestions';
 import { useLectures } from '../hooks/useLectures';
 import { useSubjects } from '../hooks/useSubjects';
 import { useModules } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
 import { useFilteredData } from '../hooks/useFilteredData';
-import type { Question, QuestionInsert, QuestionOption, Lecture } from '../types/database';
+import type { Question, QuestionInsert, Lecture } from '../types/database';
 import SearchFilter from '../components/filters/SearchFilter';
 import HighlightedText from '../components/ui/HighlightedText';
 import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
+import { TrashIcon, EditIcon } from '../components/ui/Icons';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
+import SingleQuestionEditModal from '../components/modals/SingleQuestionEditModal';
 import './QuestionsPage.css';
+import { useEffect } from 'react';
 
 export default function QuestionsPage() {
     const { data: questions, isLoading, error } = useQuestions();
@@ -25,6 +29,43 @@ export default function QuestionsPage() {
 
     // Context Filter State
     const [selectedLectureId, setSelectedLectureId] = useState<string>('');
+    const [lectureSearch, setLectureSearch] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    // Filter lectures for search
+    const matchingLectures = (lectures || []).filter(l => {
+        return l.name.toLowerCase().includes(lectureSearch.toLowerCase()) ||
+            l.external_id.toLowerCase().includes(lectureSearch.toLowerCase());
+    }).slice(0, 30);
+
+    const getLecturePath = (lecture: Lecture) => {
+        const subject = subjects?.find(s => s.id === lecture.subject_id);
+        const module = modules?.find(m => m.id === subject?.module_id);
+        const year = years?.find(y => y.id === module?.year_id);
+        return `${year?.icon || ''} ${year?.name || ''} › ${module?.name || ''} › ${subject?.name || ''}`;
+    };
+
+    const handleSelectLecture = (l: Lecture | null) => {
+        if (!l) {
+            setSelectedLectureId('');
+            setLectureSearch('');
+        } else {
+            setSelectedLectureId(l.id);
+            setLectureSearch(l.name);
+        }
+        setShowSuggestions(false);
+    };
+
+    // Close suggestions on click outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (!(e.target as HTMLElement).closest('.suggestions-container')) {
+                setShowSuggestions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     // Pre-filter data by context
     const contextFilteredQuestions = (questions || []).filter(question => {
@@ -47,7 +88,8 @@ export default function QuestionsPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
     function handleCreate() {
         setEditingQuestion(null);
@@ -72,15 +114,18 @@ export default function QuestionsPage() {
         }
     }
 
-    async function handleDelete(id: string) {
-        if (deleteConfirm !== id) {
-            setDeleteConfirm(id);
-            return;
-        }
+    function handleDeleteClick(id: string) {
+        setQuestionToDelete(id);
+        setDeleteModalOpen(true);
+    }
+
+    async function handleConfirmDelete() {
+        if (!questionToDelete) return;
 
         try {
-            await deleteQuestion.mutateAsync(id);
-            setDeleteConfirm(null);
+            await deleteQuestion.mutateAsync(questionToDelete);
+            setDeleteModalOpen(false);
+            setQuestionToDelete(null);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to delete question');
         }
@@ -114,24 +159,59 @@ export default function QuestionsPage() {
                 totalCount={totalCount}
                 matchedCount={matchedCount}
             >
-                <div className="search-filter__filter-item" style={{ minWidth: '250px' }}>
-                    <select
-                        className="search-filter__select"
-                        value={selectedLectureId}
-                        onChange={(e) => setSelectedLectureId(e.target.value)}
-                        style={{ width: '100%', fontWeight: 500 }}
-                    >
-                        <option value="">All Lectures</option>
-                        {Object.entries(lecturesBySubject).map(([subjectName, lectures]) => (
-                            <optgroup key={subjectName} label={subjectName}>
-                                {lectures.map(lecture => (
-                                    <option key={lecture.id} value={lecture.id}>
-                                        {lecture.name}
-                                    </option>
-                                ))}
-                            </optgroup>
-                        ))}
-                    </select>
+                <div className="search-filter__filter-item" style={{ minWidth: '350px' }}>
+                    <div className="suggestions-container" style={{ width: '100%' }}>
+                        <div className="search-input-wrapper" style={{ position: 'relative' }}>
+                            <input
+                                type="text"
+                                className="search-filter__select"
+                                value={lectureSearch}
+                                onChange={e => {
+                                    setLectureSearch(e.target.value);
+                                    if (selectedLectureId) setSelectedLectureId(''); // Clear selection on type
+                                    setShowSuggestions(true);
+                                }}
+                                onFocus={() => setShowSuggestions(true)}
+                                placeholder="Search all lectures..."
+                                style={{ width: '100%', cursor: 'text' }}
+                            />
+                            {lectureSearch && (
+                                <button
+                                    className="search-filter__clear-btn"
+                                    style={{ right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                                    onClick={() => handleSelectLecture(null)}
+                                >
+                                    &times;
+                                </button>
+                            )}
+                        </div>
+
+                        {showSuggestions && lectureSearch.trim().length > 0 && (
+                            <div className="suggestions-list" style={{ marginTop: '5px' }}>
+                                <div
+                                    className={`suggestion-item ${!selectedLectureId ? 'selected' : ''}`}
+                                    onClick={() => handleSelectLecture(null)}
+                                >
+                                    <span className="lecture-name">All Lectures</span>
+                                    <span className="lecture-path">Clear filter to show everything</span>
+                                </div>
+                                {matchingLectures.length > 0 ? (
+                                    matchingLectures.map(l => (
+                                        <div
+                                            key={l.id}
+                                            className={`suggestion-item ${selectedLectureId === l.id ? 'selected' : ''}`}
+                                            onClick={() => handleSelectLecture(l)}
+                                        >
+                                            <span className="lecture-name">{l.name}</span>
+                                            <span className="lecture-path">{getLecturePath(l)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="no-results">No lectures found matching "{lectureSearch}"</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </SearchFilter>
 
@@ -139,10 +219,10 @@ export default function QuestionsPage() {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>External ID</th>
                             <th>Text (Preview)</th>
                             <th>Lecture</th>
-                            <th>Options</th>
+                            <th>External ID</th>
+
                             <th>Difficulty</th>
                             <th>Actions</th>
                         </tr>
@@ -152,14 +232,6 @@ export default function QuestionsPage() {
                             const lecture = lectures?.find(l => l.id === question.lecture_id);
                             return (
                                 <tr key={question.id}>
-                                    <td>
-                                        <code>
-                                            <HighlightedText
-                                                text={question.external_id}
-                                                query={filterState.searchQuery}
-                                            />
-                                        </code>
-                                    </td>
                                     <td className="question-text-preview">
                                         <HighlightedText
                                             text={question.text.substring(0, 50) + (question.text.length > 50 ? '...' : '')}
@@ -167,18 +239,28 @@ export default function QuestionsPage() {
                                         />
                                     </td>
                                     <td>{lecture?.name || 'Unknown'}</td>
-                                    <td>{question.options.length} options</td>
+                                    <td className="external-id-cell">
+                                        <code>
+                                            <HighlightedText
+                                                text={question.external_id}
+                                                query={filterState.searchQuery}
+                                            />
+                                        </code>
+                                    </td>
+
                                     <td>Level {question.difficulty_level}</td>
                                     <td>
                                         <div className="action-buttons">
                                             <button className="btn-small btn-secondary" onClick={() => handleEdit(question)}>
-                                                Edit
+                                                <EditIcon />
+                                                <span>Edit</span>
                                             </button>
                                             <button
-                                                className={`btn-small ${deleteConfirm === question.id ? 'btn-danger-confirm' : 'btn-danger'}`}
-                                                onClick={() => handleDelete(question.id)}
+                                                className="btn-small btn-danger btn-icon-only"
+                                                onClick={() => handleDeleteClick(question.id)}
+                                                title="Delete Question"
                                             >
-                                                {deleteConfirm === question.id ? 'Confirm?' : 'Delete'}
+                                                <TrashIcon />
                                             </button>
                                         </div>
                                     </td>
@@ -219,7 +301,7 @@ export default function QuestionsPage() {
             </div>
 
             {showModal && (
-                <QuestionFormModal
+                <SingleQuestionEditModal
                     question={editingQuestion}
                     lectures={lectures || []}
                     subjects={subjects || []}
@@ -230,318 +312,19 @@ export default function QuestionsPage() {
                     isSaving={createQuestion.isPending || updateQuestion.isPending}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                title="Delete Question"
+                message="Are you sure you want to delete this question? This action cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModalOpen(false)}
+                isDanger={true}
+                isLoading={deleteQuestion.isPending}
+            />
         </div>
     );
 }
 
-interface QuestionFormModalProps {
-    question: Question | null;
-    lectures: Array<{ id: string; name: string; external_id: string; subject_id: string | null }>;
-    subjects: Array<{ id: string; name: string; external_id: string; module_id: string }>;
-    modules: Array<{ id: string; name: string; external_id: string; year_id: string }>;
-    years: Array<{ id: string; name: string; external_id: string }>;
-    onSave: (data: QuestionInsert) => void;
-    onCancel: () => void;
-    isSaving: boolean;
-}
 
-function QuestionFormModal({ question, lectures, subjects, modules, years, onSave, onCancel, isSaving }: QuestionFormModalProps) {
-    const [text, setText] = useState(question?.text || '');
-
-    // Path State
-    const [yearId, setYearId] = useState('');
-    const [moduleId, setModuleId] = useState('');
-    const [subjectId, setSubjectId] = useState('');
-    const [lectureId, setLectureId] = useState(question?.lecture_id || '');
-
-    const [generatedId, setGeneratedId] = useState(question?.external_id || '');
-
-    const [options, setOptions] = useState<QuestionOption[]>(
-        question?.options || [
-            { id: 1, text: '', image_url: null },
-            { id: 2, text: '', image_url: null },
-        ]
-    );
-    const [correctAnswerIndex, setCorrectAnswerIndex] = useState(question?.correct_answer_index?.toString() || '0');
-    const [explanation, setExplanation] = useState(question?.explanation || '');
-    const [difficultyLevel, setDifficultyLevel] = useState(question?.difficulty_level?.toString() || '1');
-
-    // Initialize Path if editing
-    useEffect(() => {
-        if (question && question.lecture_id && lectures.length > 0 && subjects.length > 0 && modules.length > 0) {
-            const currentLecture = lectures.find(l => l.id === question.lecture_id);
-            if (currentLecture) {
-                const currentSubject = subjects.find(s => s.id === currentLecture.subject_id);
-                if (currentSubject) {
-                    const currentModule = modules.find(m => m.id === currentSubject.module_id);
-                    if (currentModule) {
-                        setSubjectId(currentSubject.id);
-                        setModuleId(currentModule.id);
-                        setYearId(currentModule.year_id);
-                    }
-                }
-            }
-        }
-    }, [question, lectures, subjects, modules]);
-
-    // Filtering
-    const filteredModules = yearId ? modules.filter(m => m.year_id === yearId) : [];
-    const filteredSubjects = moduleId ? subjects.filter(s => s.module_id === moduleId) : [];
-    const filteredLectures = subjectId ? lectures.filter(l => l.subject_id === subjectId) : [];
-
-    // Auto-generate ID (Question IDs are unique so we use a random suffix if not provided)
-    useEffect(() => {
-        if (question) return;
-
-        if (lectureId) {
-            const selectedLecture = lectures.find(l => l.id === lectureId);
-            if (selectedLecture) {
-                // For questions, we generate a unique suffix
-                const uniqueSuffix = `q_${Math.random().toString(36).substring(2, 7)}`;
-                setGeneratedId(`${selectedLecture.external_id}_${uniqueSuffix}`);
-            }
-        }
-    }, [lectureId, lectures, question]);
-
-    function addOption() {
-        const newId = Math.max(...options.map(o => o.id), 0) + 1;
-        setOptions([...options, { id: newId, text: '', image_url: null }]);
-    }
-
-    function removeOption(id: number) {
-        if (options.length <= 2) {
-            alert('Must have at least 2 options');
-            return;
-        }
-        setOptions(options.filter(o => o.id !== id));
-    }
-
-    function updateOption(id: number, text: string) {
-        setOptions(options.map(o => o.id === id ? { ...o, text } : o));
-    }
-
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-
-        if (!lectureId) {
-            alert('Please select a lecture');
-            return;
-        }
-
-        if (options.some(o => !o.text.trim())) {
-            alert('All options must have text');
-            return;
-        }
-
-        const correctIdx = parseInt(correctAnswerIndex);
-        if (correctIdx < 0 || correctIdx >= options.length) {
-            alert('Correct answer index must be valid');
-            return;
-        }
-
-        const finalId = question ? question.external_id : generatedId;
-
-        onSave({
-            external_id: finalId,
-            lecture_id: lectureId,
-            text,
-            options,
-            correct_answer_index: correctIdx,
-            explanation: explanation || null,
-            difficulty_level: parseInt(difficultyLevel) as 1 | 2 | 3,
-        });
-    }
-
-    return (
-        <div className="modal-overlay" onClick={onCancel}>
-            <div className="modal-content question-modal" onClick={(e) => e.stopPropagation()}>
-                <h2>{question ? 'Edit Question' : 'Create Question'}</h2>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="cascade-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <div className="form-group">
-                            <label className="form-label">Year *</label>
-                            <select
-                                className="form-input"
-                                value={yearId}
-                                onChange={(e) => {
-                                    setYearId(e.target.value);
-                                    setModuleId('');
-                                    setSubjectId('');
-                                    setLectureId('');
-                                }}
-                                disabled={!!question}
-                                required
-                            >
-                                <option value="">-- Select --</option>
-                                {years.map(year => (
-                                    <option key={year.id} value={year.id}>{year.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Module *</label>
-                            <select
-                                className="form-input"
-                                value={moduleId}
-                                onChange={(e) => {
-                                    setModuleId(e.target.value);
-                                    setSubjectId('');
-                                    setLectureId('');
-                                }}
-                                disabled={!yearId || !!question}
-                                required
-                            >
-                                <option value="">-- Select --</option>
-                                {filteredModules.map(module => (
-                                    <option key={module.id} value={module.id}>{module.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Subject *</label>
-                            <select
-                                className="form-input"
-                                value={subjectId}
-                                onChange={(e) => {
-                                    setSubjectId(e.target.value);
-                                    setLectureId('');
-                                }}
-                                disabled={!moduleId || !!question}
-                                required
-                            >
-                                <option value="">-- Select --</option>
-                                {filteredSubjects.map(subject => (
-                                    <option key={subject.id} value={subject.id}>{subject.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Lecture *</label>
-                            <select
-                                className="form-input"
-                                value={lectureId}
-                                onChange={(e) => setLectureId(e.target.value)}
-                                disabled={!subjectId || !!question}
-                                required
-                            >
-                                <option value="">-- Select --</option>
-                                {filteredLectures.map(lecture => (
-                                    <option key={lecture.id} value={lecture.id}>{lecture.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Generated ID (Read-only)</label>
-                        <input
-                            type="text"
-                            className="form-input"
-                            value={question ? question.external_id : generatedId}
-                            disabled
-                            style={{ backgroundColor: '#f1f5f9', fontFamily: 'monospace' }}
-                        />
-                        <small>{question ? 'ID cannot be changed after creation' : 'Auto-generated based on Lecture'}</small>
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Question Text *</label>
-                        <textarea
-                            className="form-input"
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="Enter your question here..."
-                            rows={3}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Options * (JSONB Format)</label>
-                        <div className="options-editor">
-                            {options.map((option, idx) => (
-                                <div key={option.id} className="option-row">
-                                    <span className="option-number">{idx + 1}.</span>
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        value={option.text}
-                                        onChange={(e) => updateOption(option.id, e.target.value)}
-                                        placeholder={`Option ${idx + 1}`}
-                                        required
-                                    />
-                                    {options.length > 2 && (
-                                        <button
-                                            type="button"
-                                            className="btn-small btn-danger"
-                                            onClick={() => removeOption(option.id)}
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                            <button type="button" className="btn btn-secondary" onClick={addOption}>
-                                + Add Option
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Correct Answer Index * 🔐</label>
-                        <select
-                            className="form-input"
-                            value={correctAnswerIndex}
-                            onChange={(e) => setCorrectAnswerIndex(e.target.value)}
-                            required
-                        >
-                            {options.map((_, idx) => (
-                                <option key={idx} value={idx}>
-                                    Option {idx + 1}: {options[idx].text || '(empty)'}
-                                </option>
-                            ))}
-                        </select>
-                        <small style={{ color: '#d00' }}>⚠️ Admin-only field. Never exposed to students.</small>
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Explanation (optional)</label>
-                        <textarea
-                            className="form-input"
-                            value={explanation}
-                            onChange={(e) => setExplanation(e.target.value)}
-                            placeholder="Explain why this is the correct answer..."
-                            rows={2}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">Difficulty Level</label>
-                        <select
-                            className="form-input"
-                            value={difficultyLevel}
-                            onChange={(e) => setDifficultyLevel(e.target.value)}
-                        >
-                            <option value="1">Level 1 - Easy</option>
-                            <option value="2">Level 2 - Medium</option>
-                            <option value="3">Level 3 - Hard</option>
-                        </select>
-                    </div>
-
-                    <div className="form-actions">
-                        <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={isSaving}>
-                            Cancel
-                        </button>
-                        <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                            {isSaving ? 'Saving...' : 'Save'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-}

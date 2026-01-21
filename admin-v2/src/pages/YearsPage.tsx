@@ -1,17 +1,27 @@
 import { useState } from 'react';
 import { useYears, useCreateYear, useUpdateYear, useDeleteYear } from '../hooks/useYears';
+import { useModules } from '../hooks/useModules';
+import { useSubjects } from '../hooks/useSubjects';
+import { useLectures } from '../hooks/useLectures';
+import { useQuestions } from '../hooks/useQuestions';
 import { useFilteredData } from '../hooks/useFilteredData';
 import type { Year, YearInsert } from '../types/database';
 import SearchFilter from '../components/filters/SearchFilter';
 import HighlightedText from '../components/ui/HighlightedText';
 import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
+import { TrashIcon, EditIcon } from '../components/ui/Icons';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
 
 export default function YearsPage() {
     const { data: years, isLoading, error } = useYears();
     const createYear = useCreateYear();
     const updateYear = useUpdateYear();
     const deleteYear = useDeleteYear();
+    const { data: modules } = useModules();
+    const { data: subjects } = useSubjects();
+    const { data: lectures } = useLectures();
+    const { data: allQuestions } = useQuestions();
 
     // Filter state and filtered data (with memoization)
     const {
@@ -28,7 +38,9 @@ export default function YearsPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [editingYear, setEditingYear] = useState<Year | null>(null);
-    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+    // Delete Confirmation State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [yearToDelete, setYearToDelete] = useState<string | null>(null);
 
     function handleCreate() {
         setEditingYear(null);
@@ -53,15 +65,17 @@ export default function YearsPage() {
         }
     }
 
-    async function handleDelete(id: string) {
-        if (deleteConfirm !== id) {
-            setDeleteConfirm(id);
-            return;
-        }
+    function handleDeleteClick(id: string) {
+        setYearToDelete(id);
+        setDeleteModalOpen(true);
+    }
 
+    async function handleConfirmDelete() {
+        if (!yearToDelete) return;
         try {
-            await deleteYear.mutateAsync(id);
-            setDeleteConfirm(null);
+            await deleteYear.mutateAsync(yearToDelete);
+            setDeleteModalOpen(false);
+            setYearToDelete(null);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to delete year');
         }
@@ -92,9 +106,10 @@ export default function YearsPage() {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>External ID</th>
                             <th>Name</th>
                             <th>Icon</th>
+                            <th>External ID</th>
+                            <th>Questions</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -103,6 +118,13 @@ export default function YearsPage() {
                         {filteredYears?.map(year => (
                             <tr key={year.id}>
                                 <td>
+                                    <HighlightedText
+                                        text={year.name}
+                                        query={filterState.searchQuery}
+                                    />
+                                </td>
+                                <td>{year.icon || '-'}</td>
+                                <td>
                                     <code>
                                         <HighlightedText
                                             text={year.external_id}
@@ -110,24 +132,27 @@ export default function YearsPage() {
                                         />
                                     </code>
                                 </td>
-                                <td>
-                                    <HighlightedText
-                                        text={year.name}
-                                        query={filterState.searchQuery}
-                                    />
-                                </td>
-                                <td>{year.icon || '-'}</td>
+                                <td>{allQuestions?.filter(q => {
+                                    const lecture = lectures?.find(l => l.id === q.lecture_id);
+                                    if (!lecture) return false;
+                                    const subject = subjects?.find(s => s.id === lecture.subject_id);
+                                    if (!subject) return false;
+                                    const module = modules?.find(m => m.id === subject.module_id);
+                                    return module?.year_id === year.id;
+                                }).length || 0}</td>
                                 <td>{new Date(year.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <div className="action-buttons">
                                         <button className="btn-small btn-secondary" onClick={() => handleEdit(year)}>
-                                            Edit
+                                            <EditIcon />
+                                            <span>Edit</span>
                                         </button>
                                         <button
-                                            className={`btn-small ${deleteConfirm === year.id ? 'btn-danger-confirm' : 'btn-danger'}`}
-                                            onClick={() => handleDelete(year.id)}
+                                            className="btn-small btn-danger btn-icon-only"
+                                            onClick={() => handleDeleteClick(year.id)}
+                                            title="Delete Year"
                                         >
-                                            {deleteConfirm === year.id ? 'Confirm?' : 'Delete'}
+                                            <TrashIcon />
                                         </button>
                                     </div>
                                 </td>
@@ -174,6 +199,17 @@ export default function YearsPage() {
                     isSaving={createYear.isPending || updateYear.isPending}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                title="Delete Year"
+                message="Are you sure you want to delete this year? All associated modules, subjects, and lectures will also be deleted. This action cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModalOpen(false)}
+                isDanger={true}
+                isLoading={deleteYear.isPending}
+            />
         </div>
     );
 }

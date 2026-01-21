@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useModules, useCreateModule, useUpdateModule, useDeleteModule } from '../hooks/useModules';
 import { useYears } from '../hooks/useYears';
+import { useSubjects } from '../hooks/useSubjects';
+import { useLectures } from '../hooks/useLectures';
+import { useQuestions } from '../hooks/useQuestions';
 import { useFilteredData } from '../hooks/useFilteredData';
 import type { Module, ModuleInsert } from '../types/database';
 import { generateExternalId } from '../lib/utils';
@@ -8,6 +11,8 @@ import SearchFilter from '../components/filters/SearchFilter';
 import HighlightedText from '../components/ui/HighlightedText';
 import EmptyState from '../components/ui/EmptyState';
 import './ManagementPage.css';
+import { TrashIcon, EditIcon } from '../components/ui/Icons';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
 
 export default function ModulesPage() {
     const { data: modules, isLoading, error } = useModules();
@@ -15,6 +20,9 @@ export default function ModulesPage() {
     const createModule = useCreateModule();
     const updateModule = useUpdateModule();
     const deleteModule = useDeleteModule();
+    const { data: subjects } = useSubjects();
+    const { data: lectures } = useLectures();
+    const { data: allQuestions } = useQuestions();
 
     // Context Filter State
     const [selectedYearId, setSelectedYearId] = useState<string>('');
@@ -40,7 +48,8 @@ export default function ModulesPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [editingModule, setEditingModule] = useState<Module | null>(null);
-    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [moduleToDelete, setModuleToDelete] = useState<string | null>(null);
 
     function handleCreate() {
         setEditingModule(null);
@@ -65,15 +74,18 @@ export default function ModulesPage() {
         }
     }
 
-    async function handleDelete(id: string) {
-        if (deleteConfirm !== id) {
-            setDeleteConfirm(id);
-            return;
-        }
+    function handleDeleteClick(id: string) {
+        setModuleToDelete(id);
+        setDeleteModalOpen(true);
+    }
+
+    async function handleConfirmDelete() {
+        if (!moduleToDelete) return;
 
         try {
-            await deleteModule.mutateAsync(id);
-            setDeleteConfirm(null);
+            await deleteModule.mutateAsync(moduleToDelete);
+            setDeleteModalOpen(false);
+            setModuleToDelete(null);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to delete module');
         }
@@ -120,9 +132,10 @@ export default function ModulesPage() {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>External ID</th>
                             <th>Name</th>
                             <th>Year</th>
+                            <th>External ID</th>
+                            <th>Questions</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -133,6 +146,13 @@ export default function ModulesPage() {
                             return (
                                 <tr key={module.id}>
                                     <td>
+                                        <HighlightedText
+                                            text={module.name}
+                                            query={filterState.searchQuery}
+                                        />
+                                    </td>
+                                    <td>{year?.name || 'Unknown'}</td>
+                                    <td>
                                         <code>
                                             <HighlightedText
                                                 text={module.external_id}
@@ -140,24 +160,25 @@ export default function ModulesPage() {
                                             />
                                         </code>
                                     </td>
-                                    <td>
-                                        <HighlightedText
-                                            text={module.name}
-                                            query={filterState.searchQuery}
-                                        />
-                                    </td>
-                                    <td>{year?.name || 'Unknown'}</td>
+                                    <td>{allQuestions?.filter(q => {
+                                        const lecture = lectures?.find(l => l.id === q.lecture_id);
+                                        if (!lecture) return false;
+                                        const subject = subjects?.find(s => s.id === lecture.subject_id);
+                                        return subject?.module_id === module.id;
+                                    }).length || 0}</td>
                                     <td>{new Date(module.created_at).toLocaleDateString()}</td>
                                     <td>
                                         <div className="action-buttons">
                                             <button className="btn-small btn-secondary" onClick={() => handleEdit(module)}>
-                                                Edit
+                                                <EditIcon />
+                                                <span>Edit</span>
                                             </button>
                                             <button
-                                                className={`btn-small ${deleteConfirm === module.id ? 'btn-danger-confirm' : 'btn-danger'}`}
-                                                onClick={() => handleDelete(module.id)}
+                                                className="btn-small btn-danger btn-icon-only"
+                                                onClick={() => handleDeleteClick(module.id)}
+                                                title="Delete Module"
                                             >
-                                                {deleteConfirm === module.id ? 'Confirm?' : 'Delete'}
+                                                <TrashIcon />
                                             </button>
                                         </div>
                                     </td>
@@ -206,6 +227,17 @@ export default function ModulesPage() {
                     isSaving={createModule.isPending || updateModule.isPending}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                title="Delete Module"
+                message="Are you sure you want to delete this module? All subjects and lectures within it will also be deleted."
+                confirmLabel="Delete"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModalOpen(false)}
+                isDanger={true}
+                isLoading={deleteModule.isPending}
+            />
         </div>
     );
 }

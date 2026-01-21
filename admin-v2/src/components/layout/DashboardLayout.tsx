@@ -5,6 +5,18 @@ import { useModules } from '../../hooks/useModules';
 import { useSubjects } from '../../hooks/useSubjects';
 import { useLectures } from '../../hooks/useLectures';
 import { useQuestions } from '../../hooks/useQuestions';
+import {
+    DashboardIcon,
+    YearsIcon,
+    ModulesIcon,
+    SubjectsIcon,
+    LecturesIcon,
+    QuestionsIcon,
+    LogoutIcon,
+    PlusIcon
+} from '../ui/Icons';
+import { useCreateQuestion } from '../../hooks/useQuestions';
+import SingleQuestionEditModal from '../modals/SingleQuestionEditModal';
 import YearsPage from '../../pages/YearsPage';
 import ModulesPage from '../../pages/ModulesPage';
 import SubjectsPage from '../../pages/SubjectsPage';
@@ -14,6 +26,24 @@ import './DashboardLayout.css';
 
 export default function DashboardLayout() {
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = useState(false);
+
+    // Data for modal
+    const { data: years } = useYears();
+    const { data: modules } = useModules();
+    const { data: subjects } = useSubjects();
+    const { data: lectures } = useLectures();
+
+    const createQuestion = useCreateQuestion();
+
+    async function handleSaveQuestion(data: any) {
+        try {
+            await createQuestion.mutateAsync(data);
+            setIsAddQuestionModalOpen(false);
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Failed to create question');
+        }
+    }
 
     async function handleSignOut() {
         await supabase.auth.signOut();
@@ -32,43 +62,43 @@ export default function DashboardLayout() {
                         className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
                         onClick={() => setActiveTab('dashboard')}
                     >
-                        📊 Dashboard
+                        <DashboardIcon /> Dashboard
                     </button>
                     <button
                         className={`nav-item ${activeTab === 'years' ? 'active' : ''}`}
                         onClick={() => setActiveTab('years')}
                     >
-                        📅 Years
+                        <YearsIcon /> Years
                     </button>
                     <button
                         className={`nav-item ${activeTab === 'modules' ? 'active' : ''}`}
                         onClick={() => setActiveTab('modules')}
                     >
-                        📚 Modules
+                        <ModulesIcon /> Modules
                     </button>
                     <button
                         className={`nav-item ${activeTab === 'subjects' ? 'active' : ''}`}
                         onClick={() => setActiveTab('subjects')}
                     >
-                        📖 Subjects
+                        <SubjectsIcon /> Subjects
                     </button>
                     <button
                         className={`nav-item ${activeTab === 'lectures' ? 'active' : ''}`}
                         onClick={() => setActiveTab('lectures')}
                     >
-                        🎓 Lectures
+                        <LecturesIcon /> Lectures
                     </button>
                     <button
                         className={`nav-item ${activeTab === 'questions' ? 'active' : ''}`}
                         onClick={() => setActiveTab('questions')}
                     >
-                        ❓ Questions
+                        <QuestionsIcon /> Questions
                     </button>
                 </nav>
 
                 <div className="sidebar-footer">
                     <button className="btn btn-secondary btn-block" onClick={handleSignOut}>
-                        Sign Out
+                        <LogoutIcon /> Sign Out
                     </button>
                 </div>
             </aside>
@@ -83,13 +113,31 @@ export default function DashboardLayout() {
                 </header>
 
                 <div className="content-body">
-                    {activeTab === 'dashboard' && <DashboardView setActiveTab={setActiveTab} />}
+                    {activeTab === 'dashboard' && (
+                        <DashboardView
+                            setActiveTab={setActiveTab}
+                            onAddQuestion={() => setIsAddQuestionModalOpen(true)}
+                        />
+                    )}
                     {activeTab === 'years' && <YearsPage />}
                     {activeTab === 'modules' && <ModulesPage />}
                     {activeTab === 'subjects' && <SubjectsPage />}
                     {activeTab === 'lectures' && <LecturesPage />}
                     {activeTab === 'questions' && <QuestionsPage />}
                 </div>
+
+                {isAddQuestionModalOpen && (
+                    <SingleQuestionEditModal
+                        question={null}
+                        lectures={lectures || []}
+                        subjects={subjects || []}
+                        modules={modules || []}
+                        years={years || []}
+                        onSave={handleSaveQuestion}
+                        onCancel={() => setIsAddQuestionModalOpen(false)}
+                        isSaving={createQuestion.isPending}
+                    />
+                )}
             </main>
         </div>
     );
@@ -97,9 +145,10 @@ export default function DashboardLayout() {
 
 interface DashboardViewProps {
     setActiveTab: (tab: string) => void;
+    onAddQuestion: () => void;
 }
 
-function DashboardView({ setActiveTab }: DashboardViewProps) {
+function DashboardView({ setActiveTab, onAddQuestion }: DashboardViewProps) {
     const { data: years } = useYears();
     const { data: modules } = useModules();
     const { data: subjects } = useSubjects();
@@ -107,11 +156,11 @@ function DashboardView({ setActiveTab }: DashboardViewProps) {
     const { data: questions } = useQuestions();
 
     const stats = [
-        { label: 'Years', value: years?.length || 0, icon: '📅', color: 'blue', tab: 'years' },
-        { label: 'Modules', value: modules?.length || 0, icon: '📚', color: 'indigo', tab: 'modules' },
-        { label: 'Subjects', value: subjects?.length || 0, icon: '📖', color: 'purple', tab: 'subjects' },
-        { label: 'Lectures', value: lectures?.length || 0, icon: '🎓', color: 'pink', tab: 'lectures' },
-        { label: 'Questions', value: questions?.length || 0, icon: '❓', color: 'orange', tab: 'questions' },
+        { label: 'Years', value: years?.length || 0, icon: <YearsIcon />, color: 'blue', tab: 'years' },
+        { label: 'Modules', value: modules?.length || 0, icon: <ModulesIcon />, color: 'indigo', tab: 'modules' },
+        { label: 'Subjects', value: subjects?.length || 0, icon: <SubjectsIcon />, color: 'purple', tab: 'subjects' },
+        { label: 'Lectures', value: lectures?.length || 0, icon: <LecturesIcon />, color: 'pink', tab: 'lectures' },
+        { label: 'Questions', value: questions?.length || 0, icon: <QuestionsIcon />, color: 'orange', tab: 'questions' },
     ];
 
     return (
@@ -138,15 +187,15 @@ function DashboardView({ setActiveTab }: DashboardViewProps) {
             <div className="quick-actions-section">
                 <h2>Quick Actions</h2>
                 <div className="actions-grid">
-                    <button className="action-card" onClick={() => setActiveTab('questions')}>
-                        <span className="action-icon">➕</span>
+                    <button className="action-card" onClick={onAddQuestion}>
+                        <span className="action-icon"><PlusIcon /></span>
                         <div className="action-details">
                             <h4>Add Question</h4>
                             <p>Create a new MCQ</p>
                         </div>
                     </button>
                     <button className="action-card" onClick={() => setActiveTab('lectures')}>
-                        <span className="action-icon">🎓</span>
+                        <span className="action-icon"><LecturesIcon /></span>
                         <div className="action-details">
                             <h4>Manage Lectures</h4>
                             <p>Organize content</p>
