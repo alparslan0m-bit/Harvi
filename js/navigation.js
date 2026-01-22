@@ -130,9 +130,10 @@ class Navigation {
                 const years = await res.json();
 
                 years.sort((a, b) => {
-                    const aNum = parseInt(a.id.replace(/\D/g, '')) || 0;
-                    const bNum = parseInt(b.id.replace(/\D/g, '')) || 0;
-                    return aNum - bNum;
+                    const aNum = parseInt((a.external_id || '').replace(/\D/g, '')) || 0;
+                    const bNum = parseInt((b.external_id || '').replace(/\D/g, '')) || 0;
+                    if (aNum !== bNum) return aNum - bNum;
+                    return (a.external_id || '').localeCompare(b.external_id || '', undefined, { numeric: true });
                 });
 
                 if (years && Array.isArray(years)) {
@@ -282,6 +283,15 @@ class Navigation {
             const listWrapper = document.createElement('div');
             listWrapper.className = 'home-hub-container'; // Reuse hub spacing
 
+            if (year.modules) {
+                year.modules.sort((a, b) => {
+                    const aNum = parseInt((a.external_id || '').replace(/\D/g, '')) || 0;
+                    const bNum = parseInt((b.external_id || '').replace(/\D/g, '')) || 0;
+                    if (aNum !== bNum) return aNum - bNum;
+                    return (a.external_id || '').localeCompare(b.external_id || '', undefined, { numeric: true });
+                });
+            }
+
             const bentoGrid = document.createElement('div');
             bentoGrid.className = 'bento-grid';
 
@@ -325,23 +335,40 @@ class Navigation {
             const listWrapper = document.createElement('div');
             listWrapper.className = 'home-hub-container';
 
-            const gridWrapper = document.createElement('div');
-            gridWrapper.className = 'lecture-grid';
-            listWrapper.appendChild(gridWrapper);
+            if (module.subjects) {
+                module.subjects.sort((a, b) => {
+                    const aNum = parseInt((a.external_id || '').replace(/\D/g, '')) || 0;
+                    const bNum = parseInt((b.external_id || '').replace(/\D/g, '')) || 0;
+                    if (aNum !== bNum) return aNum - bNum;
+                    return (a.external_id || '').localeCompare(b.external_id || '', undefined, { numeric: true });
+                });
+            }
 
-            module.subjects.forEach(subject => {
-                const item = document.createElement('div');
-                item.className = 'lecture-card-masterpiece active';
+            const bentoGrid = document.createElement('div');
+            bentoGrid.className = 'bento-grid';
+            listWrapper.appendChild(bentoGrid);
 
+            module.subjects.forEach((subject, index) => {
+                const card = document.createElement('div');
+
+                // Use same premium variants as years
+                const variants = ['azure', 'emerald', 'amber', 'amethyst'];
+                const variant = variants[index % variants.length];
+                card.className = `bento-year-card variant-${variant}`;
+
+                const icon = '📝';
                 const lectureCount = subject.lectures ? subject.lectures.length : 0;
 
-                item.innerHTML = `
-                    <div class="lecture-name">${subject.name}</div>
-                    <div class="lecture-meta">${lectureCount} Lectures • Explore Curriculum</div>
+                card.innerHTML = `
+                    <div>
+                        <div class="year-icon-box">${icon}</div>
+                        <h3 class="year-name">${subject.name}</h3>
+                        <span class="year-stats">${lectureCount} Lectures</span>
+                    </div>
                 `;
 
-                item.addEventListener('click', () => this.showLectures(year, module, subject));
-                gridWrapper.appendChild(item);
+                card.addEventListener('click', () => this.showLectures(year, module, subject));
+                bentoGrid.appendChild(card);
             });
 
             return listWrapper;
@@ -363,6 +390,9 @@ class Navigation {
             this.renderWithTransition(container, () => this.createEmptyState('No lectures available yet.'));
             return;
         }
+
+        // Sort lectures by order_index
+        subject.lectures.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
 
         // CLEANUP: Remove old event listeners before clearing container
         const oldCards = container.querySelectorAll('.lecture-card-masterpiece[data-lecture-id]');
