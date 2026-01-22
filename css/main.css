@@ -38,5 +38,7 @@
     right: 0;
     bottom: 0;
     overflow: hidden;
-    /* App itself doesn't scroll, screens do */
+    background-color: #F2F2F7;
+    display: flex;
+    flex-direction: column;
 }

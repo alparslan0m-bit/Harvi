@@ -105,11 +105,32 @@ class MCQApp {
         window.SkeletonLoader = SkeletonLoader;
         window.audioToolkit = new AudioToolkit();
 
-        // Initialize IndexedDB
+        // 🟢 Phase 1: Core Component Setup (Synchronous UI readiness)
+        this.navigation = new Navigation(this);
+        this.quiz = new Quiz(this);
+        this.results = new Results(this);
+        this.stats = new Stats(this);
+        this.profile = new Profile(this);
+
+        this.setupBrandButton();
+        this.setupBottomNavigation();
+
+        // 🟢 Phase 2: Immediate UI Presentation
+        // Show years screen immediately (Navigation class handles skeletons/loading)
+        this.navigation.showYears();
+
+        // 🟢 Phase 3: Background Services (Non-blocking)
         try {
+            // Attempt DB init but don't block the whole app if it takes long
+            // We give it a small head start
             await harviDB.init();
 
-            // Use Dynamic Island init removed as per user request
+            this.setupOnlineStatusHandling();
+            this.setupServiceWorkerUpdateListener();
+
+            // Check for resumable quiz only after DB is ready
+            await this.checkResumableQuiz();
+
         } catch (error) {
             console.error('⚠️  Database initialization failed:', error);
 
@@ -126,23 +147,8 @@ class MCQApp {
             }
 
             // App continues to work, but without offline features
-            // Set a flag to disable offline-dependent features
             this.offlineDisabled = true;
         }
-
-        this.navigation = new Navigation(this);
-        this.quiz = new Quiz(this);
-        this.results = new Results(this);
-        this.stats = new Stats(this);
-        this.profile = new Profile(this);
-
-        // Theme initialization removed
-        this.setupBrandButton();
-        this.setupBottomNavigation();
-        await this.checkResumableQuiz();
-        this.setupOnlineStatusHandling();
-        this.setupServiceWorkerUpdateListener();
-        this.navigation.showYears();
     }
 
     /**

@@ -180,15 +180,12 @@ class Navigation {
 
             // Map icons based on year if standard
             const icon = year.icon || (index === 0 ? '🩺' : index === 1 ? '🧬' : '🧠');
-            const modulesCount = year.modules?.length || 0;
 
             card.innerHTML = `
                 <div>
                     <div class="year-icon-box">${icon}</div>
                     <h3 class="year-name">${year.name}</h3>
-                    <span class="year-stats">${modulesCount} Modules</span>
                 </div>
-                <div class="float-symbol">${icon}</div>
             `;
 
             card.addEventListener('click', () => this.showModules(year));
