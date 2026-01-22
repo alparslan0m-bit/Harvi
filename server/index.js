@@ -396,10 +396,11 @@ app.post('/api/lectures/batch', async (req, res) => {
 // ============================================================================
 // ENDPOINT 4: Submit Quiz (Auto-Grading via Database Trigger)
 // ============================================================================
-app.post('/api/quiz-results', authMiddleware, async (req, res) => {
+app.post('/api/quiz-results', optionalAuthMiddleware, async (req, res) => {
     try {
         const { lectureId, answers } = req.body;
-        const userId = req.user.id;
+        // User might be null if anonymous
+        const userId = req.user ? req.user.id : null;
 
         if (!answers || !Array.isArray(answers)) {
             return res.status(400).json({ error: 'Invalid answers format' });
@@ -409,7 +410,7 @@ app.post('/api/quiz-results', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'No answers provided' });
         }
 
-        console.log(`📝 Processing quiz submission from user ${userId.substring(0, 8)}...`);
+        console.log(`📝 Processing quiz submission from ${userId ? 'user ' + userId.substring(0, 8) : 'anonymous guest'}...`);
 
         // Resolve Lecture ID
         const resolvedLectureId = await resolveId('lectures', lectureId);
@@ -442,62 +443,60 @@ app.post('/api/quiz-results', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'No valid answers to process' });
         }
 
-        // CRITICAL FIX: Delete previous attempts for this lecture
-        const { error: deleteError } = await supabase
-            .from('user_responses')
-            .delete()
-            .eq('user_id', userId)
-            .eq('lecture_id', resolvedLectureId);
+        let savedData = [];
+        let saveSuccess = false;
 
-        if (deleteError) {
-            console.error('❌ Failed to clean up previous attempts:', deleteError.message);
-        } else {
-            console.log(`🧹 Cleaned up previous attempts for lecture ${resolvedLectureId}`);
-        }
-
-        // Insert into database (trigger will auto-grade)
-        const { data, error } = await supabase
-            .from('user_responses')
-            .insert(submissions)
-            .select('is_correct, question_id, selected_answer_index');
-
-        if (error) {
-            console.error('❌ Database insert failed:', error.message);
-            throw error;
-        }
-
-        // Check if trigger worked
-        if (!data || data.length === 0) {
-            console.warn('⚠️  Insert succeeded but returned no data. Check RLS policies?');
-        } else if (data.some(r => r.is_correct === null)) {
-            console.warn('⚠️  Some responses have NULL grade. Trigger might be missing or failing.');
-        }
-
-        // Calculate score from database-computed grades
-        const total = data.length;
-        const correct = data.filter(r => r.is_correct === true).length;
-        const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-        console.log(`✅ Quiz graded: ${correct}/${total} (${percentage}%)`);
-
-        if (total > 0 && correct === 0) {
-            console.warn('⚠️  Suspicious: 0% score. Debugging mismatch...');
-            if (data.length > 0) {
-                const sampleRes = data[0];
-                const { data: qStats } = await supabase
-                    .from('questions')
-                    .select('correct_answer_index')
-                    .eq('id', sampleRes.question_id)
-                    .single();
-
-                console.log(`   Question ID: ${sampleRes.question_id}`);
-                console.log(`   User Answer: ${sampleRes.selected_answer_index} (Type: ${typeof sampleRes.selected_answer_index})`);
-                console.log(`   Calculated is_correct: ${sampleRes.is_correct}`);
-                if (qStats) {
-                    console.log(`   ACTUAL Correct Index in DB: ${qStats.correct_answer_index}`);
-                }
+        // Only attempt DB save if userId exists or if your DB allows nulls
+        try {
+            // Optional: Clean up previous attempts (only for authenticated users)
+            if (userId) {
+                await supabase
+                    .from('user_responses')
+                    .delete()
+                    .eq('user_id', userId)
+                    .eq('lecture_id', resolvedLectureId);
             }
+
+            // Insert into database
+            const { data, error } = await supabase
+                .from('user_responses')
+                .insert(submissions)
+                .select('is_correct, question_id, selected_answer_index');
+
+            if (error) throw error;
+            savedData = data || [];
+            saveSuccess = true;
+            console.log(`✅ Quiz graded & saved to DB: ${savedData.filter(r => r.is_correct).length}/${savedData.length}`);
+        } catch (dbError) {
+            console.warn('⚠️  Could not save to DB (Anonymous?), grading manually:', dbError.message);
+
+            // MANUAL GRADING FALLBACK
+            const questionIds = submissions.map(s => s.question_id);
+            const { data: questions, error: qError } = await supabase
+                .from('questions')
+                .select('id, correct_answer_index')
+                .in('id', questionIds);
+
+            if (qError) throw qError;
+
+            // Map question ID to correct index
+            const correctMap = new Map();
+            questions.forEach(q => correctMap.set(q.id, q.correct_answer_index));
+
+            // Generate "savedData" manually
+            savedData = submissions.map(sub => ({
+                is_correct: correctMap.get(sub.question_id) === sub.selected_answer_index,
+                question_id: sub.question_id,
+                selected_answer_index: sub.selected_answer_index
+            }));
+
+            console.log(`✅ Quiz graded manually: ${savedData.filter(r => r.is_correct).length}/${savedData.length}`);
         }
+
+        // Calculate final score
+        const total = savedData.length;
+        const correct = savedData.filter(r => r.is_correct === true).length;
+        const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
         res.status(201).json({
             success: true,
@@ -505,11 +504,11 @@ app.post('/api/quiz-results', authMiddleware, async (req, res) => {
                 score: correct,
                 total,
                 percentage,
-                gradedDetails: data
+                gradedDetails: savedData
             }
         });
     } catch (err) {
-        console.error('❌ Quiz submission error:', err.message, err.stack);
+        console.error('❌ Quiz submission error:', err.message);
         res.status(500).json({ error: 'Failed to process submission', details: err.message });
     }
 });
