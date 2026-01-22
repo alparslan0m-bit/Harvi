@@ -8,8 +8,8 @@
 // Update this version number with each deployment
 // This ensures all caches are invalidated together
 // ============================================================================
-const APP_VERSION = '3.0.0';  // ← Major version bump: Removed glassmorphism, native iOS style
-const BUILD_TIMESTAMP = '2026-01-22T09:04:00+02:00';  // ← Current timestamp
+const APP_VERSION = '3.1.0';  // ← PWA Caching Strategy Phase 1: GET-only cache, no POST/admin, prefetch fix
+const BUILD_TIMESTAMP = '2026-01-22T12:00:00+02:00';
 // Generate cache names from version
 const CACHE_NAME = `harvi-shell-v${APP_VERSION}`;
 const RUNTIME_CACHE = `harvi-runtime-v${APP_VERSION}`;
@@ -196,22 +196,26 @@ self.addEventListener('message', (event) => {
   }
 });
 
+/**
+ * Prefetch lecture batches via GET /api/lectures/batch?ids=...
+ * PWA Caching Strategy: use real endpoint (was /api/quiz/:id which does not exist).
+ */
 async function prefetchQuizzes(lectureIds) {
+  if (!lectureIds || lectureIds.length === 0) return;
   try {
+    const idsParam = lectureIds.join(',');
+    if (idsParam.length > 1800) return; // Avoid 414 URI Too Long
+    const url = '/api/lectures/batch?ids=' + encodeURIComponent(idsParam);
     const cache = await caches.open(API_CACHE);
-    for (const lectureId of lectureIds) {
-      const url = `/api/quiz/${lectureId}`;
-      if (!await cache.match(url)) {
-        try {
-          const response = await fetch(url);
-          if (response.ok) {
-            await cache.put(url, response);
-            console.log('[SW] Prefetched quiz:', lectureId);
-          }
-        } catch (e) {
-          console.warn('[SW] Failed to prefetch quiz:', lectureId);
-        }
+    if (await cache.match(url)) return;
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        await cache.put(url, response);
+        console.log('[SW] Prefetched lecture batch:', lectureIds.length, 'ids');
       }
+    } catch (e) {
+      console.warn('[SW] Prefetch batch failed:', e);
     }
   } catch (e) {
     console.warn('[SW] Prefetch failed:', e);
@@ -232,12 +236,16 @@ self.addEventListener('fetch', (event) => {
 
   // Handle API requests with optimized caching strategies
   if (url.pathname.startsWith('/api/')) {
-    // Cache-First for stable data that rarely changes
+    // PWA Caching Strategy: never cache admin or mutating requests (POST/PUT/PATCH/DELETE)
+    if (url.pathname.startsWith('/api/admin/') || request.method !== 'GET') {
+      return; // pass through to network
+    }
+
+    // Stale-While-Revalidate for /api/years (GET only)
     if (url.pathname === '/api/years') {
       event.respondWith(
         caches.match(request).then(cached => {
           if (cached) {
-            // Return cached, but revalidate in background
             fetch(request).then(res => {
               if (res.ok) {
                 caches.open(API_CACHE).then(c => c.put(request, res));
@@ -245,7 +253,6 @@ self.addEventListener('fetch', (event) => {
             });
             return cached;
           }
-          // No cache, fetch and cache
           return fetch(request).then(response => {
             if (response.ok) {
               const clone = response.clone();
@@ -258,28 +265,23 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // Stale-While-Revalidate for other API requests
+    // Network-first for other GET /api/* (e.g. /api/lectures/batch); cache on success, fallback when offline
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache successful API responses
           if (response.ok) {
             const clone = response.clone();
-            caches.open(API_CACHE).then((cache) => {
-              cache.put(request, clone);
-            });
+            caches.open(API_CACHE).then(cache => cache.put(request, clone));
           }
           return response;
         })
         .catch(() => {
-          // Return cached API response if offline
           return caches.match(request)
             .then((cachedResponse) => {
               if (cachedResponse) {
                 console.log('[SW] Serving API from cache:', request.url);
                 return cachedResponse;
               }
-              // No cached response and no network - return empty response
               return new Response(
                 JSON.stringify({ error: 'Offline' }),
                 { status: 503, headers: { 'Content-Type': 'application/json' } }

@@ -469,10 +469,11 @@ app.post('/api/practice/check-answer', optionalAuthMiddleware, async (req, res) 
 
 // ============================================================================
 // POST /api/quiz-results
-app.post('/api/quiz-results', authMiddleware, async (req, res) => {
+app.post('/api/quiz-results', optionalAuthMiddleware, async (req, res) => {
     try {
         const { lectureId, answers } = req.body;
-        const userId = req.user.id;
+        // User might be null if anonymous
+        const userId = req.user ? req.user.id : null;
 
         if (!answers || !Array.isArray(answers)) {
             return res.status(400).json({ error: 'Invalid answers format' });
@@ -511,15 +512,44 @@ app.post('/api/quiz-results', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'No valid answers to process' });
         }
 
-        const { data, error } = await supabase
-            .from('user_responses')
-            .insert(submissions)
-            .select('is_correct');
+        // Try to save to DB (might fail if anonymous and DB enforces NOT NULL user_id)
+        let savedData = [];
+        try {
+            const { data, error } = await supabase
+                .from('user_responses')
+                .insert(submissions)
+                .select('is_correct, question_id, selected_answer_index');
 
-        if (error) throw error;
+            if (error) throw error;
+            savedData = data;
+        } catch (dbError) {
+            // Check if we can recover by just Grading without Saving
+            // If we failed to save (e.g. anonymous user violation), we still want to return the score
+            // We need to fetch the correct answers to grade manually now
+            console.warn('⚠️  Failed to save submission to DB, grading manually:', dbError.message);
 
-        const total = data.length;
-        const correct = data.filter(r => r.is_correct).length;
+            const questionIds = submissions.map(s => s.question_id);
+            const { data: questions, error: qError } = await supabase
+                .from('questions')
+                .select('id, correct_answer_index')
+                .in('id', questionIds);
+
+            if (qError) throw qError;
+
+            // Map question ID to correct index
+            const correctMap = new Map();
+            questions.forEach(q => correctMap.set(q.id, q.correct_answer_index));
+
+            // Generate synthetic "savedData" for the response
+            savedData = submissions.map(sub => ({
+                is_correct: correctMap.get(sub.question_id) === sub.selected_answer_index,
+                question_id: sub.question_id,
+                selected_answer_index: sub.selected_answer_index
+            }));
+        }
+
+        const total = savedData.length;
+        const correct = savedData.filter(r => r.is_correct).length;
         const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
         res.status(201).json({
@@ -528,10 +558,11 @@ app.post('/api/quiz-results', authMiddleware, async (req, res) => {
                 score: correct,
                 total,
                 percentage,
-                gradedDetails: data
+                gradedDetails: savedData
             }
         });
     } catch (err) {
+        console.error('❌ Quiz submission error:', err);
         res.status(500).json({ error: 'Failed to process submission', details: err.message });
     }
 });

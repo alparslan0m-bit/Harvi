@@ -19,6 +19,7 @@ class HarviDatabase {
         // L1 Memory Cache (Performance Optimization)
         this.cache = new Map();
         this.intialCacheLoaded = false;
+        this.idbLoadComplete = false; // PWA Strategy: set after getAll(); "all in IDB" not "all for subject"
     }
 
     /**
@@ -228,11 +229,26 @@ class HarviDatabase {
     }
 
     /**
-     * Get all cached lectures (Memory First)
+     * Get multiple lectures by IDs. Returns Map<id, lecture> for found items only.
+     * PWA Caching Strategy: used for lecture read-through.
+     */
+    async getLecturesByIds(ids) {
+        if (!ids || !ids.length) return new Map();
+        const out = new Map();
+        for (const id of ids) {
+            const l = await this.getLecture(id);
+            if (l) out.set(id, l);
+        }
+        return out;
+    }
+
+    /**
+     * Get all cached lectures (Memory First).
+     * idbLoadComplete: set only after a successful getAll(); means "all lectures in IDB loaded",
+     * not "all lectures for current subject". Use getLecturesByIds for subject-scoped data.
      */
     async getAllLectures() {
-        // Return from memory if we have data and it seems complete (heuristic)
-        if (this.cache.size > 0 && this.intialCacheLoaded) {
+        if (this.cache.size > 0 && this.idbLoadComplete) {
             console.log(`⚡ Served all lectures from memory cache (${this.cache.size})`);
             return Array.from(this.cache.values());
         }
@@ -246,9 +262,9 @@ class HarviDatabase {
                 const request = store.getAll();
                 request.onsuccess = () => {
                     const results = request.result;
-                    // Bulk populate cache
                     results.forEach(l => this.cache.set(l.id, l));
-                    this.intialCacheLoaded = true;
+                    this.idbLoadComplete = true;
+                    this.intialCacheLoaded = true; // legacy alias
 
                     console.log(`✓ Retrieved ${results.length} cached lectures`);
                     resolve(results);
@@ -669,6 +685,7 @@ class HarviDatabase {
                 // Also clear L1 Cache
                 this.cache.clear();
                 this.intialCacheLoaded = false;
+                this.idbLoadComplete = false;
                 console.log('✓ All IndexedDB data & Memory Cache cleared');
             });
         } catch (error) {

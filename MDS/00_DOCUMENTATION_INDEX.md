@@ -163,6 +163,27 @@
 
 ---
 
+### 📦 PWA & Performance
+
+#### 12. PWA_CACHING_STRATEGY.md
+**Purpose:** Professional caching strategy for the Harvi PWA  
+**Length:** ~6,000 words | **Read Time:** 25–30 minutes  
+**Key Sections:**
+- Multi-layer cache model (SW, IndexedDB, in-memory)
+- Caching policies by data type (shell, years, lectures, progress)
+- Invalidation strategy (versioning, TTL, focus/reconnect)
+- Offline behavior & recovery
+- Performance optimizations (preload, lazy-load, prefetch fixes)
+- Safety rules (no auth/admin caching, no POST caching)
+- Step-by-step implementation plan (Phases 1–4)
+- Risk list & mitigations
+- Migration plan (current → optimized)
+- Optional code snippets (after plan approval)
+
+**👉 Use this for PWA caching, offline reliability, and performance work**
+
+---
+
 ## 🎯 READING RECOMMENDATIONS BY ROLE
 
 ### 👨‍💼 For Product Managers / Non-Technical
@@ -246,6 +267,9 @@
 - BUG_REMEDIATION_EXECUTION_GUIDE.md (step-by-step)
 - FINAL_SUMMARY.md (verification steps)
 
+### 📦 PWA Caching & Performance
+- PWA_CACHING_STRATEGY.md (strategy, policies, invalidation, implementation plan, risks, migration)
+
 ---
 
 ## ✅ DOCUMENTATION COMPLETENESS
@@ -309,6 +333,7 @@ USER NEEDS HELP WITH...
 │ Official status? ........... AUDIT_CLOSURE_REPORT.md
 │ Quick reference? ........... QUICK_REFERENCE.md
 │ Step-by-step guide? ........ BUG_REMEDIATION_EXECUTION_GUIDE.md
+│ PWA caching / offline? ..... PWA_CACHING_STRATEGY.md
 │ Check progress? ............ BUG_FIX_CHECKLIST.md
 │ Business impact? ........... EXECUTIVE_SUMMARY.md
 │ Original analysis? ......... COMPREHENSIVE_BUG_ANALYSIS.md
