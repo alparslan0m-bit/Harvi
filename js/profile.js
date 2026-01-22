@@ -232,7 +232,7 @@ class Profile {
 
         if (!confirmed) return;
 
-        if (window.HapticsEngine) window.HapticsEngine.notification('warning');
+        if (window.HapticsEngine) window.HapticsEngine.warning();
 
         try {
             // 1. Clear LocalStorage

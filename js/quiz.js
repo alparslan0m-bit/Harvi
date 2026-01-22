@@ -514,7 +514,6 @@ class Quiz {
             selectedOption.classList.add('selected');
         } finally {
             // 4. ALWAYS Enable Navigation Button
-            // 4. ALWAYS Enable Navigation Button
             if (this.continueBtn) {
                 this.continueBtn.disabled = false;
 

@@ -29,7 +29,7 @@ class CustomA2HSPrompt {
             console.log('✓ PWA installed successfully');
             this.deferredPrompt = null;
             localStorage.setItem('harvi_app_installed', 'true');
-            if (window.HapticsEngine) window.HapticsEngine.notification('success');
+            if (window.HapticsEngine) window.HapticsEngine.success();
 
             // Re-render profile if active
             if (window.app && window.app.profile) {
@@ -142,7 +142,7 @@ class CustomA2HSPrompt {
         document.body.appendChild(prompt);
 
         // Haptic feedback
-        if (window.HapticsEngine) window.HapticsEngine.notification('success');
+        if (window.HapticsEngine) window.HapticsEngine.success();
 
         const close = () => {
             prompt.classList.add('fade-out');
