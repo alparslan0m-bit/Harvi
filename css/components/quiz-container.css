@@ -24,6 +24,9 @@
         margin: 0;
         border-radius: 0;
         min-height: 100dvh;
+        /* Reverted container padding to fix white gap. Safe area handled in children. */
+        padding-top: 0;
+        padding-bottom: 0;
         box-shadow: none;
         border: none;
     }
@@ -36,7 +39,11 @@
     backdrop-filter: var(--ios-material-regular-filter);
     -webkit-backdrop-filter: var(--ios-material-regular-filter);
     background: rgba(255, 255, 255, 0.7);
-    padding: max(1.2rem, env(safe-area-inset-top)) var(--quiz-padding) 1.2rem;
+    /* Safe Area: Top padding absorbs the notch space so background covers it */
+    padding-top: calc(1rem + env(safe-area-inset-top));
+    padding-bottom: 1rem;
+    padding-left: var(--quiz-padding);
+    padding-right: var(--quiz-padding);
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -147,6 +154,12 @@ body.girl-mode .progress-bar {
     /* Enhanced space for footer */
 }
 
+@media (max-width: 576px) {
+    .options-container {
+        padding-bottom: 20px;
+    }
+}
+
 /* Floating Continue Button wrapper to match rounded container */
 .continue-btn-wrapper {
     position: absolute;
@@ -165,10 +178,14 @@ body.girl-mode .progress-bar {
 }
 
 /* Mobile full-screen override for sticky footer */
+/* Mobile full-screen override for sticky footer */
 @media (max-width: 576px) {
     .continue-btn-wrapper {
-        position: fixed;
+        position: sticky;
+        bottom: 0;
         padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 20px));
+        /* Ensure it sits above content */
+        z-index: 1000;
     }
 }
 
