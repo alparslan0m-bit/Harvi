@@ -447,13 +447,30 @@ class Quiz {
 
                     this.score++;
 
-                    if (window.HapticsEngine) HapticsEngine.notification('success');
+                    if (window.HapticsEngine && typeof HapticsEngine.success === 'function') {
+                        HapticsEngine.success();
+                    }
+
+                    // Trigger confetti for correct answer
+                    this.triggerConfetti();
+
+                    // Play success sound
+                    if (window.audioToolkit) {
+                        window.audioToolkit.play('ding');
+                    }
                 }
                 // B. Incorrect Answer
                 else {
                     selectedOption.classList.add('incorrect'); // CSS uses 'incorrect'
 
-                    if (window.HapticsEngine) HapticsEngine.notification('error');
+                    if (window.HapticsEngine && typeof HapticsEngine.error === 'function') {
+                        HapticsEngine.error();
+                    }
+
+                    // Play error sound
+                    if (window.audioToolkit) {
+                        window.audioToolkit.play('thud');
+                    }
 
                     // Highlight the actual correct answer
                     // NOTE: dataset attributes are strings! compare with String() or ==

@@ -58,6 +58,39 @@ const authMiddleware = async (req, res, next) => {
 };
 
 // ============================================================================
+// MIDDLEWARE: Optional Authentication (Does not reject if token is missing)
+// ============================================================================
+const optionalAuthMiddleware = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        req.user = null; // No user
+        return next();
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // If token is obviously invalid (empty), skip lookup
+    if (!token) {
+        req.user = null;
+        return next();
+    }
+
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) {
+            // Token invalid, but we are in optional mode, so just proceed as anonymous
+            req.user = null;
+        } else {
+            req.user = user;
+        }
+    } catch (err) {
+        req.user = null;
+    }
+    next();
+};
+
+// ============================================================================
 // HELPER: Resolve ID (UUID or external_id)
 // ============================================================================
 async function resolveId(table, idValue) {
@@ -354,6 +387,87 @@ app.get('/api/admin/lectures', async (req, res) => {
     }
 });
 
+// ============================================================================
+// ENDPOINT: Practice Mode - Check Single Answer
+// ============================================================================
+app.post('/api/practice/check-answer', optionalAuthMiddleware, async (req, res) => {
+    try {
+        const { questionId, selectedAnswerIndex, lectureId } = req.body;
+        // User might be null if anonymous
+        const userId = req.user ? req.user.id : null;
+
+        if (!questionId || selectedAnswerIndex === undefined) {
+            return res.status(400).json({ error: 'Missing questionId or selectedAnswerIndex' });
+        }
+
+        // 1. Get the TRUTH (Correct Answer & Explanation)
+        const resolvedQuestionId = await resolveId('questions', questionId);
+
+        if (!resolvedQuestionId) {
+            return res.status(404).json({ error: 'Question not found' });
+        }
+
+        const { data: question, error: qError } = await supabase
+            .from('questions')
+            .select('correct_answer_index, explanation, lecture_id')
+            .eq('id', resolvedQuestionId)
+            .single();
+
+        if (qError || !question) {
+            return res.status(404).json({ error: 'Question data missing' });
+        }
+
+        const isCorrect = (question.correct_answer_index === selectedAnswerIndex);
+
+        // 2. Log the attempt (ONLY IF AUTHENTICATED)
+        if (userId) {
+            // Resolve lectureId first to be safe
+            let relevantLectureId = null;
+            if (lectureId) {
+                relevantLectureId = await resolveId('lectures', lectureId);
+            }
+            if (!relevantLectureId) {
+                relevantLectureId = question.lecture_id;
+            }
+
+            if (relevantLectureId) {
+                await supabase
+                    .from('user_responses')
+                    .delete()
+                    .eq('user_id', userId)
+                    .eq('question_id', resolvedQuestionId);
+
+                const { error: insertError } = await supabase
+                    .from('user_responses')
+                    .insert({
+                        user_id: userId,
+                        lecture_id: relevantLectureId,
+                        question_id: resolvedQuestionId,
+                        selected_answer_index: selectedAnswerIndex,
+                        attempt_number: 1
+                    });
+
+                if (insertError) {
+                    console.warn('⚠️ Failed to save practice response:', insertError.message);
+                }
+            }
+        }
+
+        // 3. Return immediate feedback (Works for everyone)
+        res.json({
+            success: true,
+            is_correct: isCorrect,
+            correct_answer_index: question.correct_answer_index,
+            explanation: question.explanation
+        });
+
+    } catch (err) {
+        console.error('❌ Check answer error:', err.message);
+        res.status(500).json({ error: 'Failed to check answer', details: err.message });
+    }
+});
+
+// ============================================================================
 // POST /api/quiz-results
 app.post('/api/quiz-results', authMiddleware, async (req, res) => {
     try {
