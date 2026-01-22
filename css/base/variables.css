@@ -37,13 +37,16 @@
     --border-light: #F1F5F9;
     /* Slate 100 */
 
-    /* Glassmorphism Design System */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-bg-dark: rgba(30, 30, 30, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.25);
-    --glass-border-dark: rgba(255, 255, 255, 0.1);
-    --glass-blur: 10px;
-    --glass-blur-lg: 20px;
+    /* iOS Native Design System - Solid Backgrounds */
+    --ios-system-background: #FFFFFF;
+    --ios-secondary-background: #F2F2F7;
+    --ios-tertiary-background: #FFFFFF;
+    --ios-grouped-background: #F2F2F7;
+
+    /* Native Card Backgrounds (Solid) */
+    --card-bg: #FFFFFF;
+    --card-bg-secondary: #F8FAFC;
+    --card-border: rgba(0, 0, 0, 0.06);
 
     /* Z-Index Scale (for layering depth) */
     --z-1: 100;
@@ -56,17 +59,17 @@
     --z-sticky: 100;
     --z-fixed: 101;
 
-    /* Enhanced Shadows with depth */
+    /* Enhanced Shadows - Native iOS Style (Subtle) */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-2xl: 0 16px 48px rgba(0, 0, 0, 0.15);
 
-    /* Premium depth shadows for glassmorphism */
-    --shadow-glass-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-glass-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --shadow-glass-lg: 0 20px 48px rgba(0, 0, 0, 0.16);
+    /* Native Card Shadows */
+    --shadow-card-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-card-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
 
     /* Focus & Interaction */
     --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.25);
@@ -82,12 +85,6 @@
     --gradient-bg: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
     /* sky -> cyan */
     --gradient-overlay: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(20, 184, 166, 0.9) 100%);
-
-    /* Backdrop filters for premium feel */
-    --backdrop-blur-sm: blur(4px);
-    --backdrop-blur-md: blur(10px);
-    --backdrop-blur-lg: blur(20px);
-    --backdrop-brightness: brightness(1.1);
 
     /* Bridge old variable names to new color palette system */
     --primary-color: var(--color-primary, #0EA5E9);

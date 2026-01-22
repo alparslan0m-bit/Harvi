@@ -1,6 +1,6 @@
 /**
- * Masterpiece Victory Screen
- * High-impact celebration of knowledge.
+ * Results Screen - Native iOS Design
+ * High-impact celebration with solid backgrounds
  */
 
 .results-screen {
@@ -23,16 +23,12 @@
 .results-container {
     max-width: 480px;
     width: 100%;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: #FFFFFF;
     border-radius: 32px;
     padding: 40px 24px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.08),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     animation: victoryEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -65,7 +61,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.25);
     animation: iconPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -99,12 +95,12 @@
 
 /* ==================== SCORE VISUALIZER ==================== */
 .score-display {
-    background: rgba(0, 0, 0, 0.03);
+    background: #F2F2F7;
     border-radius: 24px;
     padding: 32px 24px;
     margin-bottom: 40px;
     position: relative;
-    border: 1px solid rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .score-number {
@@ -170,7 +166,7 @@
 .btn-primary-victory {
     background: #0EA5E9;
     color: white;
-    box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
 }
 
 .btn-primary-victory:active {
@@ -200,34 +196,4 @@
 }
 
 /* ==================== THEME SYNC ==================== */
-body.dark-mode .results-container {
-    background: rgba(28, 28, 30, 0.85);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .results-title,
-body.dark-mode .btn-secondary-victory {
-    color: white;
-}
-
-body.dark-mode .btn-secondary-victory {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-body.dark-mode .score-display {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Girl Mode Variants */
-body.girl-mode .score-number {
-    color: #FF2D55;
-}
-
-body.girl-mode .btn-primary-victory {
-    background: #FF2D55;
-    box-shadow: 0 10px 20px rgba(255, 45, 85, 0.2);
-}
-
-body.girl-mode .results-icon {
-    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
-}
+/* Dark Mode & Theme Variants REMOVED */

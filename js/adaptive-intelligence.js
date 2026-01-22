@@ -17,7 +17,7 @@ class AdaptiveShowcaseIntelligence {
             lowMemory: 2,        // <= 2GB RAM
             mediumMemory: 4,     // 2-4GB RAM
             highMemory: 8,       // >= 8GB RAM
-            
+
             // Network-based strategies
             slowNetwork: '3g',   // 3G or slower
             fastNetwork: '4g',   // 4G+
@@ -117,18 +117,12 @@ class AdaptiveShowcaseIntelligence {
     configureLowMemoryMode() {
         console.log('[AdaptiveShowcaseIntelligence] Configuring for LOW memory device');
 
-        // Disable expensive features
+        // Disable expensive features - simplified animations only
         const style = document.createElement('style');
         style.textContent = `
-            /* Simpler animations */
+            /* Simpler animations for low-end devices */
             * {
                 animation-duration: 150ms !important;
-            }
-            
-            /* No blur effects */
-            [style*="blur"] {
-                backdrop-filter: none !important;
-                filter: none !important;
             }
             
             /* Reduce images */
@@ -159,11 +153,6 @@ class AdaptiveShowcaseIntelligence {
             * {
                 animation-duration: 300ms !important;
                 transition-duration: 300ms !important;
-            }
-            
-            /* Enable blur effects */
-            .glass {
-                backdrop-filter: blur(20px) saturate(180%) !important;
             }
             
             /* High-res images */
@@ -281,7 +270,6 @@ class AdaptiveShowcaseIntelligence {
         return {
             maxWidth: this.deviceProfile.tier === 'high' ? 800 : 400,
             quality: this.deviceProfile.tier === 'high' ? 'high' : 'medium',
-            enableBlur: this.deviceProfile.tier === 'high',
             enableAnimations: this.deviceProfile.memory > 2
         };
     }

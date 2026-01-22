@@ -176,22 +176,12 @@ class AdaptiveThemeColor {
     }
 
     static updateTheme() {
-        const isGirlMode = document.body.classList.contains('girl-mode');
-
-        // Boy mode: Sky blue (#0EA5E9)
-        // Girl mode: Pink (#EC4899)
-        const color = isGirlMode ? '#EC4899' : '#0EA5E9';
+        // Enforce Light Mode Blue Theme
+        const color = '#0EA5E9'; // Sky 500
         const metaTag = document.querySelector('meta[name="theme-color"]');
 
         if (metaTag) {
             metaTag.setAttribute('content', color);
-        }
-
-        // Update manifest theme-color if possible
-        const manifestLink = document.querySelector('link[rel="manifest"]');
-        if (manifestLink) {
-            // This would require dynamic manifest generation
-            console.log('[Theme] Updated color to:', color);
         }
     }
 }

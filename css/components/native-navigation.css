@@ -149,16 +149,8 @@
     transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
-.mode-toggle:not(.girl-mode) .boy-icon,
-.mode-toggle.girl-mode .girl-icon {
-    background: var(--system-background);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
+/* Mode toggle logic REMOVED */
 
-.mode-toggle:not(.girl-mode) .girl-icon,
-.mode-toggle.girl-mode .boy-icon {
-    opacity: 0.5;
-}
 
 /* ============================================
    NAVIGATION STACK INDICATOR

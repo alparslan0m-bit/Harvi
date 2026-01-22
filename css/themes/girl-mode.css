@@ -35,10 +35,10 @@ body.girl-mode {
     --shadow-xl: 0 20px 25px -5px rgba(var(--shadow-color), 0.25), 0 10px 10px -5px rgba(var(--shadow-color), 0.1);
     --shadow-2xl: 0 25px 50px -12px rgba(var(--shadow-color), 0.3);
 
-    /* Premium depth shadows for glassmorphism */
-    --shadow-glass-sm: 0 2px 8px rgba(var(--shadow-color), 0.12);
-    --shadow-glass-md: 0 8px 24px rgba(var(--shadow-color), 0.16);
-    --shadow-glass-lg: 0 20px 48px rgba(var(--shadow-color), 0.2);
+    /* Premium depth shadows for cards */
+    --shadow-card-sm: 0 2px 8px rgba(var(--shadow-color), 0.12);
+    --shadow-card-md: 0 8px 24px rgba(var(--shadow-color), 0.16);
+    --shadow-card-lg: 0 20px 48px rgba(var(--shadow-color), 0.2);
 
     /* 5. Gradients */
     --gradient-primary: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);

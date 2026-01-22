@@ -1,18 +1,17 @@
 /**
- * iOS-Style Floating Header Component
+ * iOS-Style Header Component - Native Solid Design
  * 
  * Design Philosophy:
- * - Floating appearance with translucent frosted glass effect
- * - Soft, diffused shadows (iOS-style, not Material Design)
+ * - Solid white/dark background like native iOS UINavigationBar
+ * - Hairline separator for depth
  * - Respects safe areas (notch, Dynamic Island)
  * - Optimized for iOS Safari and PWA standalone mode
  * - Smooth scroll behavior with no jitter
  * 
  * Technical Decisions:
  * - Position: fixed (best for app-shell level header in PWA)
- * - backdrop-filter with -webkit prefix for Safari compatibility
+ * - Solid backgrounds with hairline border
  * - Safe-area-inset-top for notch handling
- * - Subtle shadows with large blur radius for soft appearance
  */
 
 /* ============================================
@@ -27,16 +26,13 @@
     /* Slightly reduced for tighter native feel */
     --header-floating-padding-h: 20px;
 
-    /* iOS System Appearance */
-    --header-glass-bg-light: #FFFFFF;
-    /* Pure white to match iOS safe-areas */
-    --header-glass-bg-dark: rgba(28, 28, 30, 0.94);
-    --header-glass-blur: 20px;
-    --header-glass-saturate: 180%;
+    /* iOS System Appearance (Solid) */
+    --header-bg-light: #FFFFFF;
+    --header-bg-dark: #1C1C1E;
 
     /* Standard Nav Bar Hairline */
-    --header-shadow-color: rgba(0, 0, 0, 0.15);
-    --header-shadow-offset-y: 1px;
+    --header-shadow-color: rgba(0, 0, 0, 0.1);
+    --header-shadow-offset-y: 0.5px;
     --header-shadow-blur: 0px;
     --header-shadow-spread: 0px;
 
@@ -47,7 +43,7 @@
 }
 
 /* ============================================
-   HEADER CONTAINER - Full Width iOS Style
+   HEADER CONTAINER - Native iOS Style
    ============================================ */
 
 .header-container {
@@ -61,19 +57,16 @@
     /* Flush Right */
     z-index: 1000;
 
-    /* iOS Frosted Glass Effect */
-    background: var(--header-glass-bg-light);
-    backdrop-filter: blur(var(--header-glass-blur)) saturate(var(--header-glass-saturate));
-    -webkit-backdrop-filter: blur(var(--header-glass-blur)) saturate(var(--header-glass-saturate));
+    /* Native Solid Background */
+    background: var(--header-bg-light);
 
     /* Appearance */
     border-radius: 0;
     /* Flat */
     padding: var(--header-floating-padding-v) var(--header-floating-padding-h);
 
-    /* Hairline Separator */
+    /* Hairline Separator - Native iOS Style */
     box-shadow: 0 0.5px 0 var(--header-shadow-color);
-    /* Native-like separator */
 
     /* Safe Area Awareness */
     padding-top: calc(var(--header-floating-padding-v) + var(--safe-area-top));
@@ -93,39 +86,29 @@
 }
 
 /* Dark Mode (Girl Mode) Adaptation */
-body.girl-mode .header-container {
-    background: var(--header-glass-bg-dark);
-    box-shadow:
-        0 var(--header-shadow-offset-y) var(--header-shadow-blur) var(--header-shadow-spread) rgba(0, 0, 0, 0.3),
-        0 0 0 0.5px rgba(255, 255, 255, 0.1);
-}
+/* Dark Mode REMOVED */
 
-/* Fallback for browsers without backdrop-filter support */
-@supports not (backdrop-filter: blur(20px)) {
-    .header-container {
-        background: #FFFFFF;
-    }
 
-    body.girl-mode .header-container {
-        background: #1C1C1E;
-    }
+/* HIDE HEADER IN QUIZ MODE (Prevent Double Header / Overlap) */
+body.quiz-mode-active .header-container {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none;
 }
 
 /* ============================================
    CONTENT SPACING - Prevent Overlap
    ============================================ */
 
-/* Add top padding to screens to prevent content from going under floating header */
 /* Add top padding to screens to prevent content from going under flat header */
 .screen {
     /* Adjusted for slightly minimized header (~70px + safe area) */
     padding-top: calc(var(--header-floating-padding-v) * 2 + var(--safe-area-top) + 44px + 12px);
 }
 
-
-
 /* Quiz Screen Specific Override: Reclaim header space */
-#quiz-screen {
+#quiz-screen,
+body.quiz-mode-active .screen {
     padding-top: 0 !important;
 }
 
@@ -166,10 +149,8 @@ body.girl-mode .header-container {
     line-height: 1.1;
 }
 
-body.girl-mode .app-title,
-body.girl-mode .large-title {
-    color: #FFFFFF;
-}
+/* Girl mode text REMOVED */
+
 
 .brand-description {
     font-family: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -181,9 +162,8 @@ body.girl-mode .large-title {
     line-height: 1.4;
 }
 
-body.girl-mode .brand-description {
-    color: rgba(255, 255, 255, 0.9);
-}
+/* Girl mode description REMOVED */
+
 
 /* ============================================
    NAVIGATION TITLE AREA (Dynamic Mode)
@@ -213,9 +193,8 @@ body.girl-mode .brand-description {
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-body.girl-mode .large-title {
-    color: #FFFFFF;
-}
+/* Girl mode large title REMOVED */
+
 
 /* Inline Title (Appears on scroll) */
 .inline-title {
@@ -234,9 +213,8 @@ body.girl-mode .large-title {
     left: 0;
 }
 
-body.girl-mode .inline-title {
-    color: #FFFFFF;
-}
+/* Girl mode inline title REMOVED */
+
 
 /* Scrolled State - Large Title Morphing */
 .scrollable-header.scrolled .large-title {
@@ -333,14 +311,12 @@ body.girl-mode .inline-title {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
     .header-container {
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 0, 0, 0.2);
+        background: #FFFFFF;
+        border-bottom: 1px solid #000000;
     }
 
-    body.girl-mode .header-container {
-        background: rgba(28, 28, 30, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
+    /* Girl mode high contrast REMOVED */
+
 }
 
 /* Reduce motion for users who prefer it */

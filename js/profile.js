@@ -38,24 +38,7 @@ class Profile {
             const grid = document.createElement('div');
             grid.className = 'profile-bento-grid';
 
-            // 1. Theme Toggle Card (Wide)
-            const themeLabel = this.app.isGirlMode ? 'Switch to Azure' : 'Switch to Blush';
-            const themeSub = this.app.isGirlMode ? 'Currently in Blush theme' : 'Currently in Azure theme';
-            const themeIcon = this.app.isGirlMode
-                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`
-                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5 5 0 0 0-7.07 0l-.35.35-.35-.35a5 5 0 0 0-7.07 7.07l.35.35L12 18l6.07-6.07.35-.35a5 5 0 0 0 0-7.07z"/></svg>`;
-
-            const themeCard = this.createCard({
-                title: themeLabel,
-                subtitle: themeSub,
-                icon: themeIcon,
-                className: 'wide theme-card',
-                onClick: () => {
-                    this.app.toggleGirlMode();
-                    this.init(); // Re-render to update labels
-                    if (window.HapticsEngine) window.HapticsEngine.medium();
-                }
-            });
+            // Theme Toggle Card REMOVED (Strict Light Mode)
 
             // 2. Sponsor Placeholder (Wide) - Directly below theme
             const sponsorCard = this.createCard({
@@ -114,7 +97,7 @@ class Profile {
             });
 
             // Append all cards in the specified order
-            grid.appendChild(themeCard);
+            // grid.appendChild(themeCard); // Removed
             grid.appendChild(sponsorCard);
             grid.appendChild(installCard);
             grid.appendChild(shareCard);

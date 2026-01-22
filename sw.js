@@ -8,8 +8,8 @@
 // Update this version number with each deployment
 // This ensures all caches are invalidated together
 // ============================================================================
-const APP_VERSION = '2.3.1';  // ← Bump version for latest optimizations
-const BUILD_TIMESTAMP = '2025-12-29T14:30:00+02:00';  // ← Current timestamp
+const APP_VERSION = '3.0.0';  // ← Major version bump: Removed glassmorphism, native iOS style
+const BUILD_TIMESTAMP = '2026-01-22T09:04:00+02:00';  // ← Current timestamp
 // Generate cache names from version
 const CACHE_NAME = `harvi-shell-v${APP_VERSION}`;
 const RUNTIME_CACHE = `harvi-runtime-v${APP_VERSION}`;

@@ -1,0 +1,57 @@
+/**
+ * ANTI-GLASS MORPHISM PROTOCOL
+ * This file forcefully removes any remaining glassmorphism effects
+ * that might be lingering in cached files or 3rd party scripts.
+ */
+
+/* 1. OFF WITH THE BLUR */
+* {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 1b. FORCE NATIVE iOS BACKGROUND */
+body,
+#app {
+    background-color: #F2F2F7 !important;
+    background-image: none !important;
+}
+
+/* Dark Mode Native Background REMOVED */
+
+
+/* 2. FORCE SOLID BACKGROUNDS */
+.glass-container,
+.glass-card,
+.card,
+.modal,
+.glass-modal,
+.header-container,
+.sheet-container,
+.bottom-sheet {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 3. REMOVE NOISE/GRAIN OVERLAYS */
+.glass-grain,
+.noise-overlay,
+.mesh-gradient {
+    display: none !important;
+}
+
+/* 4. ENSURE SOLID COLORS (No transparent rgba) */
+.glass-container,
+.glass-card,
+.card {
+    background-color: #FFFFFF !important;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    .glass-container,
+    .glass-card,
+    .card {
+        background-color: #1C1C1E !important;
+    }
+}

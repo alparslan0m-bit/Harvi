@@ -94,16 +94,14 @@
 }
 
 .back-home-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.05);
     color: var(--text-primary);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .back-home-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
@@ -111,7 +109,7 @@
     .results-actions {
         flex-direction: column;
     }
-    
+
     .share-results-btn,
     .retake-quiz-btn,
     .back-home-btn {

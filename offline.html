@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,18 +22,16 @@
             padding: 20px;
         }
 
-        body.girl-mode {
-            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-        }
+        /* Girl mode body REMOVED */
+
 
         .offline-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #FFFFFF;
             border-radius: 20px;
             padding: 40px 30px;
             max-width: 500px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -41,6 +40,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -54,9 +54,12 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-20px);
             }
@@ -119,10 +122,8 @@
             box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
         }
 
-        body.girl-mode .retry-button {
-            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-        }
+        /* Girl mode button REMOVED */
+
 
         .retry-button:hover {
             transform: translateY(-2px);
@@ -144,21 +145,25 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.5;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="offline-container">
         <div class="offline-icon">📡</div>
         <h1>No Connection</h1>
         <p>You're currently offline, but don't worry!</p>
-        
+
         <div class="feature-list">
             <div class="feature-item">Previously loaded quizzes</div>
             <div class="feature-item">Your progress history</div>
@@ -177,9 +182,8 @@
 
     <script>
         // Apply saved theme on load
-        if (localStorage.getItem('girlMode') === 'true') {
-            document.body.classList.add('girl-mode');
-        }
+        // Theme check REMOVED
+
 
         // Listen for connectivity changes
         window.addEventListener('online', () => {
@@ -193,4 +197,5 @@
         });
     </script>
 </body>
+
 </html>

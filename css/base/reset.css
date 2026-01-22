@@ -5,8 +5,7 @@
     box-sizing: border-box;
 }
 
-html,
-body {
+html {
     position: fixed;
     width: 100%;
     height: 100dvh;
@@ -20,3 +19,22 @@ body {
     touch-action: none;
     /* Prevent accidental browser gestures at root */
 }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Native iOS System Background - Light Gray */
+    background-color: #F2F2F7;
+    background-image: none;
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+    /* Prevent pull-to-refresh on body */
+    overflow: hidden;
+    /* App-like behavior */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Dark Mode REMOVED */

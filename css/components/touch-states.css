@@ -231,7 +231,7 @@ button:active {
   inset: 0;
   background: radial-gradient(circle at center,
       rgba(0, 0, 0, 0.05),
-      rgba(0, 0, 0, 0.15));
+      rgba(0, 0, 0, 0.1));
   opacity: 0;
   transition: opacity var(--duration-instant) var(--motion-spring-tight);
   border-radius: inherit;
@@ -267,14 +267,14 @@ input[type="range"]::-webkit-slider-thumb {
   background-color: white;
   border: 2px solid var(--primary-color);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
   transition: transform var(--duration-instant) var(--motion-spring-tight),
     box-shadow var(--duration-instant) var(--motion-spring-tight);
 }
 
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.5);
+  box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -284,14 +284,14 @@ input[type="range"]::-moz-range-thumb {
   background-color: white;
   border: 2px solid var(--primary-color);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
   transition: transform var(--duration-instant) var(--motion-spring-tight),
     box-shadow var(--duration-instant) var(--motion-spring-tight);
 }
 
 input[type="range"]::-moz-range-thumb:active {
   transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.5);
+  box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
 }
 
 /* ===== FORM INPUT FOCUS STATES ===== */
@@ -430,16 +430,14 @@ select:focus {
   animation: label-float 300ms var(--motion-ease-out) forwards;
 }
 
-/* ===== APPLE CONTEXT MENU (Native Logic) ===== */
+/* ===== APPLE CONTEXT MENU (Native Solid Design) ===== */
 .context-menu {
   position: fixed;
   z-index: 5000;
   min-width: 250px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: #FFFFFF;
   border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -488,8 +486,8 @@ select:focus {
 
 @media (prefers-color-scheme: dark) {
   .context-menu {
-    background: rgba(28, 28, 30, 0.82);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+    background: #1C1C1E;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
   }
 
   .context-menu-item {

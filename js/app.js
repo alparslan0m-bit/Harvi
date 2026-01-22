@@ -136,7 +136,7 @@ class MCQApp {
         this.stats = new Stats(this);
         this.profile = new Profile(this);
 
-        this.initTheme();
+        // Theme initialization removed
         this.setupBrandButton();
         this.setupBottomNavigation();
         await this.checkResumableQuiz();
@@ -321,44 +321,24 @@ class MCQApp {
         }
     }
 
-    initTheme() {
-        const savedMode = localStorage.getItem('girlMode');
-        if (savedMode !== null) {
-            this.isGirlMode = savedMode === 'true';
-        }
+    /* Theme methods removed - Strictly Light Mode */
 
-        this.applyTheme();
-    }
-
-    /**
-     * Setup brand button is now handled by HeaderController
-     * This method is deprecated and left empty for backward compatibility
-     */
     setupBrandButton() {
-        // REFACTORED: Header click handlers now managed by HeaderController
-        // See js/header.js for implementation
         console.log('✓ setupBrandButton: Delegated to HeaderController');
     }
 
-    /**
-     * Setup bottom navigation bar click handlers
-     */
     setupBottomNavigation() {
         const navItems = document.querySelectorAll('.bottom-nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const screenId = item.dataset.screen;
-
                 if (screenId) {
-                    // Logic: If clicking home while a quiz/result is active, perform a clean reset
                     if (screenId === 'navigation-screen') {
                         this.resetApp();
                     } else {
                         this.showScreen(screenId);
                     }
-
-                    // Haptic feedback
                     if (window.HapticsEngine) {
                         window.HapticsEngine.selection();
                     }
@@ -367,28 +347,6 @@ class MCQApp {
         });
     }
 
-    /* Legacy setupPullToRefresh removed - handled by native scrolling or specialized engine */
-
-    toggleGirlMode() {
-        document.body.classList.add('theme-transitioning');
-        this.isGirlMode = !this.isGirlMode;
-        localStorage.setItem('girlMode', this.isGirlMode.toString());
-        this.applyTheme();
-        setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
-    }
-
-    applyTheme() {
-        if (this.isGirlMode) {
-            document.body.classList.add('girl-mode');
-        } else {
-            document.body.classList.remove('girl-mode');
-        }
-
-        // Sync browser UI theme color with app mode
-        if (window.AdaptiveThemeColor) {
-            AdaptiveThemeColor.updateTheme();
-        }
-    }
 
     /**
      * Show screen with View Transitions API support

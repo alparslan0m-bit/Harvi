@@ -1,7 +1,7 @@
 /**
  * PHASE 3: ADAPTIVE PERFORMANCE ENGINE
  * Adjusts visual effects based on device capabilities
- * Detects low-performance devices and disables blur/animations gracefully
+ * Detects low-performance devices and adjusts animations gracefully
  */
 
 class AdaptivePerformance {
@@ -15,7 +15,7 @@ class AdaptivePerformance {
     async init() {
         // Detect low-end devices
         this.detectPerformanceLevel();
-        this.adjustGlassEffect();
+        this.adjustAnimations();
         this.adjustAnimationFrameRate();
 
         // Listen for memory pressure
@@ -38,29 +38,20 @@ class AdaptivePerformance {
         this.isLowPerformance = (ram < 536870912) || (cores <= 2);
 
         if (this.isLowPerformance) {
-            console.log('🔋 Low-performance device detected. Disabling heavy effects.');
+            console.log('🔋 Low-performance device detected. Reducing animation complexity.');
             document.body.classList.add('low-performance-mode');
         }
     }
 
     /**
-     * PHASE 3: Adaptive blur effect
-     * Disable backdrop-filter blur on low-end devices
+     * Adjust animations for low-end devices
+     * No blur effects exist - just reduce animation complexity
      */
-    adjustGlassEffect() {
+    adjustAnimations() {
         if (this.isLowPerformance) {
             const style = document.createElement('style');
             style.textContent = `
-                /* Disable blur on low-end devices */
-                .glass-card,
-                [style*="backdrop-filter"],
-                .scrollable-header.scrolled {
-                    backdrop-filter: none !important;
-                    -webkit-backdrop-filter: none !important;
-                    background-color: rgba(255, 255, 255, 0.95) !important;
-                }
-                
-                /* Reduce animation complexity */
+                /* Reduce animation complexity on low-end devices */
                 * {
                     animation-duration: 0.15s !important;
                     transition-duration: 0.1s !important;

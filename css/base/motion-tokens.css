@@ -5,54 +5,54 @@
   /* ===== APPLE EASING CURVES ===== */
   /* iOS 17 default easing - smooth, predictable */
   --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
-  
+
   /* Standard iOS easing for most interactions */
   --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Springy, organic feeling bounce */
   --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  
+
   /* Tighter spring for subtle bounces */
   --motion-spring-tight: cubic-bezier(0.22, 1, 0.36, 1);
-  
+
   /* Quick, snappy interaction response */
   --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
-  
+
   /* Smooth deceleration (typical iOS swipe end) */
   --motion-ease-swift: cubic-bezier(0.15, 0.85, 0.55, 0.95);
-  
+
   /* Rubber band overscroll effect */
   --motion-rubber-band: cubic-bezier(0.45, 1.2, 0.55, 1);
-  
+
   /* Emphasis easing for important actions */
   --motion-emphasis: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* ===== DURATION SCALE (ms) ===== */
   /* Micro-interactions (visibility feedback) */
   --duration-instant: 100ms;
-  
+
   /* Fast, snappy responses */
   --duration-fast: 200ms;
-  
+
   /* Standard transition timing */
   --duration-normal: 350ms;
-  
+
   /* Slower, more noticeable transitions */
   --duration-slow: 500ms;
-  
+
   /* Very slow, deliberate animations (celebrations) */
   --duration-slower: 700ms;
-  
+
   /* Extended animations (loading, complex sequences) */
   --duration-extended: 1000ms;
 
   /* ===== STAGGER TIMING ===== */
   /* Base stagger increment for list animations */
   --stagger-base: 30ms;
-  
+
   /* Stagger for immediate visual feedback */
   --stagger-quick: 15ms;
-  
+
   /* Stagger for slower cascading effects */
   --stagger-slow: 60ms;
 
@@ -60,11 +60,11 @@
   /* Standard spring for most animations */
   --spring-damping: 0.75;
   --spring-stiffness: 300;
-  
+
   /* Snappy spring for quick feedback */
   --spring-damping-tight: 0.8;
   --spring-stiffness-tight: 400;
-  
+
   /* Loose spring for playful animations */
   --spring-damping-loose: 0.6;
   --spring-stiffness-loose: 200;
@@ -79,8 +79,8 @@
 
 /* ===== BASE TRANSITION SETTINGS ===== */
 * {
-  --transition-property: background-color, border-color, color, box-shadow, 
-                         transform, opacity;
+  --transition-property: background-color, border-color, color, box-shadow,
+    transform, opacity;
   --transition-timing: var(--motion-ease-in-out);
   --transition-duration: var(--duration-normal);
 }
@@ -107,6 +107,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -118,6 +119,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -129,6 +131,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -153,6 +156,7 @@
     opacity: 0;
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -164,6 +168,7 @@
     opacity: 1;
     transform: translateX(0);
   }
+
   to {
     opacity: 0;
     transform: translateX(-30%);
@@ -175,6 +180,7 @@
     opacity: 1;
     transform: translateX(0);
   }
+
   to {
     opacity: 0;
     transform: translateX(100%);
@@ -199,6 +205,7 @@
     opacity: 0;
     transform: translateY(100%) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -210,6 +217,7 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   to {
     opacity: 0;
     transform: translateY(100%) scale(0.95);
@@ -219,11 +227,10 @@
 @keyframes modal-scrim-enter {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
   }
+
   to {
     opacity: 1;
-    backdrop-filter: blur(10px);
   }
 }
 
@@ -241,12 +248,31 @@
 
 /* ===== RUBBER BAND EFFECT ===== */
 @keyframes rubber-band {
-  0%, 100% { transform: scaleX(1); }
-  15% { transform: scaleX(0.75) scaleY(1.25); }
-  30% { transform: scaleX(1.25) scaleY(0.75); }
-  45% { transform: scaleX(0.9) scaleY(1.1); }
-  60% { transform: scaleX(1.05) scaleY(0.95); }
-  75% { transform: scaleX(0.95) scaleY(1.05); }
+
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+
+  15% {
+    transform: scaleX(0.75) scaleY(1.25);
+  }
+
+  30% {
+    transform: scaleX(1.25) scaleY(0.75);
+  }
+
+  45% {
+    transform: scaleX(0.9) scaleY(1.1);
+  }
+
+  60% {
+    transform: scaleX(1.05) scaleY(0.95);
+  }
+
+  75% {
+    transform: scaleX(0.95) scaleY(1.05);
+  }
 }
 
 .animate-rubber-band {
@@ -259,6 +285,7 @@
     opacity: 0;
     transform: scale(0);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -270,6 +297,7 @@
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.8);
@@ -288,8 +316,9 @@
 @keyframes particle-burst {
   0% {
     opacity: 1;
-    transform: translate(var(--tx), var(--ty))) scale(1);
+    transform: translate(var(--tx), var(--ty)) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translate(calc(var(--tx) * 2), calc(var(--ty) * 2)) scale(0);
@@ -306,6 +335,7 @@
   from {
     stroke-dashoffset: 100;
   }
+
   to {
     stroke-dashoffset: 0;
   }
@@ -315,6 +345,7 @@
   from {
     stroke-dashoffset: 166;
   }
+
   to {
     stroke-dashoffset: 0;
   }
@@ -335,15 +366,41 @@
   animation-fill-mode: both;
 }
 
-.stagger-item:nth-child(1) { animation-delay: calc(0 * var(--stagger-base)); }
-.stagger-item:nth-child(2) { animation-delay: calc(1 * var(--stagger-base)); }
-.stagger-item:nth-child(3) { animation-delay: calc(2 * var(--stagger-base)); }
-.stagger-item:nth-child(4) { animation-delay: calc(3 * var(--stagger-base)); }
-.stagger-item:nth-child(5) { animation-delay: calc(4 * var(--stagger-base)); }
-.stagger-item:nth-child(6) { animation-delay: calc(5 * var(--stagger-base)); }
-.stagger-item:nth-child(7) { animation-delay: calc(6 * var(--stagger-base)); }
-.stagger-item:nth-child(8) { animation-delay: calc(7 * var(--stagger-base)); }
-.stagger-item:nth-child(n+9) { animation-delay: calc(8 * var(--stagger-base)); }
+.stagger-item:nth-child(1) {
+  animation-delay: calc(0 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(2) {
+  animation-delay: calc(1 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(3) {
+  animation-delay: calc(2 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(4) {
+  animation-delay: calc(3 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(5) {
+  animation-delay: calc(4 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(6) {
+  animation-delay: calc(5 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(7) {
+  animation-delay: calc(6 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(8) {
+  animation-delay: calc(7 * var(--stagger-base));
+}
+
+.stagger-item:nth-child(n+9) {
+  animation-delay: calc(8 * var(--stagger-base));
+}
 
 /* ===== SMOOTH OPACITY TRANSITIONS ===== */
 .transition-opacity {
@@ -364,7 +421,7 @@
     --duration-slower: 0ms;
     --duration-extended: 0ms;
   }
-  
+
   * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;

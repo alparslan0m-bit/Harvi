@@ -31,6 +31,15 @@
     z-index: 10;
 }
 
+/* Fix for "Old Container Behind" issue: 
+   When quiz is active, the .screen itself shouldn't have default app padding 
+   because the .quiz-container now handles all safe-area margins internally. 
+   This removes the "ghost" padding that was pushing content or creating gaps.
+*/
+body.quiz-mode-active .screen {
+    padding: 0 !important;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -17,20 +17,22 @@
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230EA5E9' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>H</text></svg>">
     <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png">
     <title>Harvi - Medical MCQ Learning Platform</title>
-    <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/utils/mobile.css">
-    <link rel="stylesheet" href="./css/components/glassmorphism.css">
-    <link rel="stylesheet" href="./css/components/view-transitions.css">
-    <link rel="stylesheet" href="./css/components/showcase-glass-2.0.css">
-    <link rel="stylesheet" href="./css/components/bottom-nav.css">
-    <link rel="stylesheet" href="./css/components/pwa-features.css">
-    <link rel="stylesheet" href="./css/components/apple-material-system.css">
-    <link rel="stylesheet" href="./css/components/stats.css">
-    <link rel="stylesheet" href="./css/components/profile.css">
-    <link rel="stylesheet" href="./css/components/home-hub.css">
-    <link rel="stylesheet" href="./css/components/native-navigation.css">
-    <link rel="stylesheet" href="./css/components/modals.css">
-    <link rel="stylesheet" href="./css/components/dynamic-island.css">
+    <link rel="stylesheet" href="./css/main.css?v=3.2">
+    <link rel="stylesheet" href="./css/utils/mobile.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/ios-design.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/view-transitions.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/showcase-glass-2.0.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/bottom-nav.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/pwa-features.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/apple-material-system.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/stats.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/profile.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/home-hub.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/native-navigation.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/modals.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/dynamic-island.css?v=3.2">
+    <link rel="stylesheet" href="./css/components/anti-glass.css?v=3.2">
+
     <!-- Preload fonts with font-display: swap for better performance - DISABLED to reduce external requests -->
     <!--
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" as="style">
@@ -38,22 +40,42 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     -->
-    <script src="./js/adaptive-performance.js"></script>
-    <script src="./js/haptics-engine.js"></script>
-    <script src="./js/animations.js"></script>
-    <script src="./js/showcase-features.js"></script>
-    <script src="./js/dynamic-island.js"></script>
-    <script src="./js/pwa-features.js"></script>
-    <script src="./js/motion-coordinator.js"></script>
-    <script src="./js/native-touch-engine.js"></script>
-    <script src="./js/db.js"></script>
+    <script src="./js/adaptive-performance.js?v=3.0"></script>
+    <script src="./js/haptics-engine.js?v=3.0"></script>
+    <script src="./js/animations.js?v=3.0"></script>
+    <script src="./js/showcase-features.js?v=3.0"></script>
+    <script src="./js/dynamic-island.js?v=3.0"></script>
+    <script src="./js/pwa-features.js?v=3.0"></script>
+    <script src="./js/motion-coordinator.js?v=3.0"></script>
+    <script src="./js/native-touch-engine.js?v=3.0"></script>
+    <script src="./js/db.js?v=3.0"></script>
+
+    <!-- FORCE CACHE CLEAR SCRIPT -->
+    <script>
+        // Unregister all service workers to kill the cache immediately
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    console.log('Unregistering SW to clear cache:', registration);
+                    registration.unregister();
+                }
+            });
+
+            // Clear all caches
+            if ('caches' in window) {
+                caches.keys().then(function (names) {
+                    for (let name of names) {
+                        console.log('Deleting cache:', name);
+                        caches.delete(name);
+                    }
+                });
+            }
+        }
+    </script>
 </head>
 
 <body class="">
-    <!-- Animated Mesh Background -->
-    <div class="mesh-background">
-        <div class="mesh-gradient"></div>
-    </div>
+    <!-- Mesh Background REMOVED for Native iOS Look -->
 
     <div id="app" class="ios-touch-optimized">
         <!-- ============================================
@@ -170,125 +192,31 @@
         <div class="loading-spinner"></div>
     </div>
 
-    <script src="js/header.js"></script>
-    <script src="js/navigation.js"></script>
-    <script src="js/quiz.js"></script>
-    <script src="js/results.js"></script>
-    <script src="js/stats.js"></script>
-    <script src="js/profile.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/header.js?v=3.0"></script>
+    <script src="js/navigation.js?v=3.0"></script>
+    <script src="js/quiz.js?v=3.0"></script>
+    <script src="js/results.js?v=3.0"></script>
+    <script src="js/stats.js?v=3.0"></script>
+    <script src="js/profile.js?v=3.0"></script>
+    <script src="js/app.js?v=3.0"></script>
 
     <!-- PWA: Service Worker Registration -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+        // Only register if we're not constantly reloading
+        // Delay registration to let the cleaner script work first
+        setTimeout(() => {
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js', {
                     scope: './',
-                    updateViaCache: 'none'  // ← ADD: Always check for updates
-                })
-                    .then(registration => {
-                        console.log('✓ Service Worker registered:', registration);
-                        // CRITICAL FIX: Check for updates IMMEDIATELY on load
-                        console.log('🔄 Checking for service worker updates...');
-                        registration.update().catch(err => {
-                            console.warn('Update check failed:', err);
-                        });
-                        // NEW: Use Page Visibility API instead of setInterval
-                        // This works reliably even when page is backgrounded
-                        let visibilityChangeHandler = () => {
-                            if (!document.hidden) {
-                                console.log('📱 App became visible - checking for updates');
-                                registration.update().catch(err => {
-                                    console.warn('Update check failed:', err);
-                                });
-                            }
-                        };
-
-                        document.addEventListener('visibilitychange', visibilityChangeHandler);
-
-                        // REMOVED: Focus handler to reduce update checks
-                        // window.addEventListener('focus', focusHandler);
-
-                        // NEW: Periodic check using requestIdleCallback for better performance
-                        // Falls back to setTimeout if requestIdleCallback not supported
-                        let lastUpdateCheck = Date.now();
-                        const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours (increased from 1 hour)
-
-                        function scheduleUpdateCheck() {
-                            const scheduleCallback = window.requestIdleCallback || window.setTimeout;
-                            const timeoutDuration = window.requestIdleCallback ? undefined : UPDATE_CHECK_INTERVAL;
-
-                            scheduleCallback(() => {
-                                const now = Date.now();
-                                if (now - lastUpdateCheck >= UPDATE_CHECK_INTERVAL) {
-                                    console.log('⏰ Periodic update check');
-                                    registration.update().catch(err => {
-                                        console.warn('Periodic update check failed:', err);
-                                    });
-                                    lastUpdateCheck = now;
-                                }
-
-                                // Schedule next check
-                                scheduleUpdateCheck();
-                            }, timeoutDuration);
-                        }
-
-                        scheduleUpdateCheck();
-
-                        // Handle service worker updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-
-                            if (!newWorker) {
-                                console.warn('Update found but no installing worker');
-                                return;
-                            }
-
-                            console.log('📦 New service worker installing...');
-
-                            newWorker.addEventListener('statechange', () => {
-                                console.log('Service worker state:', newWorker.state);
-
-                                if (newWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                        // New service worker installed, but old one still active
-                                        console.log('🆕 New version available!');
-
-                                        // Dispatch custom event for app to handle
-                                        document.dispatchEvent(new CustomEvent('sw-update-available', {
-                                            detail: {
-                                                registration: registration,
-                                                newWorker: newWorker
-                                            }
-                                        }));
-                                    } else {
-                                        // First install
-                                        console.log('✓ Service worker installed for first time');
-                                    }
-                                }
-
-                                if (newWorker.state === 'activated') {
-                                    console.log('✓ New service worker activated');
-                                }
-                            });
-                        });
-
-                        // NEW: Handle controller change (update activated)
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            console.log('🔄 New service worker activated - reloading app');
-                            // Only reload if we're not in the middle of something important
-                            if (!document.querySelector('.quiz-screen.active')) {
-                                window.location.reload();
-                            } else {
-                                console.log('Quiz in progress - deferring reload');
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.log('✗ Service Worker registration failed:', error);
-                    });
-            });
-        }
+                    updateViaCache: 'none'
+                }).then(registration => {
+                    console.log('SW Registered');
+                    registration.update();
+                }).catch(err => {
+                    console.log('SW Registration failed', err);
+                });
+            }
+        }, 5000);
     </script>
 
     <!-- Bottom Navigation (Refined Apple HIG Standard) -->

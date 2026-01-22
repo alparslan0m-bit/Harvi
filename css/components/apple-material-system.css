@@ -1,7 +1,7 @@
 /**
  * APPLE MATERIAL DESIGN SYSTEM
- * Premium native-feeling PWA aesthetic
- * Based on iOS 18+ Material Design Language
+ * Native iOS Style - Solid backgrounds, no glassmorphism
+ * Based on iOS 18+ Design Language
  */
 
 /* ============================================
@@ -9,12 +9,7 @@
    ============================================ */
 
 :root {
-  /* === Material Blur Layers (Fixed Syntax) === */
-  --ios-material-thin-filter: blur(10px) saturate(180%) brightness(1.15);
-  --ios-material-regular-filter: blur(20px) saturate(180%) brightness(1.2);
-  --ios-material-thick-filter: blur(30px) saturate(180%) brightness(1.25);
-
-  /* === System Background Colors === */
+  /* === System Background Colors (Fully Opaque) === */
   --system-background: #FFFFFF;
   --secondary-system-background: #F2F2F7;
   --tertiary-system-background: #FFFFFF;
@@ -25,13 +20,14 @@
   --system-fill: rgba(120, 120, 128, 0.1);
   --secondary-system-fill: rgba(120, 120, 128, 0.08);
   --tertiary-system-fill: rgba(120, 120, 128, 0.06);
+  --quaternary-system-fill: rgba(120, 120, 128, 0.04);
 
   /* === Semantic Separators === */
-  --separator: rgba(60, 60, 67, 0.29);
+  --separator: rgba(60, 60, 67, 0.15);
   --opaque-separator: #C6C6C6;
 
   /* === Label Colors === */
-  --label-primary: rgba(0, 0, 0, 1);
+  --label-primary: #000000;
   --label-secondary: rgba(60, 60, 67, 0.6);
   --label-tertiary: rgba(60, 60, 67, 0.3);
   --label-quaternary: rgba(60, 60, 67, 0.18);
@@ -53,8 +49,8 @@
   --system-gray: #8E8E93;
 
   /* === Feedback Backgrounds (Light) === */
-  --system-green-light: rgba(52, 199, 89, 0.18);
-  --system-red-light: rgba(255, 59, 48, 0.18);
+  --system-green-light: rgba(52, 199, 89, 0.15);
+  --system-red-light: rgba(255, 59, 48, 0.15);
 
   /* === Typography Tracking === */
   --tracking-tight: -0.022em;
@@ -63,27 +59,8 @@
 }
 
 /* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --system-background: #000000;
-    --secondary-system-background: #1C1C1E;
-    --tertiary-system-background: #2C2C2E;
+/* Dark mode overrides REMOVED */
 
-    --system-group-background: #1C1C1E;
-    --secondary-system-group-background: #2C2C2E;
-
-    --label-primary: rgba(255, 255, 255, 1);
-    --label-secondary: rgba(235, 235, 240, 0.6);
-    --label-tertiary: rgba(235, 235, 240, 0.3);
-    --label-quaternary: rgba(235, 235, 240, 0.18);
-
-    --separator: rgba(84, 84, 88, 0.65);
-
-    /* === Feedback Backgrounds (Dark) === */
-    --system-green-light: rgba(48, 209, 88, 0.25);
-    --system-red-light: rgba(255, 69, 58, 0.25);
-  }
-}
 
 /* ============================================
    TYPOGRAPHY: SF PRO SYSTEM & DYNAMIC TYPE
@@ -116,8 +93,6 @@ body {
 /* iOS Squircle Approximation (24px radius with subtle smoothing) */
 .ios-squircle {
   border-radius: 24px;
-  -webkit-mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
-  mask-image: radial-gradient(circle at 0% 0%, transparent 0%, black 100%);
 }
 
 /* Card-style squircles */
@@ -140,43 +115,31 @@ body {
 }
 
 /* ============================================
-   MATERIAL LAYERS & VIBRANCY
+   NATIVE SOLID MATERIAL LAYERS
    ============================================ */
 
 .material-thin {
-  backdrop-filter: var(--ios-material-thin-filter);
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--secondary-system-background);
 }
 
 .material-regular {
-  backdrop-filter: var(--ios-material-regular-filter);
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--system-background);
+  border: 1px solid var(--separator);
 }
 
 .material-thick {
-  backdrop-filter: var(--ios-material-thick-filter);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--system-background);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  .material-thin {
-    background: rgba(0, 0, 0, 0.15);
-  }
+/* Dark mode materials REMOVED */
 
-  .material-regular {
-    background: rgba(0, 0, 0, 0.25);
-  }
-
-  .material-thick {
-    background: rgba(0, 0, 0, 0.35);
-  }
-}
 
 /* ============================================
    SEMANTIC COMPONENT PATTERNS
    ============================================ */
 
-/* Base Inset Grouped List - Fallback */
+/* Base Inset Grouped List - Native iOS */
 .list-inset-grouped {
   background: var(--system-group-background);
   border-radius: 12px;
@@ -184,21 +147,19 @@ body {
   margin: 1rem;
 }
 
-/* Inset Grouped List - Premium Glass 2.0 Version */
+/* Inset Grouped List - Native Style */
 .grouped-list {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--secondary-system-group-background);
+  border: 1px solid var(--separator);
   border-radius: 20px;
   overflow: hidden;
   margin: 1rem 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 body.girl-mode .grouped-list {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--secondary-system-group-background);
+  border-color: var(--separator);
 }
 
 .list-item {
@@ -209,7 +170,7 @@ body.girl-mode .grouped-list {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   background: transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--separator);
 }
 
 .list-item:active {
@@ -219,8 +180,6 @@ body.girl-mode .grouped-list {
 .list-item:last-child {
   border-bottom: none;
 }
-
-/* Handled by touch-states.css and list-item definition */
 
 /* Segmented Control */
 .segmented-control {
@@ -246,27 +205,27 @@ body.girl-mode .grouped-list {
 .segmented-control-item.active {
   background: var(--system-background);
   color: var(--label-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* ============================================
-   DEPTH & ELEVATION SHADOWS
+   DEPTH & ELEVATION SHADOWS (Native iOS)
    ============================================ */
 
 .shadow-elevation-1 {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .shadow-elevation-2 {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .shadow-elevation-3 {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .shadow-elevation-4 {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* ============================================
@@ -276,8 +235,6 @@ body.girl-mode .grouped-list {
 .interactive-element {
   transition: all 0.2s cubic-bezier(0.3, 0, 0.2, 1);
 }
-
-/* Handled by universal .pressable in touch-states.css */
 
 /* ============================================
    FOCUS STATES (ACCESSIBILITY)
@@ -316,272 +273,140 @@ input:focus-visible {
 }
 
 /* ============================================
-   VIBRANCY EFFECTS (COLOR LAYERING)
-   ============================================ */
-
-.vibrancy-light {
-  mix-blend-mode: screen;
-  opacity: 0.8;
-}
-
-.vibrancy-dark {
-  mix-blend-mode: multiply;
-  opacity: 0.8;
-}
-
-.vibrancy-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  opacity: 0.05;
-}
-
-/* ============================================
-   ENHANCED: SEMANTIC SHADOW SYSTEM (Phase 3)
+   ENHANCED: SEMANTIC SHADOW SYSTEM
    ============================================ */
 
 /* Card-level shadows - subtle depth */
 .shadow-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* Sheet shadows - bottom sheets, modals */
 .shadow-sheet {
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08),
-    0 -16px 64px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06),
+    0 -8px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* Floating element shadows - buttons, floating actions */
 .shadow-floating {
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* Elevated/Popup shadows */
 .shadow-elevated {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* Subtle divider shadow */
 .shadow-divider {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.08);
 }
 
 /* ===== COLOR-TINTED SHADOWS (Primary Color Accent) ===== */
 /* Card with primary accent shadow */
 .shadow-card-primary {
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.12),
-    0 8px 32px rgba(14, 165, 233, 0.08);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1),
+    0 4px 16px rgba(14, 165, 233, 0.08);
 }
 
 /* Sheet with primary accent */
 .shadow-sheet-primary {
-  box-shadow: 0 -4px 24px rgba(14, 165, 233, 0.1),
-    0 -16px 64px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 -2px 8px rgba(14, 165, 233, 0.08),
+    0 -8px 24px rgba(14, 165, 233, 0.1);
 }
 
 /* Floating with primary accent */
 .shadow-floating-primary {
-  box-shadow: 0 12px 48px rgba(14, 165, 233, 0.2),
-    0 4px 12px rgba(14, 165, 233, 0.12);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.15),
+    0 2px 6px rgba(14, 165, 233, 0.1);
 }
 
 /* ===== SUCCESS COLOR SHADOWS ===== */
 .shadow-card-success {
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.12),
-    0 8px 32px rgba(16, 185, 129, 0.08);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1),
+    0 4px 16px rgba(16, 185, 129, 0.08);
 }
 
 .shadow-floating-success {
-  box-shadow: 0 12px 48px rgba(16, 185, 129, 0.2),
-    0 4px 12px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15),
+    0 2px 6px rgba(16, 185, 129, 0.1);
 }
 
 /* ===== ERROR COLOR SHADOWS ===== */
 .shadow-card-error {
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.12),
-    0 8px 32px rgba(239, 68, 68, 0.08);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1),
+    0 4px 16px rgba(239, 68, 68, 0.08);
 }
 
 .shadow-floating-error {
-  box-shadow: 0 12px 48px rgba(239, 68, 68, 0.2),
-    0 4px 12px rgba(239, 68, 68, 0.12);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15),
+    0 2px 6px rgba(239, 68, 68, 0.1);
 }
 
 /* ============================================
-   ENHANCED: VIBRANCY OVERLAYS (Phase 3)
+   NATIVE NAVIGATION BAR (Solid Style)
    ============================================ */
 
-/* Light vibrancy - for light backgrounds */
-.vibrancy-light {
-  position: relative;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: saturate(180%) brightness(1.1);
+.nav-bar-native {
+  background: var(--system-background);
+  border-bottom: 0.5px solid var(--separator);
 }
 
-.vibrancy-light::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.2) 0%,
-      transparent 100%);
-  pointer-events: none;
+/* Dark mode nav bar REMOVED */
+
+
+/* Bottom sheet native */
+.bottom-sheet-native {
+  background: var(--system-background);
+  border-top: 0.5px solid var(--separator);
 }
 
-/* Dark vibrancy - for dark backgrounds */
-.vibrancy-dark {
-  position: relative;
-  background: rgba(30, 30, 30, 0.6);
-  backdrop-filter: saturate(180%) brightness(0.95);
-}
+/* Dark mode bottom sheet REMOVED */
 
-.vibrancy-dark::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 100%);
-  pointer-events: none;
-}
-
-/* Primary color vibrancy */
-.vibrancy-primary {
-  position: relative;
-  background: rgba(14, 165, 233, 0.15);
-  backdrop-filter: saturate(150%) brightness(1.05);
-}
-
-.vibrancy-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.3) 0%,
-      transparent 100%);
-  pointer-events: none;
-}
-
-/* Navigation bar vibrancy overlay */
-.nav-bar-vibrancy {
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  background: rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-  .nav-bar-vibrancy {
-    background: rgba(30, 30, 30, 0.6);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-}
-
-/* Bottom sheet vibrancy */
-.bottom-sheet-vibrancy {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(255, 255, 255, 0.85);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-  .bottom-sheet-vibrancy {
-    background: rgba(44, 44, 46, 0.8);
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-}
 
 /* ============================================
-   ENHANCED: LAYERED GLASS MATERIALS (Phase 3)
+   NATIVE SOLID MATERIALS
    ============================================ */
 
-/* Ultra-thin glass - most subtle */
+/* Ultra-thin material - light background */
 .material-ultraThin {
-  backdrop-filter: blur(10px) saturate(180%) brightness(1.02);
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.72),
-      rgba(255, 255, 255, 0.65));
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--secondary-system-background);
+  border: 1px solid var(--separator);
 }
 
-/* Thin glass - subtle background */
+/* Thin material */
 .material-thin-enhanced {
-  backdrop-filter: blur(10px) saturate(180%) brightness(1.05);
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.7),
-      rgba(255, 255, 255, 0.6));
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--system-background);
+  border: 1px solid var(--separator);
 }
 
-/* Regular glass - standard use */
+/* Regular material */
 .material-regular-enhanced {
-  backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.6),
-      rgba(255, 255, 255, 0.45));
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--system-background);
+  border: 1px solid var(--separator);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Chrome glass - metallic feel */
+/* Chrome material - premium feel */
 .material-chrome {
-  backdrop-filter: blur(30px) saturate(200%) brightness(1.15);
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.4) 0%,
-      rgba(255, 255, 255, 0.2) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--system-background);
+  border: 1px solid var(--separator);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Thick glass - high blur, opaque */
+/* Thick material */
 .material-thick-enhanced {
-  backdrop-filter: blur(30px) saturate(180%) brightness(1.15);
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.5),
-      rgba(255, 255, 255, 0.35));
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: var(--system-background);
+  border: 1px solid var(--separator);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark glass materials */
-@media (prefers-color-scheme: dark) {
-  .material-ultraThin {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.05));
-    border-color: rgba(255, 255, 255, 0.08);
-  }
+/* Dark mode materials */
+/* Dark mode enhanced materials REMOVED */
 
-  .material-thin-enhanced {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12),
-        rgba(255, 255, 255, 0.08));
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .material-regular-enhanced {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.15),
-        rgba(255, 255, 255, 0.1));
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .material-chrome {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.05) 100%);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
-  .material-thick-enhanced {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.18),
-        rgba(255, 255, 255, 0.12));
-    border-color: rgba(255, 255, 255, 0.18);
-  }
-}
 
 /* ============================================
    OLED OPTIMIZATION (Mobile)
@@ -591,17 +416,18 @@ input:focus-visible {
 
   .material-thin,
   .material-thin-enhanced {
-    background: rgba(0, 0, 0, 0.2);
+    background: #000000;
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .material-regular,
   .material-regular-enhanced {
-    background: rgba(0, 0, 0, 0.25);
+    background: #1C1C1E;
   }
 
   .material-thick,
   .material-thick-enhanced {
-    background: rgba(0, 0, 0, 0.3);
+    background: #2C2C2E;
   }
 }
 

@@ -9,7 +9,7 @@
 
 .btn-primary:hover {
   box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3),
-              0 0 24px rgba(14, 165, 233, 0.2);
+    0 0 24px rgba(14, 165, 233, 0.2);
 }
 
 .btn-primary::before {
@@ -17,8 +17,8 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center,
-                              rgba(255, 255, 255, 0.3),
-                              transparent 70%);
+      rgba(255, 255, 255, 0.3),
+      transparent 70%);
   opacity: 0;
   transition: opacity 200ms ease-in-out;
   pointer-events: none;
@@ -28,11 +28,8 @@
   opacity: 1;
 }
 
-/* Girl mode variant */
-body.girl-mode .btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3),
-              0 0 24px rgba(236, 72, 153, 0.2);
-}
+/* Girl mode variant REMOVED */
+
 
 /* ===== QUICK WIN 2: PROGRESS BAR GLOW ===== */
 .progress-bar,
@@ -46,17 +43,25 @@ progress::after {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg,
-                              transparent,
-                              rgba(255, 255, 255, 0.3),
-                              transparent);
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   animation: progress-shimmer 2s infinite;
   pointer-events: none;
 }
 
 @keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Glow effect around progress */
@@ -64,9 +69,8 @@ progress {
   box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
 }
 
-body.girl-mode progress {
-  box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
-}
+/* Girl mode progress REMOVED */
+
 
 /* ===== QUICK WIN 3: FLOATING LABEL ANIMATION ===== */
 .floating-label-input {
@@ -85,8 +89,8 @@ body.girl-mode progress {
   transform-origin: left center;
 }
 
-.floating-label-input input:focus ~ .floating-label,
-.floating-label-input input:not(:placeholder-shown) ~ .floating-label {
+.floating-label-input input:focus~.floating-label,
+.floating-label-input input:not(:placeholder-shown)~.floating-label {
   top: -8px;
   left: 0;
   font-size: 12px;
@@ -115,9 +119,9 @@ body.girl-mode progress {
   bottom: -1px;
   height: 1px;
   background: linear-gradient(90deg,
-                              transparent,
-                              var(--border-color),
-                              transparent);
+      transparent,
+      var(--border-color),
+      transparent);
   opacity: 0;
   transition: opacity 150ms ease;
 }
@@ -217,16 +221,11 @@ select:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1),
-              0 0 12px rgba(14, 165, 233, 0.15);
+    0 0 12px rgba(14, 165, 233, 0.15);
 }
 
-body.girl-mode input:focus,
-body.girl-mode textarea:focus,
-body.girl-mode select:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1),
-              0 0 12px rgba(236, 72, 153, 0.15);
-}
+/* Girl mode input focus REMOVED */
+
 
 /* ===== QUICK WIN 9: ENHANCED LIST ITEM HOVER ===== */
 .list-item {
@@ -284,9 +283,12 @@ body.girl-mode select:focus {
 }
 
 @keyframes badge-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
+
   50% {
     box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
   }
@@ -328,11 +330,8 @@ a:focus-visible {
   color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  * {
-    color-scheme: dark;
-  }
-}
+/* Dark mode color scheme REMOVED */
+
 
 /* ===== PERFORMANCE: GPU ACCELERATION ===== */
 .card,
@@ -346,6 +345,7 @@ button,
 
 /* ===== ACCESSIBILITY ===== */
 @media (prefers-reduced-motion: reduce) {
+
   .btn,
   button,
   .list-item {
@@ -363,7 +363,11 @@ button,
   }
 
   @keyframes progress-shimmer {
-    0%, 100% { transform: none; }
+
+    0%,
+    100% {
+      transform: none;
+    }
   }
 }
 

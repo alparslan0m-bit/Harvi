@@ -1,12 +1,11 @@
-/* Utility Classes */
+/* Utility Classes - Native iOS Style */
 .loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -14,6 +13,12 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+    .loading-overlay {
+        background: rgba(28, 28, 30, 0.95);
+    }
 }
 
 .loading-overlay.active {
@@ -28,6 +33,12 @@
     border-top: 3px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 #confetti-canvas {

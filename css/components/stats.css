@@ -1,6 +1,6 @@
 /**
- * Masterpiece Stats Dashboard
- * Premium analytical visualization.
+ * Stats Dashboard - Native iOS Design
+ * Premium analytical visualization with solid backgrounds
  */
 
 #stats-content {
@@ -40,15 +40,11 @@
 }
 
 .bento-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    background: #FFFFFF;
     border-radius: 28px;
     padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.03),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     position: relative;
     overflow: hidden;
 }
@@ -148,7 +144,7 @@
     background: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
     color: white;
     border: none;
-    box-shadow: 0 12px 25px rgba(14, 165, 233, 0.25);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
 }
 
 .streak-widget .card-header,
@@ -222,12 +218,11 @@
 }
 
 .ios-list-group {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(30px);
+    background: #FFFFFF;
     border-radius: 24px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 @media (min-width: 1024px) {
@@ -241,14 +236,14 @@
     }
 
     .ios-list-item {
-        background: rgba(255, 255, 255, 0.8);
+        background: #FFFFFF;
         margin: 8px;
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     body.dark-mode .ios-list-item {
-        background: rgba(28, 28, 30, 0.8);
+        background: #1C1C1E;
         border-color: rgba(255, 255, 255, 0.08);
     }
 
@@ -266,7 +261,7 @@
 }
 
 .ios-list-item:active {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .ios-list-item:not(:last-child)::after {
@@ -291,7 +286,7 @@
     color: white;
     margin-right: 16px;
     flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .item-icon-box.color-0 {
@@ -363,42 +358,12 @@ body.dark-mode .item-chevron {
     color: #FF3B30;
 }
 
-/* ==================== DARK MODE ==================== */
-body.dark-mode .bento-card,
-body.dark-mode .ios-list-group {
-    background: rgba(28, 28, 30, 0.8);
-    border-color: rgba(255, 255, 255, 0.08);
-}
+/* Dark Mode REMOVED */
 
-body.dark-mode .metric-value,
-body.dark-mode .ring-percent,
-body.dark-mode .list-section-title,
-body.dark-mode .item-title,
-body.dark-mode .ring-center-text {
-    color: white;
-}
-
-body.dark-mode .bar-bg,
-body.dark-mode .ring-bg {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-body.dark-mode .ios-list-item:not(:last-child)::after {
-    background: rgba(255, 255, 255, 0.08);
-}
 
 /* Girl Mode Variants */
-body.girl-mode .streak-widget {
-    background: linear-gradient(135deg, #FF2D55 0%, #FF375F 100%);
-}
+/* Girl Mode REMOVED */
 
-body.girl-mode .bar-fill {
-    background: #FF2D55;
-}
-
-body.girl-mode .bar-column.today .bar-label {
-    color: #FF2D55;
-}
 
 /* ==================== EMPTY & ERROR STATES ==================== */
 .stats-empty,
@@ -409,18 +374,14 @@ body.girl-mode .bar-column.today .bar-label {
     justify-content: center;
     padding: 60px 20px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(20px);
+    background: #FFFFFF;
     border-radius: 32px;
     border: 1px dashed rgba(0, 0, 0, 0.1);
     margin: 20px 0;
 }
 
-body.dark-mode .stats-empty,
-body.dark-mode .stats-error {
-    background: rgba(28, 28, 30, 0.4);
-    border-color: rgba(255, 255, 255, 0.1);
-}
+/* Dark Mode Error REMOVED */
+
 
 .stats-empty-icon,
 .stats-error-icon {
@@ -467,7 +428,4 @@ body.dark-mode .stats-error {
     line-height: 1.4;
 }
 
-body.dark-mode .stats-empty h3,
-body.dark-mode .stats-error h3 {
-    color: white;
-}
+/* Dark Mode Header REMOVED */
