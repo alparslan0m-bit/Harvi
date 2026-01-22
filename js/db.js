@@ -184,7 +184,7 @@ class HarviDatabase {
             return new Promise((resolve, reject) => {
                 const request = store.put(lecture);
                 request.onsuccess = () => {
-                    console.log(`✓ Lecture ${lecture.id} cached for offline`);
+                    // console.log(`✓ Lecture ${lecture.id} cached for offline`);
                     resolve(lecture);
                 };
                 request.onerror = () => reject(request.error);

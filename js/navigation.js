@@ -225,6 +225,8 @@ class Navigation {
     renderYears(container, years, animate = true, fromCache = false) {
         container.innerHTML = '';
 
+        // PWA Strategy: Indicator removed per user request for cleaner UI
+        /*
         if (fromCache) {
             const ind = document.createElement('div');
             ind.className = 'cache-indicator';
@@ -232,6 +234,7 @@ class Navigation {
             ind.setAttribute('aria-hidden', 'true');
             container.appendChild(ind);
         }
+        */
 
         const bentoGrid = document.createElement('div');
         bentoGrid.className = 'bento-grid';
@@ -486,10 +489,12 @@ class Navigation {
         let indicatorEl = null;
 
         const showCacheIndicator = (kind) => {
-            if (!indicatorEl) return;
+            // PWA Strategy: Indicator removed per user request for cleaner UI
+            /*
             indicatorEl.classList.remove('cache-indicator--hidden');
             indicatorEl.classList.toggle('cache-indicator--offline', kind === 'offline');
             indicatorEl.textContent = kind === 'offline' ? 'Offline • Showing cached' : 'Cached';
+            */
         };
 
         const applyResultsToCards = (results, loadingCardsMap) => {
@@ -580,7 +585,7 @@ class Navigation {
                 const results = persistAndBuildResults(lectures, true);
                 applyResultsToCards(results, loadingCards);
                 if (indicatorEl) indicatorEl.classList.add('cache-indicator--hidden');
-            }).catch(() => {});
+            }).catch(() => { });
         };
 
         runReadThrough().then(({ allFoundAndFresh, cached }) => {
