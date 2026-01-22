@@ -16,6 +16,18 @@ class Navigation {
     }
 
     /**
+     * Get a smart icon based on text content
+     * Delegates to the centralized Medical Engine
+     */
+    getSmartIcon(text, defaultIcon = 'stethoscope') {
+        if (window.medicalEngine) {
+            return window.medicalEngine.getSmartIcon(text, defaultIcon);
+        }
+        return `<i data-lucide="${defaultIcon}"></i>`;
+    }
+
+
+    /**
      * Update header with large title and inline title for morphing effect
      * REFACTORED: Now delegates to HeaderController
      */
@@ -177,10 +189,11 @@ class Navigation {
             // Cycle through premium variants
             const variants = ['azure', 'emerald', 'amber', 'amethyst'];
             const variant = variants[index % variants.length];
-            card.className = `bento-year-card variant-${variant}`;
+            card.className = `bento-year-card variant-${variant} year-card`;
 
             // Map icons based on year if standard
-            const icon = year.icon || (index === 0 ? '🩺' : index === 1 ? '🧬' : '🧠');
+            const iconName = year.icon || (index === 0 ? 'stethoscope' : index === 1 ? 'dna' : 'brain');
+            const icon = `<i data-lucide="${iconName}"></i>`;
 
             card.innerHTML = `
                 <div>
@@ -199,6 +212,11 @@ class Navigation {
         if (window.motionCoordinator) {
             const items = bentoGrid.querySelectorAll('.bento-year-card');
             window.motionCoordinator.staggerElements(items, 'animate-entrance-slide-up');
+        }
+
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            window.lucide.createIcons();
         }
     }
 
@@ -297,16 +315,17 @@ class Navigation {
 
             year.modules.forEach((module, index) => {
                 const card = document.createElement('div');
-                card.className = 'bento-year-card'; // Reuse bento style
 
-                const icon = '📚';
-                const subjectsCount = module.subjects?.length || 0;
+                // Cycle through premium variants
+                const variants = ['azure', 'emerald', 'amber', 'amethyst'];
+                const variant = variants[index % variants.length];
+                card.className = `bento-year-card variant-${variant} module-card`;
 
+                const icon = this.getSmartIcon(module.name, 'book-open');
                 card.innerHTML = `
                     <div>
                         <div class="year-icon-box">${icon}</div>
                         <h3 class="year-name">${module.name}</h3>
-                        <span class="year-stats">${subjectsCount} Subjects</span>
                     </div>
                 `;
 
@@ -354,16 +373,13 @@ class Navigation {
                 // Use same premium variants as years
                 const variants = ['azure', 'emerald', 'amber', 'amethyst'];
                 const variant = variants[index % variants.length];
-                card.className = `bento-year-card variant-${variant}`;
+                card.className = `bento-year-card variant-${variant} subject-card`;
 
-                const icon = '📝';
-                const lectureCount = subject.lectures ? subject.lectures.length : 0;
-
+                const icon = this.getSmartIcon(subject.name, 'pen-tool');
                 card.innerHTML = `
                     <div>
                         <div class="year-icon-box">${icon}</div>
                         <h3 class="year-name">${subject.name}</h3>
-                        <span class="year-stats">${lectureCount} Lectures</span>
                     </div>
                 `;
 
@@ -666,6 +682,11 @@ class Navigation {
             const activeScreen = document.querySelector('.screen.active');
             if (activeScreen) {
                 activeScreen.scrollTo({ top: 0, behavior: 'instant' });
+            }
+
+            // 🟢 Global Icon Rendering: Ensure Lucide icons are processed after DOM update
+            if (window.lucide) {
+                window.lucide.createIcons();
             }
         };
 
