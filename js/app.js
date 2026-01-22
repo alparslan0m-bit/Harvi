@@ -217,19 +217,27 @@ class MCQApp {
             }
 
             this.syncPendingData();
-            // PWA Strategy Phase 3: debounced background revalidation for years
+            // PWA Optimization: Only refresh years if cache is actually stale
+            // The Navigation class now checks cache validity before making requests
             if (this.navigation && typeof this.navigation.scheduleRefreshYears === 'function') {
                 this.navigation.scheduleRefreshYears();
             }
         });
 
-        // PWA Strategy Phase 3: revalidate years on tab focus (debounced)
+        // PWA OPTIMIZATION: REMOVED aggressive tab-focus revalidation
+        // This was causing /api/years to be fetched on EVERY tab switch!
+        // The Navigation class now handles cache validity internally.
+        // Background refresh only happens when cache is actually stale (>1 hour old).
+        // 
+        // If you need to restore this behavior in the future, uncomment below:
+        /*
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState !== 'visible') return;
             if (this.navigation && typeof this.navigation.scheduleRefreshYears === 'function') {
                 this.navigation.scheduleRefreshYears();
             }
         });
+        */
 
         window.addEventListener('offline', () => {
             document.body.classList.add('offline-mode');

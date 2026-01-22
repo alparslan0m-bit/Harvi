@@ -1,6 +1,11 @@
 /**
  * Service Worker - Harvi PWA
  * Implements App Shell caching strategy, offline support, and background sync
+ * 
+ * v3.3.0: Added SW-level Request Budget Enforcement
+ * - Rate limiting for API endpoints
+ * - Stale-while-revalidate with enforced cooldowns
+ * - Request deduplication at SW level
  */
 
 // ============================================================================
@@ -8,8 +13,88 @@
 // Update this version number with each deployment
 // This ensures all caches are invalidated together
 // ============================================================================
-const APP_VERSION = '3.1.0';  // ← PWA Caching Strategy Phase 1: GET-only cache, no POST/admin, prefetch fix
-const BUILD_TIMESTAMP = '2026-01-22T12:00:00+02:00';
+const APP_VERSION = '3.3.0';  // ← PWA Request Minimization Phase 2: SW-level rate limiting
+const BUILD_TIMESTAMP = '2026-01-22T15:41:00+02:00';
+
+// ============================================================================
+// SW-LEVEL REQUEST BUDGET ENFORCEMENT
+// Block excessive requests before they reach the network
+// ============================================================================
+const SW_BUDGET = {
+  // Cooldowns (milliseconds)
+  COOLDOWNS: {
+    '/api/years': 60 * 60 * 1000,        // 1 hour
+    '/api/lectures/batch': 5 * 60 * 1000  // 5 minutes
+  },
+
+  // Last request timestamps per endpoint pattern
+  lastRequestTime: new Map(),
+
+  // In-flight requests for deduplication
+  inFlightRequests: new Map(),
+
+  // Session statistics
+  stats: {
+    blocked: 0,
+    deduplicated: 0,
+    allowed: 0
+  }
+};
+
+/**
+ * Check if a request should be rate-limited
+ * @param {string} pathname - URL pathname
+ * @returns {boolean} - true if request should proceed, false if blocked
+ */
+function shouldAllowRequest(pathname) {
+  for (const [pattern, cooldown] of Object.entries(SW_BUDGET.COOLDOWNS)) {
+    if (pathname.includes(pattern)) {
+      const lastTime = SW_BUDGET.lastRequestTime.get(pattern);
+      if (lastTime && (Date.now() - lastTime) < cooldown) {
+        SW_BUDGET.stats.blocked++;
+        console.log(`[SW Budget] ⏱️ Blocked: ${pattern} (${Math.round((cooldown - (Date.now() - lastTime)) / 1000)}s cooldown)`);
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * Record a request as made (update cooldown timer)
+ * @param {string} pathname - URL pathname
+ */
+function recordRequest(pathname) {
+  for (const pattern of Object.keys(SW_BUDGET.COOLDOWNS)) {
+    if (pathname.includes(pattern)) {
+      SW_BUDGET.lastRequestTime.set(pattern, Date.now());
+      SW_BUDGET.stats.allowed++;
+      console.log(`[SW Budget] ✅ Allowed: ${pattern}`);
+      break;
+    }
+  }
+}
+
+/**
+ * Deduplicate in-flight requests
+ * @param {string} url - Request URL
+ * @param {Function} fetchFn - Function to execute the fetch
+ * @returns {Promise<Response>}
+ */
+function deduplicateFetch(url, fetchFn) {
+  if (SW_BUDGET.inFlightRequests.has(url)) {
+    SW_BUDGET.stats.deduplicated++;
+    console.log(`[SW Budget] 🔄 Deduplicated: ${url}`);
+    return SW_BUDGET.inFlightRequests.get(url);
+  }
+
+  const promise = fetchFn().finally(() => {
+    setTimeout(() => SW_BUDGET.inFlightRequests.delete(url), 100);
+  });
+
+  SW_BUDGET.inFlightRequests.set(url, promise);
+  return promise;
+}
 // Generate cache names from version
 const CACHE_NAME = `harvi-shell-v${APP_VERSION}`;
 const RUNTIME_CACHE = `harvi-runtime-v${APP_VERSION}`;
@@ -70,6 +155,8 @@ const ASSETS_TO_CACHE = [
   BASE_PATH + '/js/dynamic-island.js',
   BASE_PATH + '/js/haptics-engine.js',
   BASE_PATH + '/js/db.js',
+  BASE_PATH + '/js/cache-utils.js',
+  BASE_PATH + '/js/request-guard.js',  // PWA Request Minimization
   BASE_PATH + '/offline.html'
 ];
 
@@ -241,20 +328,43 @@ self.addEventListener('fetch', (event) => {
       return; // pass through to network
     }
 
-    // Stale-While-Revalidate for /api/years (GET only)
+    // =========================================================================
+    // SW-LEVEL RATE LIMITING for /api/years
+    // Check cooldown BEFORE network request - serve from cache if within cooldown
+    // =========================================================================
     if (url.pathname === '/api/years') {
       event.respondWith(
         caches.match(request).then(cached => {
+          // Check if we should rate-limit this request
+          if (!shouldAllowRequest(url.pathname)) {
+            // Within cooldown - return cached response without network request
+            if (cached) {
+              console.log('[SW Budget] 🔒 Rate-limited /api/years - serving cache');
+              return cached;
+            }
+            // No cache? Return a 429 to let client know
+            return new Response(
+              JSON.stringify({ error: 'Rate limited', useCache: true }),
+              { status: 429, headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Not rate-limited - use Stale-While-Revalidate
           if (cached) {
-            fetch(request).then(res => {
-              if (res.ok) {
-                caches.open(API_CACHE).then(c => c.put(request, res));
+            // Return cached immediately, revalidate in background
+            deduplicateFetch(request.url, () => fetch(request)).then(res => {
+              if (res && res.ok) {
+                recordRequest(url.pathname);
+                caches.open(API_CACHE).then(c => c.put(request, res.clone()));
               }
-            });
+            }).catch(() => { });
             return cached;
           }
-          return fetch(request).then(response => {
+
+          // No cache - must fetch
+          return deduplicateFetch(request.url, () => fetch(request)).then(response => {
             if (response.ok) {
+              recordRequest(url.pathname);
               const clone = response.clone();
               caches.open(API_CACHE).then(cache => cache.put(request, clone));
             }
@@ -265,7 +375,51 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // Network-first for other GET /api/* (e.g. /api/lectures/batch); cache on success, fallback when offline
+    // =========================================================================
+    // SW-LEVEL RATE LIMITING for /api/lectures/batch
+    // Same pattern: check cooldown, serve from cache if rate-limited
+    // =========================================================================
+    if (url.pathname.includes('/api/lectures/batch')) {
+      event.respondWith(
+        caches.match(request).then(cached => {
+          // Check if we should rate-limit this request  
+          if (!shouldAllowRequest(url.pathname)) {
+            if (cached) {
+              console.log('[SW Budget] 🔒 Rate-limited /api/lectures/batch - serving cache');
+              return cached;
+            }
+            return new Response(
+              JSON.stringify({ error: 'Rate limited', useCache: true }),
+              { status: 429, headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Not rate-limited - Network-first with cache fallback
+          return deduplicateFetch(request.url, () => fetch(request))
+            .then((response) => {
+              if (response.ok) {
+                recordRequest(url.pathname);
+                const clone = response.clone();
+                caches.open(API_CACHE).then(cache => cache.put(request, clone));
+              }
+              return response;
+            })
+            .catch(() => {
+              if (cached) {
+                console.log('[SW] Serving lectures batch from cache');
+                return cached;
+              }
+              return new Response(
+                JSON.stringify({ error: 'Offline' }),
+                { status: 503, headers: { 'Content-Type': 'application/json' } }
+              );
+            });
+        })
+      );
+      return;
+    }
+
+    // Network-first for other GET /api/* endpoints (no rate limiting)
     event.respondWith(
       fetch(request)
         .then((response) => {

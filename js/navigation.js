@@ -2,6 +2,10 @@
  * Navigation Manager
  * Manages hierarchical navigation and card-based UI rendering
  * Features: Smart caching, smooth transitions, optimized rendering
+ * 
+ * v3.3.0: Added Intelligent Prefetch on Idle
+ * - Prefetches likely next subjects during browser idle time
+ * - Reduces perceived latency for navigation
  */
 class Navigation {
     constructor(app) {
@@ -9,10 +13,16 @@ class Navigation {
         this.currentPath = [];
         this.remoteYears = null;
         this.cacheTimestamp = null;
-        this.cacheTimeout = 5 * 60 * 1000; // 5 minutes cache validity
+        this.cacheTimeout = 60 * 60 * 1000; // 1 HOUR cache validity (was 5 min - PWA Optimization)
         this.abortController = null; // For request cancellation
         this.currentHeaderTitle = ''; // Track current header title
         this.transitionDirection = 'forward'; // 'forward' (push) or 'back' (pop)
+        this.yearsIDBKey = 'harvi_years_cache'; // IndexedDB key for years persistence
+        this._yearsLoadedFromIDB = false; // Track if we've loaded from IDB this session
+
+        // Prefetch on Idle configuration
+        this._prefetchedSubjects = new Set(); // Track what we've already prefetched
+        this._idlePrefetchScheduled = false;   // Prevent duplicate idle callbacks
     }
 
     /**
@@ -63,6 +73,10 @@ class Navigation {
             this.abortController = null;
         }
 
+        // Clear prefetch state
+        this._prefetchedSubjects.clear();
+        this._idlePrefetchScheduled = false;
+
         console.log('✓ Navigation cleanup complete');
     }
 
@@ -80,6 +94,11 @@ class Navigation {
         this.currentPath = [];
 
         this.updateHeader('Years');
+
+        // PWA Optimization: Try to load from IndexedDB if we haven't this session
+        if (!this.remoteYears && !this._yearsLoadedFromIDB) {
+            await this.loadYearsFromIDB();
+        }
 
         const container = document.getElementById('cards-container');
         if (!container) return;
@@ -127,37 +146,102 @@ class Navigation {
             return hubContainer;
         });
 
-        // 3. Background Fetch Refresh
-        if (!this.isCacheValid() || !this.remoteYears) {
-            try {
-                this.abortController = new AbortController();
-                const res = await SafeFetch.fetch('./api/years', {
-                    signal: this.abortController.signal,
-                    timeout: 10000,
-                    retries: 2
-                });
+        // 3. Background Fetch Refresh (PWA Optimized)
+        // Only fetch from network if cache is invalid AND we don't have data
+        if (!this.isCacheValid() && !this.remoteYears) {
+            await this.fetchYearsFromNetwork(container);
+        } else if (!this.isCacheValid() && this.remoteYears) {
+            // Have stale data - show it, refresh in background
+            this.fetchYearsFromNetwork(container); // Don't await - background
+        }
+        // If cache is valid and we have data, do nothing - pure cache hit!
+    }
 
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const years = await res.json();
+    /**
+     * Load years from IndexedDB (session startup)
+     * Called once per session to hydrate cache
+     */
+    async loadYearsFromIDB() {
+        this._yearsLoadedFromIDB = true;
+        try {
+            if (!harviDB) return;
+            const cachedYears = await harviDB.getSetting(this.yearsIDBKey);
+            if (cachedYears && cachedYears.data && Array.isArray(cachedYears.data)) {
+                this.remoteYears = cachedYears.data;
+                this.cacheTimestamp = cachedYears.timestamp || 0;
+                console.log(`[Navigation] 📦 Loaded ${this.remoteYears.length} years from IndexedDB (cached ${Math.round((Date.now() - this.cacheTimestamp) / 60000)}min ago)`);
+            }
+        } catch (e) {
+            console.warn('[Navigation] Failed to load years from IDB:', e);
+        }
+    }
 
-                years.sort((a, b) => {
-                    const aNum = parseInt((a.external_id || '').replace(/\D/g, '')) || 0;
-                    const bNum = parseInt((b.external_id || '').replace(/\D/g, '')) || 0;
-                    if (aNum !== bNum) return aNum - bNum;
-                    return (a.external_id || '').localeCompare(b.external_id || '', undefined, { numeric: true });
-                });
+    /**
+     * Save years to IndexedDB for cross-session persistence
+     */
+    async saveYearsToIDB(years) {
+        try {
+            if (!harviDB) return;
+            await harviDB.setSetting(this.yearsIDBKey, {
+                data: years,
+                timestamp: Date.now()
+            });
+            console.log(`[Navigation] 💾 Saved ${years.length} years to IndexedDB`);
+        } catch (e) {
+            console.warn('[Navigation] Failed to save years to IDB:', e);
+        }
+    }
 
-                if (years && Array.isArray(years)) {
-                    this.remoteYears = years;
-                    this.cacheTimestamp = Date.now();
-                    const targetContentArea = document.getElementById('hub-content-area');
-                    if (targetContentArea) {
-                        this.renderYears(targetContentArea, years, true);
-                    }
+    /**
+     * Fetch years from network (with RequestGuard protection)
+     */
+    async fetchYearsFromNetwork(container) {
+        try {
+            // Use RequestGuard if available (enforces cooldowns)
+            const fetchFn = window.RequestGuard
+                ? (url, opts) => window.RequestGuard.fetch(url, opts, { source: 'showYears' })
+                : SafeFetch.fetch;
+
+            this.abortController = new AbortController();
+            const res = await fetchFn('./api/years', {
+                signal: this.abortController.signal,
+                timeout: 10000,
+                retries: 2
+            });
+
+            // Check if request was blocked by cooldown
+            if (res.status === 429) {
+                console.log('[Navigation] ⏱️ Years request blocked by cooldown - using cache');
+                return; // Use existing cache
+            }
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const years = await res.json();
+
+            years.sort((a, b) => {
+                const aNum = parseInt((a.external_id || '').replace(/\D/g, '')) || 0;
+                const bNum = parseInt((b.external_id || '').replace(/\D/g, '')) || 0;
+                if (aNum !== bNum) return aNum - bNum;
+                return (a.external_id || '').localeCompare(b.external_id || '', undefined, { numeric: true });
+            });
+
+            if (years && Array.isArray(years)) {
+                this.remoteYears = years;
+                this.cacheTimestamp = Date.now();
+
+                // Persist to IndexedDB for cross-session caching
+                this.saveYearsToIDB(years);
+
+                const targetContentArea = document.getElementById('hub-content-area');
+                if (targetContentArea) {
+                    this.renderYears(targetContentArea, years, true);
                 }
-            } catch (e) {
-                if (e.name !== 'AbortError') {
-                    console.error('Failed to load years:', e);
+            }
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                console.error('Failed to load years:', e);
+                // Only show error if we have no cached data
+                if (!this.remoteYears && container) {
                     this.showErrorState(container, 'Failed to load years.');
                 }
             }
@@ -186,12 +270,31 @@ class Navigation {
     /**
      * PWA Strategy: Fetch /api/years, update cache, refresh years view if visible.
      * Non-blocking; no abort. Call on visibilitychange (visible) and online.
+     * 
+     * OPTIMIZED: Only refresh if cache is stale (>1 hour old)
      */
     async refreshYearsInBackground() {
+        // Skip if offline
         if (!navigator.onLine) return;
+
+        // PWA Optimization: Skip if cache is still valid
+        if (this.isCacheValid()) {
+            console.log('[Navigation] 🔄 Background refresh skipped - cache still valid');
+            return;
+        }
+
+        // Use RequestGuard to enforce cooldowns
         try {
-            const res = await SafeFetch.fetch('./api/years', { timeout: 10000, retries: 1 });
+            const fetchFn = window.RequestGuard
+                ? (url, opts) => window.RequestGuard.fetch(url, opts, { source: 'backgroundRefresh' })
+                : SafeFetch.fetch;
+
+            const res = await fetchFn('./api/years', { timeout: 10000, retries: 1 });
+
+            // Blocked by cooldown - that's fine, we'll try later
+            if (res.status === 429) return;
             if (!res.ok) return;
+
             const years = await res.json();
             if (!years || !Array.isArray(years)) return;
 
@@ -204,6 +307,9 @@ class Navigation {
 
             this.remoteYears = years;
             this.cacheTimestamp = Date.now();
+
+            // Persist to IndexedDB
+            this.saveYearsToIDB(years);
 
             const onYearsView = this.currentPath.length === 0;
             const hub = document.getElementById('hub-content-area');
@@ -445,6 +551,9 @@ class Navigation {
 
             return listWrapper;
         });
+
+        // PWA Optimization: Schedule prefetch of likely next subjects during idle time
+        this.schedulePrefetchOnIdle();
     }
 
     /**
@@ -564,19 +673,25 @@ class Navigation {
         };
 
         const doBackgroundRevalidate = () => {
+            // PWA Optimization: Use RequestGuard to enforce cooldowns
+            const fetchFn = window.RequestGuard
+                ? (u, o) => window.RequestGuard.fetch(u, o, { source: 'lectureRevalidate' })
+                : SafeFetch.fetch;
+
             const url = `/api/lectures/batch?ids=${lectureIds.join(',')}`;
             const req = url.length > 2000
-                ? SafeFetch.fetch('/api/lectures/batch', {
+                ? fetchFn('/api/lectures/batch', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lectureIds }),
                     timeout: 15000,
                     retries: 1
                 })
-                : SafeFetch.fetch(url, { cache: 'default', timeout: 15000, retries: 1 });
+                : fetchFn(url, { cache: 'default', timeout: 15000, retries: 1 });
 
             req.then(res => {
-                if (!res.ok) return;
+                // If blocked by cooldown (429), that's fine
+                if (res.status === 429 || !res.ok) return;
                 return res.json();
             }).then(lectures => {
                 if (!lectures || abortController.signal.aborted) return;
@@ -602,14 +717,21 @@ class Navigation {
                 });
                 applyResultsToCards(results, loadingCards);
                 showCacheIndicator('cached');
-                doBackgroundRevalidate();
+                // PWA Optimization: SKIP background revalidation when cache is fresh
+                // This reduces unnecessary network requests significantly
+                console.log('[Navigation] 🟢 Lectures served from fresh cache - no network request needed');
                 this.abortController = null;
                 return;
             }
 
+            // PWA Optimization: Use RequestGuard for network fetch
+            const fetchFn = window.RequestGuard
+                ? (u, o) => window.RequestGuard.fetch(u, o, { source: 'lectureLoad' })
+                : SafeFetch.fetch;
+
             const url = `/api/lectures/batch?ids=${lectureIds.join(',')}`;
             const batchFetchPromise = url.length > 2000
-                ? SafeFetch.fetch('/api/lectures/batch', {
+                ? fetchFn('/api/lectures/batch', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lectureIds }),
@@ -618,7 +740,7 @@ class Navigation {
                     timeout: 15000,
                     retries: 2
                 })
-                : SafeFetch.fetch(url, { signal: abortController.signal, cache: 'default', timeout: 15000, retries: 2 });
+                : fetchFn(url, { signal: abortController.signal, cache: 'default', timeout: 15000, retries: 2 });
 
             batchFetchPromise
                 .then(res => {
@@ -857,6 +979,119 @@ class Navigation {
         // Delegate to HeaderController
         if (window.HeaderController) {
             window.HeaderController.setupScrollListener();
+        }
+    }
+
+    // =========================================================================
+    // PREFETCH ON IDLE - Intelligent prefetching for faster navigation
+    // =========================================================================
+
+    /**
+     * Schedule prefetch of likely next subjects during browser idle time
+     * Called after navigating to a module to prefetch first few subjects
+     */
+    schedulePrefetchOnIdle() {
+        // Only run if browser supports requestIdleCallback
+        if (!window.requestIdleCallback || this._idlePrefetchScheduled) {
+            return;
+        }
+
+        // Only prefetch if we're in a module (have subjects to prefetch)
+        if (this.currentPath.length < 2) {
+            return;
+        }
+
+        this._idlePrefetchScheduled = true;
+
+        requestIdleCallback((deadline) => {
+            this._idlePrefetchScheduled = false;
+            this.prefetchLikelyNextSubjects(deadline);
+        }, { timeout: 5000 }); // Max 5 seconds delay
+    }
+
+    /**
+     * Prefetch lectures for the first few subjects in current module
+     * @param {IdleDeadline} deadline - Browser idle deadline
+     */
+    async prefetchLikelyNextSubjects(deadline) {
+        const module = this.currentPath[1];
+        const year = this.currentPath[0];
+
+        if (!module || !module.subjects || !navigator.onLine) {
+            return;
+        }
+
+        console.log('[Prefetch] 🚀 Starting idle prefetch...');
+
+        // Prefetch only first 2-3 subjects (most likely to be clicked)
+        const subjectsToPrefetch = module.subjects.slice(0, 3);
+        let prefetchedCount = 0;
+
+        for (const subject of subjectsToPrefetch) {
+            // Check if we have time remaining in idle period
+            if (deadline.timeRemaining() < 50) {
+                console.log('[Prefetch] ⏱️ Idle time exhausted, stopping');
+                break;
+            }
+
+            // Skip if already prefetched
+            if (this._prefetchedSubjects.has(subject.id)) {
+                continue;
+            }
+
+            // Skip if no lectures
+            if (!subject.lectures || subject.lectures.length === 0) {
+                continue;
+            }
+
+            // Check if user navigated away
+            if (this.currentPath.length < 2 || this.currentPath[1]?.id !== module.id) {
+                console.log('[Prefetch] 🛑 User navigated away, stopping');
+                break;
+            }
+
+            try {
+                await this.prefetchSubjectLectures(subject, year, module);
+                this._prefetchedSubjects.add(subject.id);
+                prefetchedCount++;
+            } catch (e) {
+                console.warn('[Prefetch] Failed to prefetch subject:', subject.name, e);
+            }
+        }
+
+        if (prefetchedCount > 0) {
+            console.log(`[Prefetch] ✅ Prefetched ${prefetchedCount} subjects`);
+        }
+    }
+
+    /**
+     * Prefetch all lectures for a subject (save to IndexedDB)
+     * @param {Object} subject - Subject to prefetch
+     */
+    async prefetchSubjectLectures(subject) {
+        if (!harviDB || !subject.lectures) return;
+
+        const lectureIds = subject.lectures.map(l => l.id);
+
+        // Check if all already cached in IDB
+        const cached = await harviDB.getLecturesByIds(lectureIds);
+        if (cached.size === lectureIds.length) {
+            console.log(`[Prefetch] ⏭️ ${subject.name} already in cache`);
+            return;
+        }
+
+        // Fetch missing lectures via batch endpoint
+        const missingIds = lectureIds.filter(id => !cached.has(id));
+        if (missingIds.length === 0) return;
+
+        console.log(`[Prefetch] 📦 Prefetching ${missingIds.length} lectures for ${subject.name}`);
+
+        // Use service worker for prefetch (it will handle caching)
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'PREFETCH_QUIZZES',
+                lectureIds: missingIds
+            });
         }
     }
 }
