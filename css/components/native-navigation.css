@@ -218,13 +218,13 @@
 
 .back-nav-container {
     width: 100%;
-    height: 48px;
-    /* Fixed height to reserve space and maintain card alignment */
+    height: 30px;
+    /* Minimized height while maintaining tap target */
     display: flex;
     align-items: center;
     position: relative;
     z-index: 10;
-    margin-bottom: 8px;
+    margin-bottom: 2px;
     visibility: hidden;
     /* Invisible by default but takes up space */
     pointer-events: none;
