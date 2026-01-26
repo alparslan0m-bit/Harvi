@@ -217,23 +217,32 @@
    ============================================ */
 
 .back-nav-container {
-    padding: 12px 0 4px 0;
-    margin-bottom: 4px;
-    display: none;
+    width: 100%;
+    height: 48px;
+    /* Fixed height to reserve space and maintain card alignment */
+    display: flex;
     align-items: center;
     position: relative;
     z-index: 10;
+    margin-bottom: 8px;
+    visibility: hidden;
+    /* Invisible by default but takes up space */
+    pointer-events: none;
 }
 
 .back-nav-container.visible {
-    display: flex;
-    animation: fadeInArrow 0.2s ease-out forwards;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.back-nav-container.visible .back-btn-minimal {
+    animation: fadeInArrow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes fadeInArrow {
     from {
         opacity: 0;
-        transform: translateX(-4px);
+        transform: translateX(-10px);
     }
 
     to {
