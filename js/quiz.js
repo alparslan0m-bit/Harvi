@@ -109,7 +109,11 @@ class Quiz {
 
     handleExit() {
         if (confirm('Are you sure you want to exit the quiz?')) {
-            this.app.resetApp();
+            if (this.app && typeof this.app.goBack === 'function') {
+                this.app.goBack();
+            } else {
+                this.app.resetApp();
+            }
         }
     }
 

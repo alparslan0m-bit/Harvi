@@ -94,6 +94,7 @@ class Navigation {
         this.currentPath = [];
 
         this.updateHeader('Years');
+        this.updateBackNavigation();
 
         // PWA Optimization: Try to load from IndexedDB if we haven't this session
         if (!this.remoteYears && !this._yearsLoadedFromIDB) {
@@ -451,6 +452,7 @@ class Navigation {
         this.currentPath = [year];
 
         this.updateHeader(year.name);
+        this.updateBackNavigation();
 
         const container = document.getElementById('cards-container');
         if (!container) return;
@@ -504,6 +506,7 @@ class Navigation {
         this.currentPath = [year, module];
 
         this.updateHeader(module.name);
+        this.updateBackNavigation();
 
         const container = document.getElementById('cards-container');
         if (!container) return;
@@ -565,6 +568,7 @@ class Navigation {
         this.currentPath = [year, module, subject];
 
         this.updateHeader(subject.name);
+        this.updateBackNavigation();
 
         const container = document.getElementById('cards-container');
 
@@ -980,6 +984,44 @@ class Navigation {
         if (window.HeaderController) {
             window.HeaderController.setupScrollListener();
         }
+    }
+
+    /**
+     * Update back navigation visibility
+     * Renders a simple, elegant arrow without text
+     */
+    updateBackNavigation() {
+        const container = document.getElementById('back-nav-container');
+        if (!container) return;
+
+        // Hide at root level
+        if (this.currentPath.length === 0) {
+            container.classList.remove('visible');
+            return;
+        }
+
+        container.innerHTML = `
+            <button class="back-btn-minimal" id="nav-back-button" aria-label="Go back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18L9 12L15 6" />
+                </svg>
+            </button>
+        `;
+
+        const backBtn = container.querySelector('#nav-back-button');
+        if (backBtn) {
+            backBtn.onclick = (e) => {
+                e.preventDefault();
+                if (window.HapticsEngine) window.HapticsEngine.selection();
+
+                this.transitionDirection = 'back';
+                if (this.app && typeof this.app.goBack === 'function') {
+                    this.app.goBack();
+                }
+            };
+        }
+
+        container.classList.add('visible');
     }
 
     // =========================================================================

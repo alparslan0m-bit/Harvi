@@ -46,7 +46,11 @@ class Results {
         });
 
         document.getElementById('back-to-home').addEventListener('click', () => {
-            this.app.resetApp();
+            if (this.app && typeof this.app.goBack === 'function') {
+                this.app.goBack();
+            } else {
+                this.app.resetApp();
+            }
         });
 
         // Share button event listener (if exists)

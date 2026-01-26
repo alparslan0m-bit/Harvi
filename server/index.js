@@ -110,6 +110,39 @@ const authMiddleware = async (req, res, next) => {
 };
 
 // ============================================================================
+// MIDDLEWARE: Optional Authentication (Does not reject if token is missing)
+// ============================================================================
+const optionalAuthMiddleware = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        req.user = null; // No user
+        return next();
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // If token is obviously invalid (empty), skip lookup
+    if (!token) {
+        req.user = null;
+        return next();
+    }
+
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) {
+            // Token invalid, but we are in optional mode, so just proceed as anonymous
+            req.user = null;
+        } else {
+            req.user = user;
+        }
+    } catch (err) {
+        req.user = null;
+    }
+    next();
+};
+
+// ============================================================================
 // HELPER: Resolve ID (UUID or external_id for backward compatibility)
 // ============================================================================
 async function resolveId(table, idValue) {
@@ -513,42 +546,10 @@ app.post('/api/quiz-results', optionalAuthMiddleware, async (req, res) => {
     }
 });
 
+
 // ============================================================================
 // ENDPOINT 4a: Practice Mode - Check Single Answer
 // ============================================================================
-// ============================================================================
-// MIDDLEWARE: Optional Authentication (Does not reject if token is missing)
-// ============================================================================
-const optionalAuthMiddleware = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        req.user = null; // No user
-        return next();
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-
-    // If token is obviously invalid (empty), skip lookup
-    if (!token) {
-        req.user = null;
-        return next();
-    }
-
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-        if (error || !user) {
-            // Token invalid, but we are in optional mode, so just proceed as anonymous
-            req.user = null;
-        } else {
-            req.user = user;
-        }
-    } catch (err) {
-        req.user = null;
-    }
-    next();
-};
-
 app.post('/api/practice/check-answer', optionalAuthMiddleware, async (req, res) => {
     try {
         const { questionId, selectedAnswerIndex, lectureId } = req.body;

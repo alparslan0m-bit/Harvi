@@ -539,6 +539,9 @@ class MCQApp {
     goBack() {
         // 1. Check if we can go back within the Home/Navigation hierarchy
         if (this.navigation && this.navigation.currentPath.length > 0) {
+            // Ensure we are viewing the navigation screen (e.g. if coming back from quiz)
+            this.showScreen('navigation-screen');
+
             // Get parent path index
             const parentIndex = this.navigation.currentPath.length - 2;
 

@@ -212,4 +212,58 @@
     }
 }
 
+/* ============================================
+   MINIMAL BACK NAVIGATION
+   ============================================ */
+
+.back-nav-container {
+    padding: 12px 0 4px 0;
+    margin-bottom: 4px;
+    display: none;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.back-nav-container.visible {
+    display: flex;
+    animation: fadeInArrow 0.2s ease-out forwards;
+}
+
+@keyframes fadeInArrow {
+    from {
+        opacity: 0;
+        transform: translateX(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.back-btn-minimal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    margin: -8px;
+    color: var(--text-secondary, #636366);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.back-btn-minimal:active {
+    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 0.7;
+}
+
+.back-btn-minimal svg {
+    display: block;
+}
+
 /* DARK MODE SUPPORT: Native Title Colors (Handled in header.css for morphing consistency) */
